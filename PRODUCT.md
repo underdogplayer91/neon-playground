@@ -1,0 +1,200 @@
+# Master Produk Neon LED
+
+Dokumen ini ialah sumber utama untuk fakta produk, struktur harga, proses tempahan dan bahan pemasaran landing page.
+
+Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dokumen ini terlebih dahulu. Maklumat dalam dokumen ini tidak dibaca secara automatik oleh website; setiap perubahan mesti direview dan diterapkan secara manual.
+
+## Status maklumat
+
+- **Disahkan** — boleh digunakan sebagai fakta atau janji dalam landing page.
+- **Perlu disahkan (TBC)** — belum boleh dipaparkan sebagai fakta.
+- **Jangan paparkan** — maklumat dalaman atau perkara yang berada di luar tawaran standard.
+
+## 1. Identiti produk
+
+| Perkara | Maklumat | Status |
+| --- | --- | --- |
+| Nama brand | `NEON LAB` masih nama placeholder | TBC |
+| Kategori | Custom Neon LED | Disahkan |
+| Sasaran utama | Pemilik kedai atau premis fizikal | Disahkan |
+| Penggunaan standard | Indoor | Disahkan |
+| Outdoor | Bukan sebahagian daripada tawaran standard | Disahkan |
+
+## 2. Positioning
+
+### Mesej utama
+
+> Jangan biar kedai anda tenggelam bila malam.
+
+### Masalah pelanggan
+
+- Kedai kurang menyerlah apabila berada di antara banyak pesaing.
+- Pelanggan baru sukar mengecam lokasi atau nama premis.
+- Ruang kedai kelihatan biasa dan kurang mempunyai identiti visual.
+- Nama kedai tidak cukup menonjol pada waktu malam.
+
+### Hasil yang pelanggan mahukan
+
+- Nama kedai lebih jelas dilihat dari jauh.
+- Premis kelihatan lebih premium dan mempunyai identiti tersendiri.
+- Pelanggan lebih mudah mengenali dan mengingati kedai.
+- Ruang kedai boleh menjadi titik visual atau photo spot untuk pelanggan.
+
+### Batas dakwaan
+
+- Jangan gunakan testimoni, angka prestasi atau dakwaan peningkatan jualan tanpa bukti sebenar.
+- Jangan menjanjikan bahawa neon akan menjamin lebih ramai pelanggan atau jualan.
+- Fokus copy pada keterlihatan, identiti visual dan pengalaman ruang.
+
+## 3. Struktur harga
+
+| Pakej | Had aksara | Had panjang | Harga | Status |
+| --- | ---: | ---: | ---: | --- |
+| Pakej 8 Huruf | 1–8 aksara | Kurang daripada 60 cm | RM150 | Disahkan |
+| Pakej 15 Huruf | 9–15 aksara | Kurang daripada 85 cm | RM200 | Disahkan |
+| Deposit Design Custom | Saiz atau rekaan custom | Mengikut quotation | RM100 | Disahkan |
+| Rekaan melebihi had | Lebih 15 aksara | Mengikut quotation | Quotation manual | Disahkan |
+
+### Maksud harga pakej tetap
+
+- RM150 dan RM200 ialah harga produk neon yang dibuat berdasarkan rekaan pelanggan dalam configurator.
+- Teks, font dan warna yang dipilih menjadi rujukan terus untuk hasil tempahan.
+- Pakej RM150 mempunyai panjang akhir kurang daripada 60 cm.
+- Pakej RM200 mempunyai panjang akhir kurang daripada 85 cm.
+- Semakin banyak huruf, semakin panjang hasil rekaan, tertakluk pada had maksimum pakej.
+- Mockup akhir masih perlu disahkan bagi ukuran, susunan dan pelarasan pembuatan berdasarkan `NEON_MANUFACTURING_GUIDELINES.md`.
+- Pemasangan dan penghantaran tidak boleh dianggap termasuk melainkan disahkan berasingan.
+
+### Deposit Design Custom RM100
+
+- Pilihan ini untuk pelanggan yang mahu saiz custom, logo, simbol, bentuk atau design yang tidak diliputi configurator standard.
+- RM100 ialah deposit untuk servis design sahaja, bukan harga penuh produk neon.
+- Deposit RM100 akan ditolak daripada harga akhir neon custom.
+- Pelanggan berbincang tentang keperluan design melalui WhatsApp dengan designer.
+- Deposit dibuat selepas skop awal dibincangkan dan sebelum kerja design custom dimulakan.
+- Harga penghasilan neon, baki bayaran dan spesifikasi akhir akan diberikan secara berasingan selepas design dinilai.
+
+### Peraturan kiraan aksara
+
+- Huruf, nombor, tanda baca dan simbol dikira.
+- Ruang dan line break tidak dikira.
+- Aksara melebihi 15 masih boleh dipreview dalam configurator, tetapi tidak menerima harga tetap.
+- Font dan warna tidak mengubah harga asas.
+
+### Saiz fizikal
+
+- Saiz akhir ditentukan mengikut bilangan huruf, font dan susunan teks.
+- Lebih banyak huruf menghasilkan rekaan yang lebih panjang sehingga had maksimum pakej.
+- Pakej RM150 kekal di bawah 60 cm dan pakej RM200 kekal di bawah 85 cm.
+- Ukuran sebenar mesti disahkan dalam mockup sebelum pelanggan membuat bayaran.
+
+## 4. Skop tempahan
+
+### Termasuk dalam configurator harga tetap
+
+- Rekaan berasaskan teks.
+- Pemilihan font daripada senarai yang disediakan.
+- Pemilihan warna neon daripada senarai yang disediakan.
+- Preview visual siang dan malam.
+
+### Quotation manual
+
+- Logo.
+- Simbol atau bentuk khas.
+- Rekaan kompleks.
+- Teks melebihi 15 aksara.
+- Permintaan outdoor.
+- Sebarang rekaan yang tidak boleh dinilai melalui configurator standard.
+
+Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Custom RM100** sebelum designer memulakan kerja. RM100 tersebut tidak boleh dipaparkan sebagai harga penuh neon.
+
+### Nota mockup
+
+- Preview dalam configurator ialah cadangan visual, bukan artwork pengeluaran akhir.
+- Mockup akhir mesti disemak berdasarkan `NEON_MANUFACTURING_GUIDELINES.md`.
+- Jika font pilihan tidak boleh dihasilkan pada saiz akhir, bentuknya boleh dipermudah sambil mengekalkan karakter asal sedekat mungkin.
+
+## 5. Proses tempahan dan bayaran
+
+1. Pelanggan memilih pakej tetap melalui configurator atau memilih servis Design Custom.
+2. Pelanggan menekan “Tempah Sekarang” dan meneruskan ke payment gateway mengikut pakej yang dipilih.
+3. Untuk pakej RM150/RM200, bayaran penuh dibuat melalui payment gateway bersama ringkasan pilihan configurator.
+4. Untuk Design Custom, pelanggan membayar deposit design RM100 melalui payment gateway sebelum perbincangan bersama designer.
+5. Penjual atau designer menyemak permintaan dan menyediakan mockup sebenar untuk pengesahan.
+6. Harga penuh penghasilan neon custom diberikan secara berasingan selepas design dinilai, dan deposit RM100 ditolak daripada harga akhir tersebut.
+7. Pengeluaran hanya bermula selepas mockup disahkan dan bayaran pengeluaran yang berkaitan diterima.
+
+### Pemasangan
+
+- Pemasangan tidak termasuk dalam pakej standard.
+- Jangan menggambarkan harga RM150 atau RM200 sebagai harga siap pasang.
+- Jika servis pemasangan ditawarkan kemudian, skop, kawasan dan caj mesti direkodkan terlebih dahulu.
+
+### Penghantaran
+
+- Status sama ada penghantaran termasuk atau dicaj berasingan masih **TBC**.
+- Jangan membuat janji tentang caj, kawasan liputan atau tempoh penghantaran dalam landing page.
+
+## 6. Pilihan warna
+
+Pilihan warna semasa:
+
+1. Cool White
+2. Warm White
+3. Green
+4. Blue
+5. Ice Blue
+6. Pink
+7. Red
+8. Purple
+9. Yellow
+10. Orange
+
+## 7. Maklumat yang perlu disahkan
+
+Lengkapkan perkara berikut sebelum ia dimasukkan sebagai fakta dalam landing page:
+
+- [ ] Nama brand sebenar.
+- [ ] Nombor WhatsApp rasmi.
+- [ ] Kandungan fizikal bagi pakej RM150 dan RM200.
+- [ ] Polisi revision bagi servis Design Custom RM100.
+- [ ] Jenis material neon dan backing.
+- [ ] Jenis adapter yang dibekalkan.
+- [ ] Aksesori pemasangan yang disertakan.
+- [ ] Ukuran minimum hasil akhir.
+- [ ] Tempoh penyediaan mockup.
+- [ ] Tempoh pengeluaran.
+- [ ] Polisi perubahan atau bilangan revision mockup.
+- [ ] Tempoh dan skop jaminan.
+- [ ] Polisi kerosakan atau kecacatan.
+- [ ] Kaedah pembayaran yang diterima.
+- [ ] Polisi pembatalan dan refund.
+- [ ] Caj serta kawasan penghantaran.
+- [ ] Pilihan dan caj pemasangan jika ditawarkan.
+
+## 8. Peraturan untuk landing page
+
+- Hanya maklumat berstatus **Disahkan** boleh ditulis sebagai fakta atau janji.
+- Maklumat **TBC** tidak boleh direka, dianggarkan atau dianggap termasuk dalam harga.
+- Jika topik TBC perlu disebut, gunakan ayat neutral seperti “akan disahkan melalui WhatsApp”.
+- Harga, kiraan aksara, kad pakej, CTA sticky dan pilihan payment gateway mesti sentiasa sepadan.
+- RM100 mesti sentiasa dilabel sebagai deposit design sahaja, bukan harga penuh neon.
+- Landing page mesti menyatakan bahawa deposit RM100 ditolak daripada harga akhir neon custom.
+- Landing page menghantar pelanggan ke payment gateway luar melalui CTA “Tempah Sekarang”; kutipan bayaran tidak berlaku terus dalam website.
+- Selepas dokumen ini berubah, review kesannya pada hero, configurator, harga, proses tempahan, FAQ dan pautan payment gateway.
+
+## 9. Checklist review landing page
+
+Sebelum menerbitkan perubahan:
+
+- [ ] Harga RM150, RM200 dan deposit design RM100 sepadan di semua bahagian.
+- [ ] Had panjang bawah 60 cm dan bawah 85 cm sepadan di semua bahagian.
+- [ ] Kiraan aksara mengabaikan ruang dan line break sahaja.
+- [ ] Teks melebihi 15 aksara menggunakan quotation manual.
+- [ ] Website tidak mendakwa pemasangan termasuk.
+- [ ] Website tidak membuat dakwaan penghantaran, jaminan atau tempoh siap yang belum disahkan.
+- [ ] Pakej RM150/RM200 menunjukkan bayaran penuh selepas mockup disahkan.
+- [ ] Design Custom menunjukkan RM100 sebagai deposit servis design sahaja.
+- [ ] Design Custom menyatakan deposit RM100 ditolak daripada harga akhir neon custom.
+- [ ] Pautan payment gateway membawa teks, kiraan, font, warna, pakej dan harga.
+- [ ] Mockup pengeluaran dirujuk kepada `NEON_MANUFACTURING_GUIDELINES.md`.
