@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { NeonIcon, neonIcons } from './neonIcons';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -106,19 +105,16 @@ export function App() {
   const [text, setText] = useState('Kopi Jiwa');
   const [fontId, setFontId] = useState('Alexa');
   const [colorId, setColorId] = useState('cool-white');
-  const [iconId, setIconId] = useState('none');
   const [backgroundMode, setBackgroundMode] = useState('night');
   const [hasInteracted, setHasInteracted] = useState(false);
   const [previewFontSize, setPreviewFontSize] = useState(70);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
   const previewStageRef = useRef(null);
-  const textCharacterCount = countCharacters(text);
-  const characterCount = textCharacterCount + (textCharacterCount && iconId !== 'none' ? 1 : 0);
+  const characterCount = countCharacters(text);
   const selectedPackage = getPackage(characterCount);
   const selectedFont = fonts.find((font) => font.id === fontId);
   const selectedColor = colors.find((color) => color.id === colorId);
-  const selectedIcon = neonIcons.find((icon) => icon.id === iconId);
   const displayText = text.trim() || 'Nama Kedai Anda';
   useEffect(() => {
     fonts.forEach((font) => {
@@ -144,7 +140,7 @@ export function App() {
       range.selectNodeContents(probe);
       const glyphBox = range.getBoundingClientRect();
       probe.remove();
-      const glyphWidth = Math.max(glyphBox.width + (iconId !== 'none' ? 76 : 0), 1);
+      const glyphWidth = Math.max(glyphBox.width, 1);
       const glyphHeight = Math.max(glyphBox.height, 1);
       const targetWidth = stage.clientWidth * 0.78;
       const targetHeight = stage.clientHeight * (displayText.includes('\n') ? 0.38 : 0.2);
@@ -155,7 +151,7 @@ export function App() {
     const observer = new ResizeObserver(fitText);
     observer.observe(stage);
     return () => observer.disconnect();
-  }, [displayText, iconId, selectedFont]);
+  }, [displayText, selectedFont]);
   const checkoutUrl = characterCount ? '/checkout' : '#playground';
   const prepareCheckout = () => {
     if (!characterCount) return;
@@ -172,8 +168,6 @@ export function App() {
       colorLabel: selectedColor.label,
       colorValue: selectedColor.value,
       colorGlow: selectedColor.glow,
-      iconId,
-      iconLabel: selectedIcon.label,
       backgroundMode,
       sizeNote: tier === 'basic' ? 'Panjang bawah 60 cm' : tier === 'plus' ? 'Panjang bawah 85 cm' : 'Custom size',
     }));
@@ -190,8 +184,6 @@ export function App() {
     colorLabel: '',
     colorValue: '#31d7ff',
     colorGlow: '49,215,255',
-    iconId: 'none',
-    iconLabel: 'Tiada icon',
     backgroundMode: 'night',
     sizeNote: 'Custom size & design',
   }));
@@ -225,20 +217,18 @@ export function App() {
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
           <textarea id="shop-name" value={text} maxLength={40} rows={2} onChange={(e) => { setText(e.target.value.replace(/\r/g, '').split('\n').slice(0, 2).join('\n')); interact(); }} placeholder={'Contoh:\nKopi Jiwa'} />
-          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} aksara</span><small>Ruang tidak dikira</small></div>
+          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Ruang tidak dikira</small></div>
           <div className="field-head"><span>02</span><label htmlFor="font-select">Pilih font</label></div>
           <select id="font-select" className="font-select" value={fontId} style={{ fontFamily: selectedFont.family }} onChange={(e) => { setFontId(e.target.value); interact(); }}>
             {fonts.map((font) => <option key={font.id} value={font.id} style={{ fontFamily: font.family }}>{font.name}</option>)}
           </select>
           <div className="field-head"><span>03</span><label>Pilih warna</label></div>
           <div className="color-options" role="radiogroup">{colors.map((color) => <button key={color.id} className={colorId === color.id ? 'selected' : ''} style={{ '--swatch': color.value }} onClick={() => { setColorId(color.id); interact(); }} aria-label={color.label} role="radio" aria-checked={colorId === color.id} />)}</div>
-          <div className="field-head"><span>04</span><label>Pilih icon</label></div>
-          <div className="icon-options" role="radiogroup">{neonIcons.map((icon) => <button key={icon.id} className={iconId === icon.id ? 'selected' : ''} onClick={() => { setIconId(icon.id); interact(); }} aria-label={icon.label} role="radio" aria-checked={iconId === icon.id}>{icon.id === 'none' ? <b>—</b> : <NeonIcon id={icon.id} />}<small>{icon.label}</small></button>)}</div>
         </div>
         <div className="preview-stage" ref={previewStageRef}>
           <img src="/assets/configurator-wall.png" alt="Dinding kedai untuk pratonton neon" />
           <div className="mode-toggle"><button className={backgroundMode === 'day' ? 'active' : ''} onClick={() => { setBackgroundMode('day'); interact(); }}><Sun /> Siang</button><button className={backgroundMode === 'night' ? 'active' : ''} onClick={() => { setBackgroundMode('night'); interact(); }}><Moon /> Malam</button></div>
-          <div className="neon-design" style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontSize: `${previewFontSize}px` }}><div className="neon-text" data-text={displayText} style={{ fontFamily: selectedFont.family, lineHeight: 1 }}>{displayText}</div><NeonIcon id={iconId} /></div>
+          <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
           {!text.trim() && <span className="preview-hint">Taip sesuatu untuk mula mereka</span>}
         </div>
       </div>
