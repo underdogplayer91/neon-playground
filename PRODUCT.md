@@ -63,7 +63,7 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 - Pakej RM200 mempunyai panjang akhir kurang daripada 85 cm.
 - Semakin banyak huruf, semakin panjang hasil rekaan, tertakluk pada had maksimum pakej.
 - Mockup akhir masih perlu disahkan bagi ukuran, susunan dan pelarasan pembuatan berdasarkan `NEON_MANUFACTURING_GUIDELINES.md`.
-- Pemasangan dan penghantaran tidak boleh dianggap termasuk melainkan disahkan berasingan.
+- Pemasangan tidak termasuk. Penghantaran pakej RM150/RM200 dicaj berasingan dan dibayar oleh penerima apabila barang sampai.
 
 ### Deposit Design Custom RM100
 
@@ -133,8 +133,12 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 
 ### Penghantaran
 
-- Status sama ada penghantaran termasuk atau dicaj berasingan masih **TBC**.
-- Jangan membuat janji tentang caj, kawasan liputan atau tempoh penghantaran dalam landing page.
+- Bagi pakej RM150 dan RM200, penghantaran ke Semenanjung ialah maksimum RM10.
+- Bagi pakej RM150 dan RM200, penghantaran ke Sabah atau Sarawak ialah RM40.
+- Caj penghantaran tidak termasuk dalam harga produk atau bayaran payment gateway.
+- Caj penghantaran dibayar oleh penerima apabila barang sampai.
+- Kadar untuk Labuan dan Design Custom masih **TBC** kerana saiz akhir mungkin berbeza.
+- Jangan membuat janji tentang tempoh penghantaran sebelum maklumat sebenar disahkan.
 
 ## 6. Pilihan warna
 
@@ -170,7 +174,8 @@ Lengkapkan perkara berikut sebelum ia dimasukkan sebagai fakta dalam landing pag
 - [ ] Polisi kerosakan atau kecacatan.
 - [ ] Kaedah pembayaran yang diterima.
 - [ ] Polisi pembatalan dan refund.
-- [ ] Caj serta kawasan penghantaran.
+- [x] Caj pakej RM150/RM200 bagi Semenanjung, Sabah dan Sarawak serta kaedah bayaran penghantaran.
+- [ ] Kadar penghantaran untuk Labuan dan Design Custom.
 - [ ] Pilihan dan caj pemasangan jika ditawarkan.
 
 ## 8. Peraturan untuk landing page

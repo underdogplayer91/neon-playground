@@ -25,6 +25,14 @@ const buildGatewayUrl = (paymentLink, order, customer) => {
   return `${paymentLink}${separator}${params.toString()}`;
 };
 
+const getShippingInfo = (state, tier) => {
+  if (tier === 'custom') return { amount: 'Akan disahkan', note: 'Kadar penghantaran Design Custom bergantung pada saiz akhir.' };
+  if (!state) return { amount: 'Pilih negeri', note: 'Kadar dipaparkan selepas negeri penghantaran dipilih.' };
+  if (state === 'Sabah' || state === 'Sarawak') return { amount: 'RM40', note: 'Dibayar oleh penerima apabila barang sampai.' };
+  if (state === 'Labuan') return { amount: 'Akan disahkan', note: 'Kadar penghantaran Labuan belum ditetapkan.' };
+  return { amount: 'Maksimum RM10', note: 'Kadar Semenanjung. Dibayar oleh penerima apabila barang sampai.' };
+};
+
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
   const [error, setError] = useState('');
@@ -39,6 +47,7 @@ export function CheckoutPage() {
     state: '',
   });
   const paymentLink = useMemo(() => order ? PAYMENT_LINKS[order.tier]?.trim() : '', [order]);
+  const shippingInfo = useMemo(() => order ? getShippingInfo(customer.state, order.tier) : null, [customer.state, order]);
 
   useEffect(() => {
     if (!order?.fontName || !order?.fontFamily) return undefined;
@@ -101,9 +110,10 @@ export function CheckoutPage() {
           {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
           {order.colorLabel && <div><dt>Warna</dt><dd>{order.colorLabel}</dd></div>}
           <div><dt>Saiz</dt><dd>{order.sizeNote}</dd></div>
+          <div><dt>Penghantaran</dt><dd>{shippingInfo.amount}</dd></div>
         </dl>
-        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit design' : 'Jumlah produk'}</span><strong>RM{order.price}</strong></div>
-        <p className="shipping-note">Caj penghantaran belum termasuk dan memerlukan kadar sebenar sebelum checkout diterbitkan.</p>
+        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit design' : 'Bayaran produk sekarang'}</span><strong>RM{order.price}</strong></div>
+        <p className="shipping-note"><strong>Caj penghantaran tidak termasuk dalam bayaran di atas.</strong> {shippingInfo.note}</p>
       </aside>
     </div>
   </main>;
