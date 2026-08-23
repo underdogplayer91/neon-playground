@@ -98,7 +98,6 @@ export function CheckoutPage() {
           <div><dt>Rujukan</dt><dd>{order.reference}</dd></div>
           <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
-          {order.text && <div><dt>Jumlah huruf</dt><dd>{order.characterCount}</dd></div>}
           {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
           {order.colorLabel && <div><dt>Warna</dt><dd>{order.colorLabel}</dd></div>}
           <div><dt>Saiz</dt><dd>{order.sizeNote}</dd></div>
