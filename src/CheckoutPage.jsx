@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PAYMENT_LINKS } from './siteConfig';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
@@ -39,6 +39,16 @@ export function CheckoutPage() {
     state: '',
   });
   const paymentLink = useMemo(() => order ? PAYMENT_LINKS[order.tier]?.trim() : '', [order]);
+
+  useEffect(() => {
+    if (!order?.fontName || !order?.fontFamily) return undefined;
+    const selectedFont = new FontFace(order.fontFamily, `url(/fonts/${order.fontName}.ttf)`);
+    let active = true;
+    selectedFont.load().then((loadedFont) => {
+      if (active) document.fonts.add(loadedFont);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [order]);
 
   if (!order) {
     return <main className="checkout-page checkout-empty">
