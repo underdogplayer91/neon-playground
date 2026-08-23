@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PAYMENT_LINKS } from './siteConfig';
+import { NeonIcon } from './neonIcons';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -102,13 +103,14 @@ export function CheckoutPage() {
 
       <aside className="order-review">
         <p className="checkout-kicker">02 / Semak tempahan</p>
-        <div className="order-neon" style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}><span>{order.text || 'Design Custom'}</span></div>
+        <div className="order-neon" style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow }}><div className="order-neon-design"><span style={{ fontFamily: order.fontFamily }}>{order.text || 'Design Custom'}</span><NeonIcon id={order.iconId} /></div></div>
         <dl>
           <div><dt>Rujukan</dt><dd>{order.reference}</dd></div>
           <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
           {order.colorLabel && <div><dt>Warna</dt><dd>{order.colorLabel}</dd></div>}
+          {order.iconId && order.iconId !== 'none' && <div><dt>Icon</dt><dd>{order.iconLabel}</dd></div>}
           <div><dt>Saiz</dt><dd>{order.sizeNote}</dd></div>
           <div><dt>Penghantaran</dt><dd>{shippingInfo.amount}</dd></div>
         </dl>

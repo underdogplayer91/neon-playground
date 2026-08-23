@@ -67,7 +67,7 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 
 ### Deposit Design Custom RM100
 
-- Pilihan ini untuk pelanggan yang mahu saiz custom, logo, simbol, bentuk atau design yang tidak diliputi configurator standard.
+- Pilihan ini untuk pelanggan yang mahu saiz custom, logo, simbol selain pilihan standard, bentuk atau design yang tidak diliputi configurator standard.
 - RM100 ialah deposit untuk servis design sahaja, bukan harga penuh produk neon.
 - Deposit RM100 akan ditolak daripada harga akhir neon custom.
 - Pelanggan berbincang tentang keperluan design melalui WhatsApp dengan designer.
@@ -76,7 +76,7 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 
 ### Peraturan kiraan aksara
 
-- Huruf, nombor, tanda baca dan simbol dikira.
+- Huruf, nombor, tanda baca dan simbol standard dikira. Love, Crown dan Moon ialah tiga simbol standard yang diluluskan; setiap satu dikira sebagai satu aksara.
 - Ruang dan line break tidak dikira.
 - Pelanggan boleh menggunakan maksimum dua baris teks. Susunan line break dalam configurator mesti dikekalkan pada preview dan checkout.
 - Aksara melebihi 15 masih boleh dipreview dalam configurator, tetapi tidak menerima harga tetap.
@@ -96,18 +96,19 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 - Rekaan berasaskan teks.
 - Pemilihan font daripada senarai yang disediakan.
 - Pemilihan warna neon daripada senarai yang disediakan.
+- Pilihan satu simbol ringkas: Love, Crown atau Moon.
 - Preview visual siang dan malam.
 
 ### Quotation manual
 
 - Logo.
-- Simbol atau bentuk khas.
+- Simbol selain Love, Crown atau Moon serta bentuk khas.
 - Rekaan kompleks.
 - Teks melebihi 15 aksara.
 - Permintaan outdoor.
 - Sebarang rekaan yang tidak boleh dinilai melalui configurator standard.
 
-Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Custom RM100** sebelum designer memulakan kerja. RM100 tersebut tidak boleh dipaparkan sebagai harga penuh neon.
+Logo, simbol selain Love/Crown/Moon, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Custom RM100** sebelum designer memulakan kerja. RM100 tersebut tidak boleh dipaparkan sebagai harga penuh neon.
 
 ### Nota mockup
 
