@@ -134,7 +134,7 @@ export function App() {
       await document.fonts.load(`70px "${selectedFont.family}"`);
       const probe = document.createElement('span');
       probe.textContent = displayText;
-      Object.assign(probe.style, { position: 'fixed', left: '-9999px', top: '0', whiteSpace: 'nowrap', fontFamily: selectedFont.family, fontSize: '70px', lineHeight: '1' });
+      Object.assign(probe.style, { position: 'fixed', left: '-9999px', top: '0', whiteSpace: 'pre', fontFamily: selectedFont.family, fontSize: '70px', lineHeight: '1' });
       document.body.appendChild(probe);
       const range = document.createRange();
       range.selectNodeContents(probe);
@@ -143,7 +143,7 @@ export function App() {
       const glyphWidth = Math.max(glyphBox.width, 1);
       const glyphHeight = Math.max(glyphBox.height, 1);
       const targetWidth = stage.clientWidth * 0.78;
-      const targetHeight = stage.clientHeight * 0.2;
+      const targetHeight = stage.clientHeight * (displayText.includes('\n') ? 0.38 : 0.2);
       const fitted = 70 * Math.min(targetWidth / glyphWidth, targetHeight / glyphHeight);
       setPreviewFontSize(Math.max(36, Math.min(118, fitted)));
     };
@@ -216,7 +216,7 @@ export function App() {
       <div className={`configurator ${backgroundMode}`}>
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
-          <input id="shop-name" value={text} maxLength={40} onChange={(e) => { setText(e.target.value); interact(); }} placeholder="Contoh: Kopi Jiwa" />
+          <textarea id="shop-name" value={text} maxLength={40} rows={2} onChange={(e) => { setText(e.target.value.replace(/\r/g, '').split('\n').slice(0, 2).join('\n')); interact(); }} placeholder={'Contoh:\nKopi Jiwa'} />
           <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Ruang tidak dikira</small></div>
           <div className="field-head"><span>02</span><label htmlFor="font-select">Pilih font</label></div>
           <select id="font-select" className="font-select" value={fontId} style={{ fontFamily: selectedFont.family }} onChange={(e) => { setFontId(e.target.value); interact(); }}>

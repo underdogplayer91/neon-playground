@@ -78,6 +78,7 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 
 - Huruf, nombor, tanda baca dan simbol dikira.
 - Ruang dan line break tidak dikira.
+- Pelanggan boleh menggunakan maksimum dua baris teks. Susunan line break dalam configurator mesti dikekalkan pada preview dan checkout.
 - Aksara melebihi 15 masih boleh dipreview dalam configurator, tetapi tidak menerima harga tetap.
 - Font dan warna tidak mengubah harga asas.
 
