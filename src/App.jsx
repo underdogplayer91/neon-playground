@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { PAYMENT_LINKS } from './siteConfig';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -92,13 +91,7 @@ const getPackage = (count) => {
   if (count <= 15) return { name: 'Pakej 15 Huruf', price: 200, tier: 'plus' };
   return { name: 'Sebut Harga Khas', price: null, tier: 'custom' };
 };
-
-const buildPaymentUrl = (tier, orderDetails = {}) => {
-  const paymentLink = PAYMENT_LINKS[tier]?.trim();
-  if (!paymentLink) return '#harga';
-  const separator = paymentLink.includes('?') ? '&' : '?';
-  return `${paymentLink}${separator}${new URLSearchParams(orderDetails).toString()}`;
-};
+const ORDER_KEY = 'yh-neon-checkout-order';
 
 function Header() {
   return <header className="site-header">
@@ -159,25 +152,41 @@ export function App() {
     observer.observe(stage);
     return () => observer.disconnect();
   }, [displayText, selectedFont]);
-  const checkoutUrl = useMemo(() => {
-    if (!characterCount) return '#playground';
+  const checkoutUrl = characterCount ? '/checkout' : '#playground';
+  const prepareCheckout = () => {
+    if (!characterCount) return;
     const tier = selectedPackage.price ? selectedPackage.tier : 'custom';
-    return buildPaymentUrl(tier, {
-      teks: text.trim(),
-      huruf: String(characterCount),
-      font: selectedFont.name,
-      warna: selectedColor.label,
-      paparan: backgroundMode === 'night' ? 'Malam' : 'Siang',
-      pakej: selectedPackage.name,
-      harga: selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100',
-    });
-  }, [backgroundMode, characterCount, selectedColor, selectedFont, selectedPackage, text]);
-  const customDesignUrl = useMemo(() => {
-    return buildPaymentUrl('custom', {
-      pakej: 'Design Custom',
-      harga: 'Deposit RM100',
-    });
-  }, []);
+    window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({
+      reference: `YH-${Date.now().toString(36).toUpperCase()}`,
+      tier,
+      packageName: selectedPackage.price ? selectedPackage.name : 'Design Custom',
+      price: selectedPackage.price || 100,
+      text: text.trim(),
+      characterCount,
+      fontName: selectedFont.name,
+      fontFamily: selectedFont.family,
+      colorLabel: selectedColor.label,
+      colorValue: selectedColor.value,
+      colorGlow: selectedColor.glow,
+      backgroundMode,
+      sizeNote: tier === 'basic' ? 'Panjang bawah 60 cm' : tier === 'plus' ? 'Panjang bawah 85 cm' : 'Custom size',
+    }));
+  };
+  const prepareCustomCheckout = () => window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({
+    reference: `YH-${Date.now().toString(36).toUpperCase()}`,
+    tier: 'custom',
+    packageName: 'Design Custom',
+    price: 100,
+    text: '',
+    characterCount: 0,
+    fontName: '',
+    fontFamily: 'Manrope Variable',
+    colorLabel: '',
+    colorValue: '#31d7ff',
+    colorGlow: '49,215,255',
+    backgroundMode: 'night',
+    sizeNote: 'Custom size & design',
+  }));
   const interact = () => setHasInteracted(true);
 
   return <main id="top">
@@ -226,7 +235,7 @@ export function App() {
       <div className="live-summary" aria-live="polite">
         <div><span>Pilihan anda</span><strong>{selectedPackage.name}</strong></div>
         <div className="summary-price"><span>{selectedPackage.price ? 'Harga tetap' : 'Harga'}</span><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : characterCount ? 'Sebut harga khas' : '—'}</strong></div>
-        <a className={`order-button ${!characterCount ? 'disabled' : ''}`} href={checkoutUrl} target={checkoutUrl.startsWith('http') ? '_blank' : undefined} rel="noreferrer"><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a>
+        <a className={`order-button ${!characterCount ? 'disabled' : ''}`} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a>
       </div>
     </section>
 
@@ -235,7 +244,7 @@ export function App() {
       <div className="price-list">
         <article className={selectedPackage.tier === 'basic' ? 'active' : ''}><span className="package-number">01</span><div><p>Ikut configurator · panjang bawah 60 cm</p><h3>Sehingga 8 huruf</h3></div><strong>RM150</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
         <article className={selectedPackage.tier === 'plus' ? 'active' : ''}><span className="package-number">02</span><div><p>Ikut configurator · panjang bawah 85 cm</p><h3>Sehingga 15 huruf</h3></div><strong>RM200</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
-        <article className="custom-package"><span className="package-number">03</span><div><p>Deposit design sahaja</p><h3>Custom size & design</h3></div><strong>RM100</strong><a href={customDesignUrl} target={customDesignUrl.startsWith('http') ? '_blank' : undefined} rel="noreferrer">Tempah design custom <ArrowRight /></a></article>
+        <article className="custom-package"><span className="package-number">03</span><div><p>Deposit design sahaja</p><h3>Custom size & design</h3></div><strong>RM100</strong><a href="/checkout" onClick={prepareCustomCheckout}>Tempah design custom <ArrowRight /></a></article>
       </div><div className="pricing-clarity"><p><strong>RM150 / RM200:</strong> panjang rekaan bertambah mengikut jumlah huruf—di bawah 60 cm untuk RM150 dan di bawah 85 cm untuk RM200.</p><p><strong>RM100:</strong> deposit servis design sahaja. Deposit ini akan ditolak daripada harga akhir neon custom.</p></div>
     </section>
 
@@ -262,6 +271,6 @@ export function App() {
 
     <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Adakah RM150 dan RM200 ikut rekaan configurator?</summary><p>Ya. Teks, font dan warna pilihan anda menjadi rujukan tempahan. Pakej RM150 mempunyai panjang bawah 60 cm dan pakej RM200 bawah 85 cm. Semakin banyak huruf, semakin panjang hasilnya sehingga had maksimum pakej.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau nama kedai lebih 15 huruf?</summary><p>Anda masih boleh lihat preview. Keperluan dan harga penghasilan akan dibincangkan melalui WhatsApp.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah deposit untuk servis design sahaja bagi custom size, logo, simbol atau bentuk khas. Designer akan berbincang dengan anda melalui WhatsApp. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Status penghantaran, tempoh siap dan jaminan akan disahkan oleh penjual sebelum pengeluaran bermula.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>
-    {hasInteracted && <div className="mobile-sticky"><div><small>{selectedPackage.name}</small><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100'}</strong></div><a className={!characterCount ? 'disabled' : ''} href={checkoutUrl} target={checkoutUrl.startsWith('http') ? '_blank' : undefined} rel="noreferrer"><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>}
+    {hasInteracted && <div className="mobile-sticky"><div><small>{selectedPackage.name}</small><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100'}</strong></div><a className={!characterCount ? 'disabled' : ''} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>}
   </main>;
 }

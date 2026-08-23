@@ -117,12 +117,13 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 ## 5. Proses tempahan dan bayaran
 
 1. Pelanggan memilih pakej tetap melalui configurator atau memilih servis Design Custom.
-2. Pelanggan menekan “Tempah Sekarang” dan meneruskan ke payment gateway mengikut pakej yang dipilih.
-3. Untuk pakej RM150/RM200, bayaran penuh dibuat melalui payment gateway bersama ringkasan pilihan configurator.
-4. Untuk Design Custom, pelanggan membayar deposit design RM100 melalui payment gateway sebelum perbincangan bersama designer.
-5. Penjual atau designer menyemak permintaan dan menyediakan mockup sebenar untuk pengesahan.
-6. Harga penuh penghasilan neon custom diberikan secara berasingan selepas design dinilai, dan deposit RM100 ditolak daripada harga akhir tersebut.
-7. Pengeluaran hanya bermula selepas mockup disahkan dan bayaran pengeluaran yang berkaitan diterima.
+2. Pelanggan menekan “Tempah Sekarang” dan masuk ke halaman semakan tempahan.
+3. Pelanggan menyemak rekaan, mengisi nama, telefon, email pilihan serta alamat penghantaran.
+4. Untuk pakej RM150/RM200, pelanggan meneruskan bayaran penuh melalui payment gateway selepas semakan.
+5. Untuk Design Custom, pelanggan membayar deposit design RM100 melalui payment gateway sebelum perbincangan bersama designer.
+6. Penjual atau designer menyemak permintaan dan menyediakan mockup sebenar untuk pengesahan.
+7. Harga penuh penghasilan neon custom diberikan secara berasingan selepas design dinilai, dan deposit RM100 ditolak daripada harga akhir tersebut.
+8. Pengeluaran hanya bermula selepas mockup disahkan dan bayaran pengeluaran yang berkaitan diterima.
 
 ### Pemasangan
 
