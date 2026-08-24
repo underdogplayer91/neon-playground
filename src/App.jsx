@@ -5,12 +5,11 @@ const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPi
 const Moon = EmptyIcon, Palette = EmptyIcon, PencilSimple = EmptyIcon, ShieldCheck = EmptyIcon;
 const ShoppingBagOpen = EmptyIcon, Sun = EmptyIcon, Truck = EmptyIcon;
 const fontNames = [
-  'Alexa','Amanda','Amsterdam','Austin','Avante','Barcelona','Bayview','Beachfront','Bellview','Buttercup',
-  'Chelsea','ClassicType','Florence','Freehand','Freespirit','Greenworld','LazySunday','LosAngeles','LoveNeon','LoveNote',
-  'Majorca','Manchester','Manhattan','Marquee','Mayfair','Melbourne','Milan','Monaco','NeonGlow','NeonLite',
-  'Neonscript','Neontrace','NeoTokyo','Nevada','NewCursive','Northshore','NottingHill','Olivia','Photogenic','Rocket',
-  'Rockstar','Royalty','SanDiego','SciFi','Signature','Simplicity','Sorrento','Submarine','Typewriter','Vancouver',
-  'Venetian','Vintage','Waikiki','Weekender','Westcoast','WildScript'
+  'Alexa','Amanda','Amsterdam','Austin','Avante','Barcelona','Bayview','Beachfront','Buttercup','Chelsea',
+  'Florence','Freehand','Freespirit','Greenworld','LazySunday','LosAngeles','LoveNote','Manchester','Melbourne','Monaco',
+  'NeonLite','Neonscript','Neontrace','NeoTokyo','NewCursive','Northshore','NottingHill','Olivia','Photogenic','Rocket',
+  'Royalty','SanDiego','Signature','Simplicity','Sorrento','Typewriter','Venetian','Vintage','Waikiki','Weekender',
+  'WildScript'
 ];
 const fonts = fontNames.map((name) => ({ id: name, name, family: `Neon-${name}`, file: `/fonts/${name}.ttf` }));
 const colors = [
