@@ -12,6 +12,8 @@ const fontNames = [
   'WildScript'
 ];
 const fonts = fontNames.map((name) => ({ id: name, name, family: `Neon-${name}`, file: `/fonts/${name}.ttf` }));
+const featuredFonts = fonts.slice(0, 6);
+const otherFonts = fonts.slice(6);
 const colors = [
   { id: 'cool-white', label: 'Cool White', value: '#f4f7ff', glow: '244,247,255' },
   { id: 'warm-white', label: 'Warm White', value: '#ffd89a', glow: '255,216,154' },
@@ -226,10 +228,25 @@ export function App() {
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
           <textarea id="shop-name" value={text} maxLength={40} rows={2} onChange={(e) => { setText(e.target.value.replace(/\r/g, '').split('\n').slice(0, 2).join('\n')); interact(); }} placeholder={'Contoh:\nKopi Jiwa'} />
           <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Ruang tidak dikira</small></div>
-          <div className="field-head"><span>02</span><label htmlFor="font-select">Pilih font</label></div>
-          <select id="font-select" className="font-select" value={fontId} style={{ fontFamily: selectedFont.family }} onChange={(e) => { setFontId(e.target.value); interact(); }}>
-            {fonts.map((font) => <option key={font.id} value={font.id} style={{ fontFamily: font.family }}>{font.name}</option>)}
-          </select>
+          <div className="field-head"><span>02</span><label htmlFor="other-font-select">Pilih font</label></div>
+          <div className="featured-fonts" role="radiogroup" aria-label="Pilihan font utama">
+            {featuredFonts.map((font) => <button
+              key={font.id}
+              type="button"
+              className={fontId === font.id ? 'selected' : ''}
+              style={{ fontFamily: font.family }}
+              onClick={() => { setFontId(font.id); interact(); }}
+              role="radio"
+              aria-checked={fontId === font.id}
+            >{font.name}</button>)}
+          </div>
+          <div className="other-font-field">
+            <label htmlFor="other-font-select">Other Font</label>
+            <select id="other-font-select" className="font-select" value={otherFonts.some((font) => font.id === fontId) ? fontId : ''} style={{ fontFamily: otherFonts.some((font) => font.id === fontId) ? selectedFont.family : undefined }} onChange={(e) => { if (e.target.value) { setFontId(e.target.value); interact(); } }}>
+              <option value="">Other Font — Pilih font lain</option>
+              {otherFonts.map((font) => <option key={font.id} value={font.id} style={{ fontFamily: font.family }}>{font.name}</option>)}
+            </select>
+          </div>
           <div className="field-head"><span>03</span><label>Pilih warna</label></div>
           <div className="color-options" role="radiogroup">{colors.map((color) => <button key={color.id} className={colorId === color.id ? 'selected' : ''} style={{ '--swatch': color.value }} onClick={() => { setColorId(color.id); interact(); }} aria-label={color.label} role="radio" aria-checked={colorId === color.id} />)}</div>
         </div>
