@@ -242,7 +242,7 @@ export function App() {
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
           <textarea id="shop-name" value={text} maxLength={240} rows={4} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'Contoh:\nKopi itu pahit'} />
-          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 6 baris · 30/perkataan</small></div>
+          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 6 baris · 30 huruf/perkataan</small></div>
           <div className="field-head"><span>02</span><label htmlFor="other-font-select">Pilih font</label></div>
           <div className="featured-fonts" role="radiogroup" aria-label="Pilihan font utama">
             {featuredFonts.map((font) => <button
@@ -278,7 +278,7 @@ export function App() {
           {colorMessage && <p className="color-message" role="status">{colorMessage}</p>}
         </div>
         <div className="preview-stage" ref={previewStageRef}>
-          <img src="/assets/configurator-wall.png" alt="Dinding kedai untuk pratonton neon" />
+          <img src="/assets/configurator-wall-branded.png" alt="Dinding kedai untuk pratonton neon" />
           <div className="mode-toggle"><button className={backgroundMode === 'day' ? 'active' : ''} onClick={() => { setBackgroundMode('day'); interact(); }}><Sun /> Siang</button><button className={backgroundMode === 'night' ? 'active' : ''} onClick={() => { setBackgroundMode('night'); interact(); }}><Moon /> Malam</button></div>
           {colorMode === 'single'
             ? <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
@@ -287,7 +287,7 @@ export function App() {
               const wordColor = getWordColor(token.wordIndex);
               return <span className="neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--neon': wordColor.value, '--glow': wordColor.glow }}>{token.value}</span>;
             })}</div>}
-          {!text.trim() && <span className="preview-hint">Taip sesuatu untuk mula mereka</span>}
+          {!text.trim() && <span className="preview-hint">Taip untuk mula lihat hasil</span>}
         </div>
       </div>
       <div className="live-summary" aria-live="polite">
