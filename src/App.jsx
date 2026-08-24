@@ -53,48 +53,34 @@ const posterSlides = [
 ];
 const testimonials = [
   {
-    business: 'DPermata Burger',
-    label: 'Tarik perhatian',
-    messages: [
-      { side: 'customer', text: 'Assalamualaikum, sampai sini Tuan.' },
-      { side: 'customer', text: 'Malam pertama guna, sangat menggalakkan pelanggan 👍👍' },
-    ],
-  },
-  {
     business: 'Daisy Coffee',
     label: 'Hasil kerja',
-    messages: [
-      { side: 'customer', text: 'Salam barang dh sampai' },
-      { side: 'seller', text: 'Terima kasih banyak ya 👍🙏' },
-      { side: 'customer', text: 'Cantik sangat hasil kerja' },
-    ],
+    src: '/assets/testimoni/testimoni-daisy-coffee.jpeg',
+    alt: 'Screenshot testimoni sebenar pelanggan Daisy Coffee selepas menerima neon',
   },
   {
     business: 'Amir Tomyam',
     label: 'Nampak real',
-    messages: [
-      { side: 'customer', text: 'Cemey molek bey 👍👍👍' },
-      { side: 'customer', text: 'Supo gambar edit. Tapi real' },
-      { side: 'customer', text: 'comel dooh' },
-      { side: 'seller', text: 'Terima kasih banyak' },
-    ],
-  },
-  {
-    business: 'Abah Cool Station',
-    label: 'Kedai menyerlah',
-    messages: [
-      { side: 'customer', text: 'Gambar bulan puasa aritu 🤣🤣' },
-      { side: 'customer', text: 'Alhamdulillah.. org lain merungut slow tahun ni.. Alhamdulillah kak ok...' },
-      { side: 'seller', text: 'Alhamdulillah, rezeki kak' },
-    ],
+    src: '/assets/testimoni/testimoni-amir-tomyam.jpeg',
+    alt: 'Screenshot testimoni sebenar pelanggan Amir Tomyam selepas neon dipasang',
   },
   {
     business: 'Tang Wagyu',
     label: 'Cantik',
-    messages: [
-      { side: 'customer', text: 'Thank you lampu cantik sangat' },
-      { side: 'seller', text: 'Tq boss support kami 🙏🏻' },
-    ],
+    src: '/assets/testimoni/testimoni-tang-wagyu.jpeg',
+    alt: 'Screenshot testimoni sebenar pelanggan Tang Wagyu tentang neon yang cantik',
+  },
+  {
+    business: 'Abah Cool Station',
+    label: 'Kedai menyerlah',
+    src: '/assets/testimoni/testimoni-abah-cool-station.jpeg',
+    alt: 'Screenshot testimoni sebenar pelanggan Abah Cool Station selepas menggunakan neon',
+  },
+  {
+    business: 'Mek Biha Lokcing',
+    label: 'Kemas & comel',
+    src: '/assets/testimoni/testimoni-mek-biha-lokcing.jpeg',
+    alt: 'Screenshot testimoni sebenar pelanggan Mek Biha Lokcing semasa pemasangan neon',
   },
 ];
 const heroImage = {
@@ -270,6 +256,24 @@ export function App() {
       </div><div className="pricing-clarity"><p><strong>RM150 / RM200:</strong> panjang rekaan bertambah mengikut jumlah huruf—di bawah 60 cm untuk RM150 dan di bawah 85 cm untuk RM200.</p><p><strong>RM100:</strong> deposit servis design sahaja. Deposit ini akan ditolak daripada harga akhir neon custom.</p><p><strong>Penghantaran pakej RM150 / RM200:</strong> maksimum RM10 untuk Semenanjung dan RM40 untuk Sabah atau Sarawak. Caj dibayar oleh penerima apabila barang sampai.</p></div>
     </section>
 
+    <section className="package-includes" id="dalam-pakej" aria-labelledby="package-includes-title">
+      <div className="package-includes-grid">
+        <figure className="package-includes-visual"><img src="/assets/package-includes.jfif" alt="Custom neon LED bersama power adapter, black PVC dan mounting set" loading="lazy" /></figure>
+        <div className="package-includes-copy">
+          <p className="eyebrow">Lengkap dalam kotak</p>
+          <h2 id="package-includes-title">Apa yang anda dapat<br /><em>bila dah beli.</em></h2>
+          <p className="package-includes-lead">Dah sampai, sambungkan adapter dan neon anda sedia untuk dinyalakan.</p>
+          <div className="package-includes-list">
+            <article><span>01</span><h3>Power Adapter 12V</h3><p>Bekalan kuasa untuk menyalakan neon LED.</p></article>
+            <article><span>02</span><h3>Black PVC</h3><p>Tapak belakang PVC hitam untuk hasil yang kemas.</p></article>
+            <article><span>03</span><h3>Custom Neon LED</h3><p>Neon mengikut teks, font dan warna tempahan anda.</p></article>
+            <article><span>04</span><h3>Mounting</h3><p>Aksesori asas untuk menggantung atau memasang neon.</p></article>
+          </div>
+          <small>Servis pemasangan di lokasi tidak termasuk.</small>
+        </div>
+      </div>
+    </section>
+
     <section className="inspiration" id="inspirasi">
       <div className="section-intro light"><p className="eyebrow">Hasil sebenar pelanggan</p><h2>Bukan gambar AI.<br /><em>Ini neon yang dah siap.</em></h2><p>Contoh sebenar daripada tempahan pelanggan—diambil dalam keadaan dan lokasi sebenar.</p></div>
       <div className="real-gallery">{portfolioItems.map((item, index) => <figure key={item.src} className={index === 0 ? 'wide' : ''}><img src={item.src} alt={`${item.title}, hasil neon LED sebenar`} loading="lazy" /><figcaption><span>{item.type}</span><strong>{item.title}</strong></figcaption></figure>)}</div>
@@ -287,12 +291,22 @@ export function App() {
       <div className="transformation-grid"><figure><img src="/assets/media/before-after-pizza.webp" alt="Sebelum dan selepas neon 480 Pizza dipasang" loading="lazy" /><figcaption><span>480 Pizza</span><strong>Nampak dari luar premis</strong></figcaption></figure><figure><img src="/assets/media/before-after-amir.webp" alt="Sebelum dan selepas neon Amir Tomyam dipasang" loading="lazy" /><figcaption><span>Amir Tomyam</span><strong>Jadi titik fokus ruang makan</strong></figcaption></figure></div>
     </section>
 
-    <section className="testimonials-section" aria-label="Testimoni pelanggan sebenar">
-      <div className="testimonial-intro"><p className="eyebrow">Conversation sebenar</p><h2>Apa pelanggan<br /><em>cakap lepas pasang.</em></h2><p>Ejaan dan gaya mesej asal dikekalkan. Klik nama untuk baca conversation seterusnya.</p><div className="testimonial-tabs" role="tablist">{testimonials.map((item, index) => <button key={item.business} className={activeTestimonial === index ? 'active' : ''} onClick={() => setActiveTestimonial(index)} role="tab" aria-selected={activeTestimonial === index}>{item.business}</button>)}</div></div>
-      <div className="chat-card" aria-live="polite"><div className="chat-head"><div className="chat-avatar">{testimonials[activeTestimonial].business.charAt(0)}</div><div><strong>{testimonials[activeTestimonial].business}</strong><span>{testimonials[activeTestimonial].label}</span></div><i>● online</i></div><div className="chat-body"><small>Conversation pelanggan</small>{testimonials[activeTestimonial].messages.map((message, index) => <div key={`${activeTestimonial}-${index}`} className={`chat-bubble ${message.side}`}>{message.text}<time>✓✓</time></div>)}</div><div className="chat-foot"><button onClick={() => setActiveTestimonial((activeTestimonial - 1 + testimonials.length) % testimonials.length)} aria-label="Testimoni sebelumnya">←</button><span>{String(activeTestimonial + 1).padStart(2, '0')} / {String(testimonials.length).padStart(2, '0')}</span><button onClick={() => setActiveTestimonial((activeTestimonial + 1) % testimonials.length)} aria-label="Testimoni seterusnya">→</button></div></div>
+    <section className="testimonials-section" id="testimoni" aria-label="Testimoni pelanggan sebenar">
+      <div className="testimonial-intro"><p className="eyebrow">Screenshot sebenar pelanggan</p><h2>Apa pelanggan<br /><em>cakap lepas pasang.</em></h2><p>Screenshot WhatsApp asal digunakan tanpa mereka semula conversation. Klik nama untuk lihat testimoni seterusnya.</p><div className="testimonial-tabs" role="tablist">{testimonials.map((item, index) => <button key={item.business} className={activeTestimonial === index ? 'active' : ''} onClick={() => setActiveTestimonial(index)} role="tab" aria-selected={activeTestimonial === index}>{item.business}</button>)}</div></div>
+      <figure className="testimonial-proof" aria-live="polite"><div className="testimonial-proof-head"><div className="chat-avatar">{testimonials[activeTestimonial].business.charAt(0)}</div><div><strong>{testimonials[activeTestimonial].business}</strong><span>{testimonials[activeTestimonial].label}</span></div><i>Gambar asal</i></div><div className="testimonial-proof-image"><img key={testimonials[activeTestimonial].src} src={testimonials[activeTestimonial].src} alt={testimonials[activeTestimonial].alt} /></div><figcaption className="chat-foot"><button onClick={() => setActiveTestimonial((activeTestimonial - 1 + testimonials.length) % testimonials.length)} aria-label="Testimoni sebelumnya">←</button><span>{String(activeTestimonial + 1).padStart(2, '0')} / {String(testimonials.length).padStart(2, '0')}</span><button onClick={() => setActiveTestimonial((activeTestimonial + 1) % testimonials.length)} aria-label="Testimoni seterusnya">→</button></figcaption></figure>
     </section>
 
-    <section className="process" id="cara"><div className="section-intro"><p className="eyebrow">Cara tempahan</p><h2>Dari idea ke neon<br /><em>dalam 4 langkah.</em></h2></div><ol><li><span>01</span><PencilSimple /><h3>Pilih</h3><p>Guna configurator atau pilih servis Design Custom.</p></li><li><span>02</span><ShoppingBagOpen /><h3>Tempah</h3><p>Teruskan tempahan melalui payment gateway yang selamat.</p></li><li><span>03</span><ShieldCheck /><h3>Sahkan</h3><p>Semak mockup akhir. Design custom bermula selepas deposit RM100.</p></li><li><span>04</span><Truck /><h3>Hasilkan</h3><p>Pengeluaran bermula selepas mockup dan bayaran berkaitan disahkan.</p></li></ol></section>
+    <section className="making-section" id="proses-pembuatan">
+      <div className="making-heading"><div><p className="eyebrow">Di sebalik neon</p><h2>Macam mana kami<br /><em>jadikan ia lampu.</em></h2></div><p>Daripada tapak PVC yang dipotong mengikut design, LED dipasang satu persatu sebelum setiap neon diuji dan dinyalakan.</p></div>
+      <figure className="making-video-frame">
+        <video autoPlay muted loop playsInline preload="metadata" poster="/assets/proses-neon/proses-pembuatan-neon-poster.jpg" aria-label="Video proses menghasilkan custom neon LED">
+          <source src="/assets/proses-neon/proses-pembuatan-neon.mp4" type="video/mp4" />
+          Browser anda tidak menyokong video HTML5.
+        </video>
+      </figure>
+    </section>
+
+    <section className="process" id="cara"><div className="section-intro"><p className="eyebrow">Cara tempahan</p><h2>Dari idea ke neon<br /><em>dalam 4 langkah.</em></h2></div><ol><li><span>01</span><PencilSimple /><h3>Pilih</h3><p>Guna configurator atau pilih servis Design Custom.</p></li><li><span>02</span><ShoppingBagOpen /><h3>Tempah</h3><p>Teruskan tempahan melalui payment gateway yang selamat.</p></li><li><span>03</span><ShieldCheck /><h3>Sahkan</h3><p>Semak mockup akhir. Design custom bermula selepas deposit RM100.</p></li><li><span>04</span><Truck /><h3>Hasilkan</h3><p>Pengeluaran bermula selepas mockup dan bayaran berkaitan disahkan.</p></li></ol><a className="process-order-button" href="#playground"><ShoppingBagOpen weight="fill" /> Tempah Sekarang <ArrowRight /></a></section>
 
     <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Adakah RM150 dan RM200 ikut rekaan configurator?</summary><p>Ya. Teks, font dan warna pilihan anda menjadi rujukan tempahan. Pakej RM150 mempunyai panjang bawah 60 cm dan pakej RM200 bawah 85 cm. Semakin banyak huruf, semakin panjang hasilnya sehingga had maksimum pakej.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau nama kedai lebih 15 huruf?</summary><p>Anda masih boleh lihat preview. Keperluan dan harga penghasilan akan dibincangkan melalui WhatsApp.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah deposit untuk servis design sahaja bagi custom size, logo, simbol atau bentuk khas. Designer akan berbincang dengan anda melalui WhatsApp. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Untuk pakej RM150 dan RM200, caj penghantaran maksimum RM10 bagi Semenanjung dan RM40 bagi Sabah atau Sarawak. Caj penghantaran dibayar oleh penerima apabila barang sampai.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>

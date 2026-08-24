@@ -8,3 +8,5 @@
 @media(max-width:520px){.checkout-header{height:68px}.checkout-brand{font-size:21px}.checkout-brand i{font-size:24px}.checkout-layout{padding:28px 16px 60px}.order-review{padding:22px 18px}.order-neon{height:170px}.order-neon span{font-size:40px}.checkout-form h1{font-size:58px}.checkout-fields{grid-template-columns:1fr}.field-wide{grid-column:auto}.checkout-back{margin-bottom:30px}}
 @media(max-width:520px){.checkout-slideshow{height:240px}.checkout-slide-label{bottom:12px;padding:10px 12px}.checkout-slide-label span{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.checkout-slideshow>img{transition:none;transform:none}}
+.checkout-fields input,.checkout-fields select,.checkout-pay{font-family:'Manrope','Manrope Variable',Arial,sans-serif}
+.checkout-brand,.checkout-form h1,.order-total strong,.checkout-empty h1{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif}
