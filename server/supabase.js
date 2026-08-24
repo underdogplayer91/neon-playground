@@ -1,6 +1,4 @@
 const limitText = (value, maxLength = 500) => String(value ?? '').trim().slice(0, maxLength);
-const MOCKUP_BUCKET = 'order-mockups';
-const MAX_MOCKUP_BYTES = 2 * 1024 * 1024;
 
 const cleanWordColors = (items) => Array.isArray(items)
   ? items.slice(0, 100).map((item) => ({
@@ -49,19 +47,6 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
   };
 }
 
-export function decodeMockupPng(dataUrl) {
-  if (!dataUrl) return null;
-  const match = /^data:image\/png;base64,([a-zA-Z0-9+/=]+)$/.exec(String(dataUrl));
-  if (!match || match[1].length > Math.ceil(MAX_MOCKUP_BYTES * 4 / 3) + 8) return null;
-  const buffer = Buffer.from(match[1], 'base64');
-  const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  const hasHeader = buffer.length >= 24
-    && buffer.subarray(0, 8).equals(pngSignature)
-    && buffer.subarray(12, 16).toString('ascii') === 'IHDR';
-  if (!hasHeader || buffer.length > MAX_MOCKUP_BYTES) return null;
-  return buffer;
-}
-
 export function mapToyyibPayStatus(status) {
   if (String(status) === '1') return 'paid';
   if (String(status) === '3') return 'failed';
@@ -74,41 +59,6 @@ const getConfiguration = () => {
   if (!url || !secretKey) throw new Error('Konfigurasi simpanan tempahan belum lengkap.');
   return { url, secretKey };
 };
-
-const storageHeaders = (secretKey, extra = {}) => ({
-  apikey: secretKey,
-  Authorization: `Bearer ${secretKey}`,
-  ...extra,
-});
-
-async function ensureMockupBucket(url, secretKey) {
-  const lookup = await fetch(`${url}/storage/v1/bucket/${MOCKUP_BUCKET}`, {
-    headers: storageHeaders(secretKey),
-  });
-  if (lookup.ok) return;
-  const lookupMessage = (await lookup.text()).slice(0, 300);
-  if (lookup.status !== 404 && !/not[ _-]?found|does not exist/i.test(lookupMessage)) {
-    throw new Error(`Bucket lookup failed (${lookup.status})`);
-  }
-
-  const creation = await fetch(`${url}/storage/v1/bucket`, {
-    method: 'POST',
-    headers: storageHeaders(secretKey, { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({
-      id: MOCKUP_BUCKET,
-      name: MOCKUP_BUCKET,
-      public: false,
-      file_size_limit: MAX_MOCKUP_BYTES,
-      allowed_mime_types: ['image/png'],
-    }),
-  });
-  if (!creation.ok) {
-    const creationMessage = (await creation.text()).slice(0, 300);
-    if (creation.status !== 409 && !/already exists|duplicate/i.test(creationMessage)) {
-      throw new Error(`Bucket creation failed (${creation.status})`);
-    }
-  }
-}
 
 async function requestSupabase(path, { method = 'GET', body, prefer = 'return=minimal' } = {}) {
   const { url, secretKey } = getConfiguration();
@@ -142,27 +92,3 @@ export const updateOrder = (reference, changes) => {
     body: { ...changes, updated_at: new Date().toISOString() },
   });
 };
-
-export async function uploadMockupPng(reference, dataUrl) {
-  const buffer = decodeMockupPng(dataUrl);
-  if (!buffer) return null;
-
-  const { url, secretKey } = getConfiguration();
-  await ensureMockupBucket(url, secretKey);
-  const safeReference = String(reference).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80);
-  const path = `${safeReference}/mockup.png`;
-  const upload = await fetch(`${url}/storage/v1/object/${MOCKUP_BUCKET}/${path}`, {
-    method: 'POST',
-    headers: storageHeaders(secretKey, {
-      'Content-Type': 'image/png',
-      'Cache-Control': '3600',
-      'x-upsert': 'true',
-    }),
-    body: buffer,
-  });
-  if (!upload.ok) {
-    const message = (await upload.text()).slice(0, 300);
-    throw new Error(`Mockup upload failed (${upload.status}): ${message}`);
-  }
-  return `${MOCKUP_BUCKET}/${path}`;
-}

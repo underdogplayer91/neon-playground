@@ -6,7 +6,7 @@ import {
   resolvePayment,
   verifyCallbackHash,
 } from '../server/toyyibpay.js';
-import { buildOrderRecord, decodeMockupPng, mapToyyibPayStatus } from '../server/supabase.js';
+import { buildOrderRecord, mapToyyibPayStatus } from '../server/supabase.js';
 
 test('server derives trusted package amounts from neon text', () => {
   assert.deepEqual(resolvePayment({ tier: 'custom', text: 'ABCDEFGH' }).amount, 150);
@@ -63,13 +63,4 @@ test('ToyyibPay callback statuses map to stored payment states', () => {
   assert.equal(mapToyyibPayStatus('1'), 'paid');
   assert.equal(mapToyyibPayStatus('3'), 'failed');
   assert.equal(mapToyyibPayStatus('2'), 'pending');
-});
-
-test('mockup upload accepts only a small valid PNG data URL', () => {
-  const pngHeader = Buffer.alloc(24);
-  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(pngHeader);
-  Buffer.from('IHDR').copy(pngHeader, 12);
-  assert.equal(decodeMockupPng(`data:image/png;base64,${pngHeader.toString('base64')}`).length, 24);
-  assert.equal(decodeMockupPng('data:image/jpeg;base64,AAAA'), null);
-  assert.equal(decodeMockupPng('data:image/png;base64,AAAA'), null);
 });

@@ -145,8 +145,7 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 - ToyyibPay callback mesti disahkan menggunakan hash rasmi sebelum status dianggap sah.
 - Halaman pulangan menyemak status transaksi melalui API Get Bill Transactions dan tidak bergantung semata-mata pada parameter URL.
 - Maklumat penuh tempahan disimpan dalam Supabase sebelum pelanggan dihantar ke ToyyibPay.
-- Preview configurator dijana sebagai PNG 1200 × 675 dan disimpan secara private dalam Supabase Storage apabila pelanggan menekan butang pembayaran.
-- Kegagalan menghasilkan PNG tidak menghalang pembayaran kerana konfigurasi teks, font dan warna tetap disimpan dalam rekod tempahan.
+- Rekod tempahan menyimpan konfigurasi teks, font, warna dan pilihan pelanggan tanpa menghasilkan atau menyimpan gambar preview.
 
 ### Pemasangan
 

@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { toCanvas } from 'html-to-image';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
-const MOCKUP_WIDTH = 1200;
-const MOCKUP_HEIGHT = 675;
-const MAX_MOCKUP_BYTES = 2 * 1024 * 1024;
 const checkoutSlides = [
   { src: '/assets/contoh-hasil/1.jpeg', alt: 'Contoh hasil neon LED untuk event' },
   { src: '/assets/contoh-hasil/2.png', alt: 'Contoh hasil neon LED pelanggan 2' },
@@ -31,57 +27,6 @@ const getShippingInfo = (state, tier) => {
   if (state === 'Labuan') return { amount: 'Akan disahkan', note: 'Kadar penghantaran Labuan belum ditetapkan.' };
   return { amount: 'Maksimum RM10', note: 'Kadar Semenanjung. Dibayar oleh penerima apabila barang sampai.' };
 };
-
-const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(String(reader.result || ''));
-  reader.onerror = () => reject(new Error('Mockup tidak dapat dibaca.'));
-  reader.readAsDataURL(blob);
-});
-
-const canvasToBlob = (canvas) => new Promise((resolve, reject) => {
-  canvas.toBlob((blob) => {
-    if (blob) resolve(blob);
-    else reject(new Error('PNG mockup tidak dapat dijana.'));
-  }, 'image/png');
-});
-
-const nextPaint = () => new Promise((resolve) => window.requestAnimationFrame(resolve));
-
-async function captureMockup(node) {
-  if (!node) return '';
-  await document.fonts.ready;
-  await nextPaint();
-  await nextPaint();
-
-  const sourceCanvas = await toCanvas(node, {
-    pixelRatio: 2,
-    backgroundColor: '#11131a',
-    cacheBust: true,
-  });
-  const outputCanvas = document.createElement('canvas');
-  outputCanvas.width = MOCKUP_WIDTH;
-  outputCanvas.height = MOCKUP_HEIGHT;
-  const context = outputCanvas.getContext('2d');
-  if (!context) return '';
-
-  context.fillStyle = '#11131a';
-  context.fillRect(0, 0, MOCKUP_WIDTH, MOCKUP_HEIGHT);
-  const scale = Math.max(MOCKUP_WIDTH / sourceCanvas.width, MOCKUP_HEIGHT / sourceCanvas.height);
-  const drawWidth = sourceCanvas.width * scale;
-  const drawHeight = sourceCanvas.height * scale;
-  context.drawImage(
-    sourceCanvas,
-    (MOCKUP_WIDTH - drawWidth) / 2,
-    (MOCKUP_HEIGHT - drawHeight) / 2,
-    drawWidth,
-    drawHeight,
-  );
-
-  const blob = await canvasToBlob(outputCanvas);
-  if (blob.size > MAX_MOCKUP_BYTES) return '';
-  return blobToDataUrl(blob);
-}
 
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
@@ -137,16 +82,10 @@ export function CheckoutPage() {
     setIsSubmitting(true);
     window.sessionStorage.setItem(CUSTOMER_KEY, JSON.stringify({ ...customer, orderReference: order.reference }));
     try {
-      let mockupDataUrl = '';
-      try {
-        mockupDataUrl = await captureMockup(orderNeonRef.current);
-      } catch (mockupError) {
-        console.warn('Mockup capture skipped', mockupError);
-      }
       const paymentResponse = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order, customer, mockupDataUrl }),
+        body: JSON.stringify({ order, customer }),
       });
       const result = await paymentResponse.json();
       if (!paymentResponse.ok || !result.paymentUrl) throw new Error(result.error || 'Bil pembayaran tidak dapat dicipta.');
