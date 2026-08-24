@@ -1,6 +1,6 @@
 import { buildBillFields, normaliseBaseUrl, parseRequestBody } from '../server/toyyibpay.js';
 import { randomUUID } from 'node:crypto';
-import { buildOrderRecord, createOrder, updateOrder } from '../server/supabase.js';
+import { buildOrderRecord, createOrder, updateOrder, uploadMockupPng } from '../server/supabase.js';
 
 const createReference = () => `YH_${Date.now().toString(36).toUpperCase()}_${randomUUID().slice(0, 6).toUpperCase()}`;
 
@@ -28,7 +28,21 @@ export default async function handler(request, response) {
       secretKey,
       categoryCode,
     });
-    await createOrder(buildOrderRecord({ order: trustedOrder, customer, payment, reference }));
+    const orderRecord = buildOrderRecord({ order: trustedOrder, customer, payment, reference });
+    await createOrder(orderRecord);
+
+    if (payload.mockupDataUrl) {
+      try {
+        const mockupPath = await uploadMockupPng(reference, payload.mockupDataUrl);
+        if (mockupPath) {
+          await updateOrder(reference, {
+            order_snapshot: { ...orderRecord.order_snapshot, mockupPath },
+          });
+        }
+      } catch (error) {
+        console.error('Mockup upload skipped', { reference, message: error.message });
+      }
+    }
 
     const toyyibResponse = await fetch(`${baseUrl}/index.php/api/createBill`, {
       method: 'POST',

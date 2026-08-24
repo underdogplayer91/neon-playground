@@ -144,7 +144,9 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 - User Secret Key hanya disimpan dalam Vercel Environment Variables dan tidak boleh dihantar ke browser atau disimpan dalam GitHub.
 - ToyyibPay callback mesti disahkan menggunakan hash rasmi sebelum status dianggap sah.
 - Halaman pulangan menyemak status transaksi melalui API Get Bill Transactions dan tidak bergantung semata-mata pada parameter URL.
-- Maklumat tempahan utama dimasukkan dalam bill description dan kandungan email ToyyibPay. Penyimpanan order penuh dalam database serta automasi email dalaman memerlukan fasa Supabase dan Resend seterusnya.
+- Maklumat penuh tempahan disimpan dalam Supabase sebelum pelanggan dihantar ke ToyyibPay.
+- Preview configurator dijana sebagai PNG 1200 × 675 dan disimpan secara private dalam Supabase Storage apabila pelanggan menekan butang pembayaran.
+- Kegagalan menghasilkan PNG tidak menghalang pembayaran kerana konfigurasi teks, font dan warna tetap disimpan dalam rekod tempahan.
 
 ### Pemasangan
 
