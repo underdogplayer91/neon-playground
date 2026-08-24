@@ -33,13 +33,21 @@ export function validateCheckout(order, customer) {
   const name = String(customer?.name || '').trim();
   const phone = String(customer?.phone || '').replace(/[^0-9+]/g, '');
   const email = String(customer?.email || '').trim();
+  const address1 = String(customer?.address1 || '').trim();
+  const address2 = String(customer?.address2 || '').trim();
+  const postcode = String(customer?.postcode || '').trim();
+  const city = String(customer?.city || '').trim();
+  const state = String(customer?.state || '').trim();
 
   if (!name || name.length > 100) throw new Error('Nama pelanggan tidak sah.');
   if (!/^\+?[0-9]{9,15}$/.test(phone)) throw new Error('Nombor telefon tidak sah.');
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Alamat email tidak sah.');
+  if (!address1 || address1.length > 300) throw new Error('Alamat penghantaran tidak sah.');
+  if (!/^[0-9]{5}$/.test(postcode)) throw new Error('Poskod tidak sah.');
+  if (!city || city.length > 100 || !state || state.length > 100) throw new Error('Bandar atau negeri tidak sah.');
   if (!payment.text && payment.tier !== 'custom') throw new Error('Teks neon diperlukan.');
 
-  return { payment, customer: { ...customer, name, phone, email } };
+  return { payment, customer: { ...customer, name, phone, email, address1, address2, postcode, city, state } };
 }
 
 export function buildBillFields({ order, customer, siteUrl, secretKey, categoryCode }) {
@@ -70,6 +78,7 @@ export function buildBillFields({ order, customer, siteUrl, secretKey, categoryC
   return {
     payment,
     reference,
+    customer: verifiedCustomer,
     fields: {
       userSecretKey: secretKey,
       categoryCode,
@@ -117,4 +126,3 @@ export function parseRequestBody(body) {
     return Object.fromEntries(new URLSearchParams(body));
   }
 }
-
