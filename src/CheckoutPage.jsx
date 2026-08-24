@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { toBlob } from 'html-to-image';
+import { toCanvas } from 'html-to-image';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
@@ -39,48 +39,48 @@ const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
   reader.readAsDataURL(blob);
 });
 
+const canvasToBlob = (canvas) => new Promise((resolve, reject) => {
+  canvas.toBlob((blob) => {
+    if (blob) resolve(blob);
+    else reject(new Error('PNG mockup tidak dapat dijana.'));
+  }, 'image/png');
+});
+
+const nextPaint = () => new Promise((resolve) => window.requestAnimationFrame(resolve));
+
 async function captureMockup(node) {
   if (!node) return '';
   await document.fonts.ready;
+  await nextPaint();
+  await nextPaint();
 
-  const clone = node.cloneNode(true);
-  const sourceText = node.querySelector('.order-neon-text');
-  const cloneText = clone.querySelector('.order-neon-text');
-  const sourceWidth = Math.max(node.clientWidth, 1);
-  const sourceHeight = Math.max(node.clientHeight, 1);
-  const scale = Math.min(MOCKUP_WIDTH / sourceWidth, MOCKUP_HEIGHT / sourceHeight);
-
-  Object.assign(clone.style, {
-    position: 'fixed',
-    left: '-10000px',
-    top: '0',
-    width: `${MOCKUP_WIDTH}px`,
-    height: `${MOCKUP_HEIGHT}px`,
-    margin: '0',
-    borderRadius: '0',
-    zIndex: '-1',
+  const sourceCanvas = await toCanvas(node, {
+    pixelRatio: 2,
+    backgroundColor: '#11131a',
+    cacheBust: true,
   });
-  if (sourceText && cloneText) {
-    const sourceFontSize = Number.parseFloat(window.getComputedStyle(sourceText).fontSize) || 52;
-    cloneText.style.fontSize = `${sourceFontSize * scale}px`;
-  }
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = MOCKUP_WIDTH;
+  outputCanvas.height = MOCKUP_HEIGHT;
+  const context = outputCanvas.getContext('2d');
+  if (!context) return '';
 
-  document.body.appendChild(clone);
-  try {
-    const blob = await toBlob(clone, {
-      width: MOCKUP_WIDTH,
-      height: MOCKUP_HEIGHT,
-      canvasWidth: MOCKUP_WIDTH,
-      canvasHeight: MOCKUP_HEIGHT,
-      pixelRatio: 1,
-      backgroundColor: '#11131a',
-      cacheBust: true,
-    });
-    if (!blob || blob.size > MAX_MOCKUP_BYTES) return '';
-    return blobToDataUrl(blob);
-  } finally {
-    clone.remove();
-  }
+  context.fillStyle = '#11131a';
+  context.fillRect(0, 0, MOCKUP_WIDTH, MOCKUP_HEIGHT);
+  const scale = Math.max(MOCKUP_WIDTH / sourceCanvas.width, MOCKUP_HEIGHT / sourceCanvas.height);
+  const drawWidth = sourceCanvas.width * scale;
+  const drawHeight = sourceCanvas.height * scale;
+  context.drawImage(
+    sourceCanvas,
+    (MOCKUP_WIDTH - drawWidth) / 2,
+    (MOCKUP_HEIGHT - drawHeight) / 2,
+    drawWidth,
+    drawHeight,
+  );
+
+  const blob = await canvasToBlob(outputCanvas);
+  if (blob.size > MAX_MOCKUP_BYTES) return '';
+  return blobToDataUrl(blob);
 }
 
 export function CheckoutPage() {
