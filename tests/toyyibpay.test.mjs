@@ -31,6 +31,7 @@ test('bill amount is fixed in cents and secret remains server-side', () => {
   });
   assert.equal(result.fields.billPriceSetting, '1');
   assert.equal(result.fields.billAmount, '15000');
+  assert.equal(result.fields.billName, 'Tempahan Pakar Neon LED');
   assert.equal(result.fields.userSecretKey, 'test-secret');
   assert.equal(result.fields.billReturnUrl, 'https://www.pakarneonled.store/payment-status');
   assert.equal(result.fields.billCallbackUrl, 'https://www.pakarneonled.store/api/payment-callback');

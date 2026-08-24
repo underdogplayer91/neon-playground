@@ -82,7 +82,7 @@ export function buildBillFields({ order, customer, siteUrl, secretKey, categoryC
     fields: {
       userSecretKey: secretKey,
       categoryCode,
-      billName: cleanText(`YH Neon ${reference}`, 30),
+      billName: 'Tempahan Pakar Neon LED',
       billDescription: description || 'Tempahan Custom Neon LED',
       billPriceSetting: '1',
       billPayorInfo: '1',
