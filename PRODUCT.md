@@ -137,6 +137,15 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 7. Harga penuh penghasilan neon custom diberikan secara berasingan selepas design dinilai, dan deposit RM100 ditolak daripada harga akhir tersebut.
 8. Pengeluaran hanya bermula selepas mockup disahkan dan bayaran pengeluaran yang berkaitan diterima.
 
+### Integrasi ToyyibPay
+
+- Checkout mencipta satu bil ToyyibPay unik melalui server Vercel bagi setiap percubaan pembayaran.
+- Harga tidak boleh dipercayai daripada browser. Server mengira semula RM150 untuk 1 hingga 8 huruf, RM200 untuk 9 hingga 15 huruf, dan deposit RM100 untuk teks melebihi 15 huruf atau Design Custom.
+- User Secret Key hanya disimpan dalam Vercel Environment Variables dan tidak boleh dihantar ke browser atau disimpan dalam GitHub.
+- ToyyibPay callback mesti disahkan menggunakan hash rasmi sebelum status dianggap sah.
+- Halaman pulangan menyemak status transaksi melalui API Get Bill Transactions dan tidak bergantung semata-mata pada parameter URL.
+- Maklumat tempahan utama dimasukkan dalam bill description dan kandungan email ToyyibPay. Penyimpanan order penuh dalam database serta automasi email dalaman memerlukan fasa Supabase dan Resend seterusnya.
+
 ### Pemasangan
 
 - Pemasangan tidak termasuk dalam pakej standard.

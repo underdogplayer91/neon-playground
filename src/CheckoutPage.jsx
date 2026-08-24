@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PAYMENT_LINKS } from './siteConfig';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
@@ -21,19 +20,6 @@ const readStoredOrder = () => {
   }
 };
 
-const buildGatewayUrl = (paymentLink, order, customer) => {
-  const separator = paymentLink.includes('?') ? '&' : '?';
-  const params = new URLSearchParams({
-    rujukan: order.reference,
-    pakej: order.packageName,
-    harga: `RM${order.price}`,
-    nama: customer.name,
-    telefon: customer.phone,
-    email: customer.email || '',
-  });
-  return `${paymentLink}${separator}${params.toString()}`;
-};
-
 const getShippingInfo = (state, tier) => {
   if (tier === 'custom') return { amount: 'Akan disahkan', note: 'Kadar penghantaran Design Custom bergantung pada saiz akhir.' };
   if (!state) return { amount: 'Pilih negeri', note: 'Kadar dipaparkan selepas negeri penghantaran dipilih.' };
@@ -46,6 +32,7 @@ export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
   const orderNeonRef = useRef(null);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
   const [customer, setCustomer] = useState({
     name: '',
@@ -57,7 +44,6 @@ export function CheckoutPage() {
     city: '',
     state: '',
   });
-  const paymentLink = useMemo(() => order ? PAYMENT_LINKS[order.tier]?.trim() : '', [order]);
   const shippingInfo = useMemo(() => order ? getShippingInfo(customer.state, order.tier) : null, [customer.state, order]);
   const checkoutText = order?.text || 'Design Custom';
   const checkoutTokens = tokenizeNeonText(checkoutText);
@@ -89,14 +75,30 @@ export function CheckoutPage() {
   }
 
   const updateField = (event) => setCustomer((current) => ({ ...current, [event.target.name]: event.target.value }));
-  const submitOrder = (event) => {
+  const submitOrder = async (event) => {
     event.preventDefault();
+    if (isSubmitting) return;
+    setError('');
+    setIsSubmitting(true);
     window.sessionStorage.setItem(CUSTOMER_KEY, JSON.stringify({ ...customer, orderReference: order.reference }));
-    if (!paymentLink) {
-      setError('Payment gateway belum disambungkan. Isi link pakej ini dalam src/siteConfig.js untuk meneruskan bayaran.');
-      return;
+    try {
+      const paymentResponse = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order, customer }),
+      });
+      const result = await paymentResponse.json();
+      if (!paymentResponse.ok || !result.paymentUrl) throw new Error(result.error || 'Bil pembayaran tidak dapat dicipta.');
+      window.sessionStorage.setItem('yh-neon-payment', JSON.stringify({
+        billCode: result.billCode,
+        reference: result.reference,
+        amount: result.amount,
+      }));
+      window.location.assign(result.paymentUrl);
+    } catch (paymentError) {
+      setError(paymentError.message || 'Sambungan pembayaran gagal. Sila cuba lagi.');
+      setIsSubmitting(false);
     }
-    window.location.assign(buildGatewayUrl(paymentLink, order, customer));
   };
 
   return <main className="checkout-page">
@@ -123,7 +125,7 @@ export function CheckoutPage() {
         <label className="checkout-consent"><input type="checkbox" required /> <span>Saya sudah menyemak teks, font, warna dan alamat penghantaran.</span></label>
         <div className="checkout-important"><strong>Maklumat penting</strong><p>Selepas pembayaran dibuat, designer akan menghubungi tuan/puan melalui WhatsApp untuk pengesahan tempahan.</p></div>
         {error && <p className="checkout-error" role="alert">{error}</p>}
-        <button className="checkout-pay" type="submit">Teruskan ke Pembayaran <span>→</span></button>
+        <button className="checkout-pay" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Menyediakan bil selamat...' : 'Teruskan ke Pembayaran'} <span>{isSubmitting ? '···' : '→'}</span></button>
         <p className="checkout-privacy">Maklumat alamat disimpan sementara dalam sesi browser ini. Sambungan backend diperlukan sebelum menerima tempahan pelanggan sebenar.</p>
       </form>
 
