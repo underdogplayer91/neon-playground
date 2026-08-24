@@ -1,6 +1,16 @@
 import { useLayoutEffect, useState } from 'react';
 
-export const limitNeonInput = (value, maxWordLength = 30, maxLines = 2) => value
+export const tokenizeNeonText = (text) => {
+  let wordIndex = 0;
+  return text.split(/(\s+)/).filter(Boolean).map((value) => {
+    if (/^\s+$/.test(value)) return { type: 'space', value };
+    const token = { type: 'word', value, wordIndex };
+    wordIndex += 1;
+    return token;
+  });
+};
+
+export const limitNeonInput = (value, maxWordLength = 30, maxLines = 6) => value
   .replace(/\r/g, '')
   .split('\n')
   .slice(0, maxLines)
@@ -17,7 +27,7 @@ export function useFittedNeonText(containerRef, text, fontFamily, options = {}) 
     maxSize = 118,
     widthRatio = 0.78,
     singleLineHeightRatio = 0.2,
-    multiLineHeightRatio = 0.38,
+    multiLineHeightRatio = 0.7,
   } = options;
   const [fontSize, setFontSize] = useState(baseSize);
 

@@ -53,7 +53,7 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 | Pakej 8 Huruf | 1–8 aksara | Kurang daripada 60 cm | RM150 | Disahkan |
 | Pakej 15 Huruf | 9–15 aksara | Kurang daripada 85 cm | RM200 | Disahkan |
 | Deposit Design Custom | Saiz atau rekaan custom | Mengikut quotation | RM100 | Disahkan |
-| Rekaan melebihi had | Lebih 15 aksara | Mengikut quotation | Quotation manual | Disahkan |
+| Rekaan melebihi had | Lebih 15 aksara | Mengikut semakan designer | Anggaran automatik + deposit RM100 | Disahkan |
 
 ### Maksud harga pakej tetap
 
@@ -68,18 +68,29 @@ Sebelum mengubah configurator, harga, FAQ, CTA atau copy landing page, semak dok
 ### Deposit Design Custom RM100
 
 - Pilihan ini untuk pelanggan yang mahu saiz custom, logo, simbol, bentuk atau design yang tidak diliputi configurator standard.
-- RM100 ialah deposit untuk servis design sahaja, bukan harga penuh produk neon.
+- RM100 ialah deposit sebagai tanda komitmen tempahan, bukan harga penuh produk neon.
 - Deposit RM100 akan ditolak daripada harga akhir neon custom.
 - Pelanggan berbincang tentang keperluan design melalui WhatsApp dengan designer.
+- Selepas deposit diterima, pihak YH akan menghubungi pelanggan melalui WhatsApp.
 - Deposit dibuat selepas skop awal dibincangkan dan sebelum kerja design custom dimulakan.
 - Harga penghasilan neon, baki bayaran dan spesifikasi akhir akan diberikan secara berasingan selepas design dinilai.
+
+### Anggaran harga melebihi 15 aksara
+
+- Anggaran bermula daripada harga RM200 bagi 15 aksara pertama.
+- Setiap aksara tambahan selepas 15 aksara dikira RM12.
+- Setiap blok lengkap 10 aksara tambahan dikira RM100, menggantikan kiraan RM120 bagi blok tersebut.
+- Formula anggaran: `RM200 + (blok 10 aksara × RM100) + (baki aksara × RM12)`.
+- Contoh: 16 aksara = RM212, 20 aksara = RM260 dan 25 aksara = RM300.
+- Anggaran bukan harga muktamad kerana ukuran, susunan dan keperluan pembuatan masih perlu disahkan designer.
+- Pelanggan hanya membayar deposit RM100 ketika checkout. Deposit tersebut ditolak daripada harga akhir.
 
 ### Peraturan kiraan aksara
 
 - Huruf, nombor, tanda baca dan simbol dikira.
 - Ruang dan line break tidak dikira.
-- Pelanggan boleh menggunakan maksimum dua baris teks. Susunan line break dalam configurator mesti dikekalkan pada preview dan checkout.
-- Aksara melebihi 15 masih boleh dipreview dalam configurator, tetapi tidak menerima harga tetap.
+- Pelanggan boleh menggunakan maksimum enam baris teks. Susunan line break dalam configurator mesti dikekalkan pada preview dan checkout.
+- Aksara melebihi 15 masih boleh dipreview dan menerima anggaran harga automatik, tetapi bukan harga tetap.
 - Font dan warna tidak mengubah harga asas.
 
 ### Saiz fizikal
@@ -187,6 +198,7 @@ Lengkapkan perkara berikut sebelum ia dimasukkan sebagai fakta dalam landing pag
 - Harga, kiraan aksara, kad pakej, CTA sticky dan pilihan payment gateway mesti sentiasa sepadan.
 - RM100 mesti sentiasa dilabel sebagai deposit design sahaja, bukan harga penuh neon.
 - Landing page mesti menyatakan bahawa deposit RM100 ditolak daripada harga akhir neon custom.
+- Anggaran untuk teks melebihi 15 aksara mesti menggunakan formula yang disahkan dan dilabel sebagai anggaran, bukan harga muktamad.
 - Landing page menghantar pelanggan ke payment gateway luar melalui CTA “Tempah Sekarang”; kutipan bayaran tidak berlaku terus dalam website.
 - Selepas dokumen ini berubah, review kesannya pada hero, configurator, harga, proses tempahan, FAQ dan pautan payment gateway.
 
@@ -197,7 +209,7 @@ Sebelum menerbitkan perubahan:
 - [ ] Harga RM150, RM200 dan deposit design RM100 sepadan di semua bahagian.
 - [ ] Had panjang bawah 60 cm dan bawah 85 cm sepadan di semua bahagian.
 - [ ] Kiraan aksara mengabaikan ruang dan line break sahaja.
-- [ ] Teks melebihi 15 aksara menggunakan quotation manual.
+- [ ] Teks melebihi 15 aksara menunjukkan anggaran harga dan checkout hanya mengenakan deposit RM100.
 - [ ] Website tidak mendakwa pemasangan termasuk.
 - [ ] Website tidak membuat dakwaan penghantaran, jaminan atau tempoh siap yang belum disahkan.
 - [ ] Pakej RM150/RM200 menunjukkan bayaran penuh selepas mockup disahkan.

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { limitNeonInput, useFittedNeonText } from './neonText';
+import { limitNeonInput, tokenizeNeonText, useFittedNeonText } from './neonText';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -91,11 +91,16 @@ const heroImage = {
   alt: 'Kedai Kopi Jiwa dengan neon pada cermin dalam paparan siang dan malam',
 };
 const countCharacters = (value) => [...value.replace(/\s/g, '')].length;
+const getEstimatedCustomPrice = (count) => {
+  if (count <= 15) return null;
+  const extraCharacters = count - 15;
+  return 200 + (Math.floor(extraCharacters / 10) * 100) + ((extraCharacters % 10) * 12);
+};
 const getPackage = (count) => {
   if (!count) return { name: 'Belum dipilih', price: null, tier: 'none' };
   if (count <= 8) return { name: 'Pakej 8 Huruf', price: 150, tier: 'basic' };
   if (count <= 15) return { name: 'Pakej 15 Huruf', price: 200, tier: 'plus' };
-  return { name: 'Sebut Harga Khas', price: null, tier: 'custom' };
+  return { name: 'Design Custom', price: null, tier: 'custom', estimatedPrice: getEstimatedCustomPrice(count) };
 };
 const ORDER_KEY = 'yh-neon-checkout-order';
 
@@ -108,9 +113,13 @@ function Header() {
 }
 
 export function App() {
-  const [text, setText] = useState('Kopi Jiwa');
-  const [fontId, setFontId] = useState('Alexa');
+  const [text, setText] = useState('pulang bawa rindu');
+  const [fontId, setFontId] = useState('Amanda');
   const [colorId, setColorId] = useState('pink');
+  const [colorMode, setColorMode] = useState('multi');
+  const [wordColorIds, setWordColorIds] = useState({ 0: 'pink', 1: 'yellow', 2: 'pink' });
+  const [activeWordIndex, setActiveWordIndex] = useState(0);
+  const [colorMessage, setColorMessage] = useState('');
   const [backgroundMode, setBackgroundMode] = useState('night');
   const [hasInteracted, setHasInteracted] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -120,7 +129,11 @@ export function App() {
   const selectedPackage = getPackage(characterCount);
   const selectedFont = fonts.find((font) => font.id === fontId);
   const selectedColor = colors.find((color) => color.id === colorId);
-  const displayText = text.trim() || 'Nama Kedai Anda';
+  const displayText = text.trim() || 'pulang bawa rindu';
+  const previewTokens = tokenizeNeonText(displayText);
+  const wordTokens = previewTokens.filter((token) => token.type === 'word');
+  const activeColorId = colorMode === 'multi' ? (wordColorIds[activeWordIndex] || colorId) : colorId;
+  const getWordColor = (wordIndex) => colors.find((color) => color.id === (wordColorIds[wordIndex] || colorId)) || selectedColor;
   const previewFontSize = useFittedNeonText(previewStageRef, displayText, selectedFont.family);
   useEffect(() => {
     fonts.forEach((font) => {
@@ -139,6 +152,26 @@ export function App() {
     }, 3800);
     return () => window.clearInterval(timer);
   }, []);
+  useEffect(() => {
+    if (activeWordIndex >= wordTokens.length) setActiveWordIndex(Math.max(0, wordTokens.length - 1));
+  }, [activeWordIndex, wordTokens.length]);
+  const chooseColor = (nextColorId) => {
+    if (colorMode === 'single') {
+      setColorId(nextColorId);
+      setColorMessage('');
+      interact();
+      return;
+    }
+    const nextAssignments = { ...wordColorIds, [activeWordIndex]: nextColorId };
+    const usedColors = new Set(wordTokens.map((token) => nextAssignments[token.wordIndex] || colorId));
+    if (usedColors.size > 3) {
+      setColorMessage('Maksimum 3 warna untuk satu design.');
+      return;
+    }
+    setWordColorIds(nextAssignments);
+    setColorMessage('');
+    interact();
+  };
   const checkoutUrl = characterCount ? '/checkout' : '#playground';
   const prepareCheckout = () => {
     if (!characterCount) return;
@@ -148,6 +181,7 @@ export function App() {
       tier,
       packageName: selectedPackage.price ? selectedPackage.name : 'Design Custom',
       price: selectedPackage.price || 100,
+      estimatedPrice: selectedPackage.estimatedPrice || null,
       text: text.trim(),
       characterCount,
       fontName: selectedFont.name,
@@ -155,8 +189,13 @@ export function App() {
       colorLabel: selectedColor.label,
       colorValue: selectedColor.value,
       colorGlow: selectedColor.glow,
+      colorMode,
+      wordColors: colorMode === 'multi' ? wordTokens.map((token) => {
+        const wordColor = getWordColor(token.wordIndex);
+        return { wordIndex: token.wordIndex, text: token.value, colorId: wordColor.id, label: wordColor.label, value: wordColor.value, glow: wordColor.glow };
+      }) : [],
       backgroundMode,
-      sizeNote: tier === 'basic' ? 'Panjang bawah 60 cm' : tier === 'plus' ? 'Panjang bawah 85 cm' : 'Custom size',
+      sizeNote: tier === 'basic' ? 'Panjang bawah 60 cm' : tier === 'plus' ? 'Panjang bawah 85 cm' : 'Custom size · ukuran akhir disahkan designer',
     }));
   };
   const prepareCustomCheckout = () => window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({
@@ -182,9 +221,9 @@ export function App() {
       <div className="hero-slides"><img className="active" src={heroImage.src} alt={heroImage.alt} fetchPriority="high" /></div>
       <div className="hero-shade" />
       <div className="hero-content">
-        <p className="eyebrow"><MapPin weight="fill" /> Untuk owner kedai fizikal</p>
-        <h1>Dari kedai biasa<br />kepada kedai yang<br /><em>orang ingat.</em></h1>
-        <p className="hero-copy">Neon LED custom yang menjadikan jenama anda nampak premium, siang dan malam.</p>
+        <p className="eyebrow"><MapPin weight="fill" /> Untuk bisnes, ruang &amp; momen anda</p>
+        <h1>Dari ruang yang suram<br />kepada suasana yang<br /><em>hidup menyala.</em></h1>
+        <p className="hero-copy">Meriahkan kedai, bilik, acara atau studio dengan Custom Neon LED daripada nama dan kata-kata pilihan anda.</p>
         <a className="primary-button" href="#playground">Cuba Nama Kedai Anda <ArrowDown weight="bold" /></a>
         <div className="hero-note"><Check weight="bold" /> Reka · Sahkan · Baru kami hasilkan</div>
       </div>
@@ -198,12 +237,12 @@ export function App() {
     </section>
 
     <section className="playground-section" id="playground">
-      <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Cuba nama kedai anda.<br /><em>Lihat ia menyala.</em></h2><p>Tak perlu teka hasilnya. Main dengan font dan warna sampai jumpa gaya yang terasa seperti jenama anda.</p></div>
+      <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Tulis perkataan anda.<br /><em>Biar ia menyala.</em></h2><p>Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p></div>
       <div className={`configurator ${backgroundMode}`}>
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
-          <textarea id="shop-name" value={text} maxLength={61} rows={2} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'Contoh:\nKopi Jiwa'} />
-          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 30 setiap perkataan</small></div>
+          <textarea id="shop-name" value={text} maxLength={240} rows={4} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'Contoh:\nKopi itu pahit'} />
+          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 6 baris · 30/perkataan</small></div>
           <div className="field-head"><span>02</span><label htmlFor="other-font-select">Pilih font</label></div>
           <div className="featured-fonts" role="radiogroup" aria-label="Pilihan font utama">
             {featuredFonts.map((font) => <button
@@ -217,25 +256,43 @@ export function App() {
             >{font.name}</button>)}
           </div>
           <div className="other-font-field">
-            <label htmlFor="other-font-select">Other Font</label>
+            <label htmlFor="other-font-select">Other Font · {otherFonts.length} pilihan lagi</label>
             <select id="other-font-select" className="font-select" value={otherFonts.some((font) => font.id === fontId) ? fontId : ''} style={{ fontFamily: otherFonts.some((font) => font.id === fontId) ? selectedFont.family : undefined }} onChange={(e) => { if (e.target.value) { setFontId(e.target.value); interact(); } }}>
               <option value="">Other Font — Pilih font lain</option>
               {otherFonts.map((font) => <option key={font.id} value={font.id} style={{ fontFamily: font.family }}>{font.name}</option>)}
             </select>
           </div>
           <div className="field-head"><span>03</span><label>Pilih warna</label></div>
-          <div className="color-options" role="radiogroup">{colors.map((color) => <button key={color.id} className={colorId === color.id ? 'selected' : ''} style={{ '--swatch': color.value }} onClick={() => { setColorId(color.id); interact(); }} aria-label={color.label} role="radio" aria-checked={colorId === color.id} />)}</div>
+          <div className="color-mode-tabs" aria-label="Cara pemilihan warna">
+            <button type="button" className={colorMode === 'single' ? 'active' : ''} onClick={() => { setColorMode('single'); setColorMessage(''); interact(); }}>Satu warna</button>
+            <button type="button" className={colorMode === 'multi' ? 'active' : ''} onClick={() => { setColorMode('multi'); setActiveWordIndex(0); setColorMessage(''); interact(); }}>Ikut perkataan</button>
+          </div>
+          {colorMode === 'multi' && <div className="word-color-picker">
+            <small>Tekan perkataan, kemudian pilih warna · maks. 3 warna</small>
+            <div>{wordTokens.map((token) => {
+              const wordColor = getWordColor(token.wordIndex);
+              return <button type="button" key={`${token.value}-${token.wordIndex}`} className={activeWordIndex === token.wordIndex ? 'active' : ''} onClick={() => { setActiveWordIndex(token.wordIndex); setColorMessage(''); }} style={{ '--word-color': wordColor.value }}><i />{token.value}</button>;
+            })}</div>
+          </div>}
+          <div className="color-options" role="radiogroup">{colors.map((color) => <button key={color.id} className={activeColorId === color.id ? 'selected' : ''} style={{ '--swatch': color.value }} onClick={() => chooseColor(color.id)} aria-label={colorMode === 'multi' ? `${color.label} untuk ${wordTokens[activeWordIndex]?.value || 'perkataan'}` : color.label} role="radio" aria-checked={activeColorId === color.id} />)}</div>
+          {colorMessage && <p className="color-message" role="status">{colorMessage}</p>}
         </div>
         <div className="preview-stage" ref={previewStageRef}>
           <img src="/assets/configurator-wall.png" alt="Dinding kedai untuk pratonton neon" />
           <div className="mode-toggle"><button className={backgroundMode === 'day' ? 'active' : ''} onClick={() => { setBackgroundMode('day'); interact(); }}><Sun /> Siang</button><button className={backgroundMode === 'night' ? 'active' : ''} onClick={() => { setBackgroundMode('night'); interact(); }}><Moon /> Malam</button></div>
-          <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
+          {colorMode === 'single'
+            ? <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
+            : <div className="neon-text multi-color" style={{ fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{previewTokens.map((token, index) => {
+              if (token.type === 'space') return token.value;
+              const wordColor = getWordColor(token.wordIndex);
+              return <span className="neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--neon': wordColor.value, '--glow': wordColor.glow }}>{token.value}</span>;
+            })}</div>}
           {!text.trim() && <span className="preview-hint">Taip sesuatu untuk mula mereka</span>}
         </div>
       </div>
       <div className="live-summary" aria-live="polite">
         <div><span>Pilihan anda</span><strong>{selectedPackage.name}</strong></div>
-        <div className="summary-price"><span>{selectedPackage.price ? 'Harga tetap' : 'Harga'}</span><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : characterCount ? 'Sebut harga khas' : '—'}</strong></div>
+        <div className="summary-price"><span>{selectedPackage.price ? 'Harga tetap' : selectedPackage.estimatedPrice ? 'Anggaran harga penuh' : 'Harga'}</span><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : selectedPackage.estimatedPrice ? `RM${selectedPackage.estimatedPrice}*` : '—'}</strong>{selectedPackage.estimatedPrice && <small>Deposit komitmen RM100 · Kami hubungi melalui WhatsApp</small>}</div>
         <a className={`order-button ${!characterCount ? 'disabled' : ''}`} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a>
       </div>
     </section>
@@ -246,7 +303,7 @@ export function App() {
         <article className={selectedPackage.tier === 'basic' ? 'active' : ''}><span className="package-number">01</span><div><p>Ikut configurator · panjang bawah 60 cm</p><h3>Sehingga 8 huruf</h3></div><strong>RM150</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
         <article className={selectedPackage.tier === 'plus' ? 'active' : ''}><span className="package-number">02</span><div><p>Ikut configurator · panjang bawah 85 cm</p><h3>Sehingga 15 huruf</h3></div><strong>RM200</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
         <article className="custom-package"><span className="package-number">03</span><div><p>Deposit design sahaja</p><h3>Custom size & design</h3></div><strong>RM100</strong><a href="/checkout" onClick={prepareCustomCheckout}>Tempah design custom <ArrowRight /></a></article>
-      </div><div className="pricing-clarity"><p><strong>RM150 / RM200:</strong> panjang rekaan bertambah mengikut jumlah huruf—di bawah 60 cm untuk RM150 dan di bawah 85 cm untuk RM200.</p><p><strong>RM100:</strong> deposit servis design sahaja. Deposit ini akan ditolak daripada harga akhir neon custom.</p><p><strong>Penghantaran pakej RM150 / RM200:</strong> maksimum RM10 untuk Semenanjung dan RM40 untuk Sabah atau Sarawak. Caj dibayar oleh penerima apabila barang sampai.</p></div>
+      </div><div className="pricing-clarity"><p><strong>RM150 / RM200:</strong> panjang rekaan bertambah mengikut jumlah huruf—di bawah 60 cm untuk RM150 dan di bawah 85 cm untuk RM200.</p><p><strong>Lebih 15 huruf:</strong> anggaran bermula RM200. Huruf tambahan RM12 setiap satu; setiap blok lengkap 10 huruf tambahan dikira RM100. Harga akhir disahkan designer.</p><p><strong>Deposit RM100:</strong> sebagai tanda komitmen tempahan bagi teks melebihi 15 huruf atau rekaan custom. Selepas bayaran, kami akan menghubungi anda melalui WhatsApp. Deposit ditolak daripada harga akhir.</p><p><strong>Penghantaran pakej RM150 / RM200:</strong> maksimum RM10 untuk Semenanjung dan RM40 untuk Sabah atau Sarawak. Caj dibayar oleh penerima apabila barang sampai.</p></div>
     </section>
 
     <section className="package-includes" id="dalam-pakej" aria-labelledby="package-includes-title">
@@ -301,8 +358,8 @@ export function App() {
 
     <section className="process" id="cara"><div className="section-intro"><p className="eyebrow">Cara tempahan</p><h2>Dari idea ke neon<br /><em>dalam 4 langkah.</em></h2></div><ol><li><span>01</span><PencilSimple /><h3>Pilih</h3><p>Guna configurator atau pilih servis Design Custom.</p></li><li><span>02</span><ShoppingBagOpen /><h3>Tempah</h3><p>Teruskan tempahan melalui payment gateway yang selamat.</p></li><li><span>03</span><ShieldCheck /><h3>Sahkan</h3><p>Semak mockup akhir. Design custom bermula selepas deposit RM100.</p></li><li><span>04</span><Truck /><h3>Hasilkan</h3><p>Pengeluaran bermula selepas mockup dan bayaran berkaitan disahkan.</p></li></ol><a className="process-order-button" href="#playground"><ShoppingBagOpen weight="fill" /> Tempah Sekarang <ArrowRight /></a></section>
 
-    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Adakah RM150 dan RM200 ikut rekaan configurator?</summary><p>Ya. Teks, font dan warna pilihan anda menjadi rujukan tempahan. Pakej RM150 mempunyai panjang bawah 60 cm dan pakej RM200 bawah 85 cm. Semakin banyak huruf, semakin panjang hasilnya sehingga had maksimum pakej.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau nama kedai lebih 15 huruf?</summary><p>Anda masih boleh lihat preview. Keperluan dan harga penghasilan akan dibincangkan melalui WhatsApp.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah deposit untuk servis design sahaja bagi custom size, logo, simbol atau bentuk khas. Designer akan berbincang dengan anda melalui WhatsApp. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Untuk pakej RM150 dan RM200, caj penghantaran maksimum RM10 bagi Semenanjung dan RM40 bagi Sabah atau Sarawak. Caj penghantaran dibayar oleh penerima apabila barang sampai.</p></details></div></section>
+    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Adakah RM150 dan RM200 ikut rekaan configurator?</summary><p>Ya. Teks, font dan warna pilihan anda menjadi rujukan tempahan. Pakej RM150 mempunyai panjang bawah 60 cm dan pakej RM200 bawah 85 cm. Semakin banyak huruf, semakin panjang hasilnya sehingga had maksimum pakej.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau teks lebih 15 huruf?</summary><p>Configurator akan memaparkan anggaran harga penuh bermula daripada RM200. Setiap huruf tambahan dikenakan RM12, manakala setiap blok lengkap 10 huruf tambahan dikira RM100. Anda hanya membayar deposit RM100 semasa checkout; harga dan ukuran akhir disahkan designer.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah tanda komitmen tempahan bagi teks melebihi 15 huruf, custom size, logo, simbol atau bentuk khas. Selepas bayaran dibuat, kami akan menghubungi anda melalui WhatsApp untuk perbincangan bersama designer. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Untuk pakej RM150 dan RM200, caj penghantaran maksimum RM10 bagi Semenanjung dan RM40 bagi Sabah atau Sarawak. Caj penghantaran dibayar oleh penerima apabila barang sampai.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>
-    {hasInteracted && <div className="mobile-sticky"><div><small>{selectedPackage.name}</small><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100'}</strong></div><a className={!characterCount ? 'disabled' : ''} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>}
+    {hasInteracted && <div className="mobile-sticky"><div><small>{selectedPackage.estimatedPrice ? `Anggaran RM${selectedPackage.estimatedPrice}` : selectedPackage.name}</small><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100'}</strong></div><a className={!characterCount ? 'disabled' : ''} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>}
   </main>;
 }

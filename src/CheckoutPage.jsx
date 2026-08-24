@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { PAYMENT_LINKS } from './siteConfig';
-import { useFittedNeonText } from './neonText';
+import { tokenizeNeonText, useFittedNeonText } from './neonText';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -60,6 +60,9 @@ export function CheckoutPage() {
   const paymentLink = useMemo(() => order ? PAYMENT_LINKS[order.tier]?.trim() : '', [order]);
   const shippingInfo = useMemo(() => order ? getShippingInfo(customer.state, order.tier) : null, [customer.state, order]);
   const checkoutText = order?.text || 'Design Custom';
+  const checkoutTokens = tokenizeNeonText(checkoutText);
+  const isMultiColor = order?.colorMode === 'multi' && order?.wordColors?.length;
+  const checkoutWordColors = new Map((order?.wordColors || []).map((item) => [item.wordIndex, item]));
   const checkoutFontSize = useFittedNeonText(orderNeonRef, checkoutText, order?.fontFamily || 'Manrope Variable', { maxSize: 82 });
 
   useEffect(() => {
@@ -126,17 +129,27 @@ export function CheckoutPage() {
 
       <aside className="order-review">
         <p className="checkout-kicker">02 / Semak tempahan</p>
-        <div className="order-neon" ref={orderNeonRef} style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}><span data-text={checkoutText} style={{ fontSize: `${checkoutFontSize}px` }}>{checkoutText}</span></div>
+        <div className="order-neon" ref={orderNeonRef} style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}>
+          <div className={`order-neon-text ${isMultiColor ? 'multi-color' : ''}`} data-text={isMultiColor ? undefined : checkoutText} style={{ fontSize: `${checkoutFontSize}px` }}>
+            {isMultiColor ? checkoutTokens.map((token, index) => {
+              if (token.type === 'space') return token.value;
+              const wordColor = checkoutWordColors.get(token.wordIndex) || { value: order.colorValue, glow: order.colorGlow };
+              return <span className="checkout-neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--checkout-neon': wordColor.value, '--checkout-glow': wordColor.glow }}>{token.value}</span>;
+            }) : checkoutText}
+          </div>
+        </div>
         <dl>
           <div><dt>Rujukan</dt><dd>{order.reference}</dd></div>
           <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
-          {order.colorLabel && <div><dt>Warna</dt><dd>{order.colorLabel}</dd></div>}
+          {order.colorLabel && <div><dt>Warna</dt><dd>{isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel}</dd></div>}
           <div><dt>Saiz</dt><dd>{order.sizeNote}</dd></div>
+          {order.estimatedPrice && <div><dt>Anggaran harga penuh</dt><dd>RM{order.estimatedPrice}*</dd></div>}
           <div><dt>Penghantaran</dt><dd>{shippingInfo.amount}</dd></div>
         </dl>
-        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit design' : 'Bayaran produk sekarang'}</span><strong>RM{order.price}</strong></div>
+        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit dibayar sekarang' : 'Bayaran produk sekarang'}</span><strong>RM{order.price}</strong></div>
+        {order.estimatedPrice && <p className="estimate-note">*Anggaran berdasarkan jumlah huruf. Deposit RM100 ialah tanda komitmen tempahan. Kami akan menghubungi anda melalui WhatsApp dan deposit ditolak daripada harga akhir.</p>}
         <p className="shipping-note"><strong>Caj penghantaran tidak termasuk dalam bayaran di atas.</strong> {shippingInfo.note}</p>
       </aside>
     </div>
