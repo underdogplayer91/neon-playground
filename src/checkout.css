@@ -10,3 +10,5 @@
 @media(prefers-reduced-motion:reduce){.checkout-slideshow>img{transition:none;transform:none}}
 .checkout-fields input,.checkout-fields select,.checkout-pay{font-family:'Manrope','Manrope Variable',Arial,sans-serif}
 .checkout-brand,.checkout-form h1,.order-total strong,.checkout-empty h1{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif}
+.order-neon span{white-space:pre;overflow-wrap:normal;word-break:normal}
+.order-review{min-width:0}.order-review dd{min-width:0;overflow-wrap:anywhere}

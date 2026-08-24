@@ -53,3 +53,4 @@
 
 .price-list .custom-package{background:#ece5da}.price-list .custom-package .package-number{background:var(--coral)}.price-list .custom-package a{border-color:var(--coral);color:#b93128}.price-list .custom-package a:hover{color:white;background:var(--coral)}.pricing-clarity{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pricing-clarity p{margin:0;padding:18px 20px;border:1px solid #cfc6bb;border-radius:12px;color:#625b53;font-size:13px;line-height:1.6}.pricing-clarity strong{color:var(--ink)}
 @media(max-width:700px){.pricing-clarity{grid-template-columns:1fr}}
+.neon-text{white-space:pre;overflow-wrap:normal;word-break:normal}

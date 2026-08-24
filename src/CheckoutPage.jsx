@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { PAYMENT_LINKS } from './siteConfig';
+import { useFittedNeonText } from './neonText';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -43,6 +44,7 @@ const getShippingInfo = (state, tier) => {
 
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
+  const orderNeonRef = useRef(null);
   const [error, setError] = useState('');
   const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
   const [customer, setCustomer] = useState({
@@ -57,6 +59,8 @@ export function CheckoutPage() {
   });
   const paymentLink = useMemo(() => order ? PAYMENT_LINKS[order.tier]?.trim() : '', [order]);
   const shippingInfo = useMemo(() => order ? getShippingInfo(customer.state, order.tier) : null, [customer.state, order]);
+  const checkoutText = order?.text || 'Design Custom';
+  const checkoutFontSize = useFittedNeonText(orderNeonRef, checkoutText, order?.fontFamily || 'Manrope Variable', { maxSize: 82 });
 
   useEffect(() => {
     if (!order?.fontName || !order?.fontFamily) return undefined;
@@ -122,7 +126,7 @@ export function CheckoutPage() {
 
       <aside className="order-review">
         <p className="checkout-kicker">02 / Semak tempahan</p>
-        <div className="order-neon" style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}><span data-text={order.text || 'Design Custom'}>{order.text || 'Design Custom'}</span></div>
+        <div className="order-neon" ref={orderNeonRef} style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}><span data-text={checkoutText} style={{ fontSize: `${checkoutFontSize}px` }}>{checkoutText}</span></div>
         <dl>
           <div><dt>Rujukan</dt><dd>{order.reference}</dd></div>
           <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>

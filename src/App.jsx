@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { limitNeonInput, useFittedNeonText } from './neonText';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -112,7 +113,6 @@ export function App() {
   const [colorId, setColorId] = useState('pink');
   const [backgroundMode, setBackgroundMode] = useState('night');
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [previewFontSize, setPreviewFontSize] = useState(70);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activePosterSlide, setActivePosterSlide] = useState(0);
   const previewStageRef = useRef(null);
@@ -121,6 +121,7 @@ export function App() {
   const selectedFont = fonts.find((font) => font.id === fontId);
   const selectedColor = colors.find((color) => color.id === colorId);
   const displayText = text.trim() || 'Nama Kedai Anda';
+  const previewFontSize = useFittedNeonText(previewStageRef, displayText, selectedFont.family);
   useEffect(() => {
     fonts.forEach((font) => {
       const face = new FontFace(font.family, `url(${font.file})`);
@@ -138,31 +139,6 @@ export function App() {
     }, 3800);
     return () => window.clearInterval(timer);
   }, []);
-  useLayoutEffect(() => {
-    const stage = previewStageRef.current;
-    if (!stage) return undefined;
-    const fitText = async () => {
-      await document.fonts.load(`70px "${selectedFont.family}"`);
-      const probe = document.createElement('span');
-      probe.textContent = displayText;
-      Object.assign(probe.style, { position: 'fixed', left: '-9999px', top: '0', whiteSpace: 'pre', fontFamily: selectedFont.family, fontSize: '70px', lineHeight: '1' });
-      document.body.appendChild(probe);
-      const range = document.createRange();
-      range.selectNodeContents(probe);
-      const glyphBox = range.getBoundingClientRect();
-      probe.remove();
-      const glyphWidth = Math.max(glyphBox.width, 1);
-      const glyphHeight = Math.max(glyphBox.height, 1);
-      const targetWidth = stage.clientWidth * 0.78;
-      const targetHeight = stage.clientHeight * (displayText.includes('\n') ? 0.38 : 0.2);
-      const fitted = 70 * Math.min(targetWidth / glyphWidth, targetHeight / glyphHeight);
-      setPreviewFontSize(Math.max(36, Math.min(118, fitted)));
-    };
-    fitText();
-    const observer = new ResizeObserver(fitText);
-    observer.observe(stage);
-    return () => observer.disconnect();
-  }, [displayText, selectedFont]);
   const checkoutUrl = characterCount ? '/checkout' : '#playground';
   const prepareCheckout = () => {
     if (!characterCount) return;
@@ -226,8 +202,8 @@ export function App() {
       <div className={`configurator ${backgroundMode}`}>
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
-          <textarea id="shop-name" value={text} maxLength={40} rows={2} onChange={(e) => { setText(e.target.value.replace(/\r/g, '').split('\n').slice(0, 2).join('\n')); interact(); }} placeholder={'Contoh:\nKopi Jiwa'} />
-          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Ruang tidak dikira</small></div>
+          <textarea id="shop-name" value={text} maxLength={61} rows={2} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'Contoh:\nKopi Jiwa'} />
+          <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 30 setiap perkataan</small></div>
           <div className="field-head"><span>02</span><label htmlFor="other-font-select">Pilih font</label></div>
           <div className="featured-fonts" role="radiogroup" aria-label="Pilihan font utama">
             {featuredFonts.map((font) => <button
