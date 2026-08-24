@@ -251,7 +251,7 @@ export function App() {
       <div className="section-intro light"><p className="eyebrow">Hasil sebenar pelanggan</p><h2>Bukan gambar AI.<br /><em>Ini neon yang dah siap.</em></h2><p>Contoh sebenar daripada tempahan pelanggan—diambil dalam keadaan dan lokasi sebenar.</p></div>
       <div className="real-gallery">{portfolioItems.map((item, index) => <figure key={item.src} className={index === 0 ? 'wide' : ''}><img src={item.src} alt={`${item.title}, hasil neon LED sebenar`} loading="lazy" /><figcaption><span>{item.type}</span><strong>{item.title}</strong></figcaption></figure>)}</div>
       <div className="type-poster">
-        <div className="poster-copy"><span>01 / TULISAN</span><h3>Nama biasa.<br /><em>Bila menyala,</em><br />terus ada identiti.</h3><p>Setiap gambar di sini ialah hasil sebenar daripada folder tempahan tulisan.</p></div>
+        <div className="poster-copy"><span>01 / CONTOH HASIL</span><h3>Contoh hasil sebenar<br /><em>daripada Neon Playground</em><br />di atas.</h3><p>Gunakan configurator untuk cuba teks, font dan warna sebelum membuat tempahan.</p></div>
         <div className="poster-mosaic"><img src="/assets/media/gallery-nasi-lemak.webp" alt="Neon Nasi Lemak Utara" loading="lazy" /><img src="/assets/media/gallery-sampah.webp" alt="Neon Sampah, nice to meet you" loading="lazy" /><img src="/assets/media/poster-crispy-toast.webp" alt="Neon Crispy Toast" loading="lazy" /><img src="/assets/media/poster-short-drink.webp" alt="Neon Life is short drink chocolate" loading="lazy" /></div>
       </div>
     </section>
