@@ -3,6 +3,14 @@ import { PAYMENT_LINKS } from './siteConfig';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
+const checkoutSlides = [
+  { src: '/assets/contoh-hasil/1.jpeg', alt: 'Contoh hasil neon LED untuk event' },
+  { src: '/assets/contoh-hasil/2.png', alt: 'Contoh hasil neon LED pelanggan 2' },
+  { src: '/assets/contoh-hasil/3.jpg', alt: 'Contoh hasil neon LED pelanggan 3' },
+  { src: '/assets/contoh-hasil/TERATAK POKOK RHU.jpg', alt: 'Neon Teratak Pokok Rhu' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-16 at 13.23.55_18c51137.jpg', alt: 'Contoh hasil neon LED pelanggan' },
+  { src: '/assets/contoh-hasil/WAK IKHSAN KEBAB.jpg', alt: 'Neon Wak Ikhsan Kebab' },
+];
 
 const readStoredOrder = () => {
   try {
@@ -36,6 +44,7 @@ const getShippingInfo = (state, tier) => {
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
   const [error, setError] = useState('');
+  const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
   const [customer, setCustomer] = useState({
     name: '',
     phone: '',
@@ -59,6 +68,12 @@ export function CheckoutPage() {
     return () => { active = false; };
   }, [order]);
 
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const timer = window.setInterval(() => setActiveCheckoutSlide((current) => (current + 1) % checkoutSlides.length), 3800);
+    return () => window.clearInterval(timer);
+  }, []);
+
   if (!order) {
     return <main className="checkout-page checkout-empty">
       <a className="checkout-brand" href="/">PAKAR LED &amp; NEON <i>BY YH</i></a>
@@ -79,6 +94,10 @@ export function CheckoutPage() {
 
   return <main className="checkout-page">
     <header className="checkout-header"><a className="checkout-brand" href="/">PAKAR LED &amp; NEON <i>BY YH</i></a><div><span>Checkout selamat</span><strong>Semak sebelum bayar</strong></div></header>
+    <section className="checkout-slideshow" aria-label="Slideshow hasil neon sebenar">
+      {checkoutSlides.map((slide, index) => <img key={slide.src} className={activeCheckoutSlide === index ? 'active' : ''} src={slide.src} alt={slide.alt} aria-hidden={activeCheckoutSlide !== index} loading={index === 0 ? 'eager' : 'lazy'} />)}
+      <div className="checkout-slide-label"><span>Hasil sebenar pelanggan</span><strong>{String(activeCheckoutSlide + 1).padStart(2, '0')} / {String(checkoutSlides.length).padStart(2, '0')}</strong></div>
+    </section>
     <div className="checkout-layout">
       <form className="checkout-form" onSubmit={submitOrder}>
         <a className="checkout-back" href="/#playground">← Kembali ke configurator</a>
@@ -95,6 +114,7 @@ export function CheckoutPage() {
           <label className="field-wide">Negeri<select name="state" value={customer.state} onChange={updateField} autoComplete="address-level1" required><option value="">Pilih negeri</option>{['Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur','Labuan','Putrajaya'].map((state) => <option key={state}>{state}</option>)}</select></label>
         </div>
         <label className="checkout-consent"><input type="checkbox" required /> <span>Saya sudah menyemak teks, font, warna dan alamat penghantaran.</span></label>
+        <div className="checkout-important"><strong>Maklumat penting</strong><p>Selepas pembayaran dibuat, designer akan menghubungi tuan/puan melalui WhatsApp untuk pengesahan tempahan.</p></div>
         {error && <p className="checkout-error" role="alert">{error}</p>}
         <button className="checkout-pay" type="submit">Teruskan ke Pembayaran <span>→</span></button>
         <p className="checkout-privacy">Maklumat alamat disimpan sementara dalam sesi browser ini. Sambungan backend diperlukan sebelum menerima tempahan pelanggan sebenar.</p>
@@ -102,7 +122,7 @@ export function CheckoutPage() {
 
       <aside className="order-review">
         <p className="checkout-kicker">02 / Semak tempahan</p>
-        <div className="order-neon" style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}><span>{order.text || 'Design Custom'}</span></div>
+        <div className="order-neon" style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}><span data-text={order.text || 'Design Custom'}>{order.text || 'Design Custom'}</span></div>
         <dl>
           <div><dt>Rujukan</dt><dd>{order.reference}</dd></div>
           <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>

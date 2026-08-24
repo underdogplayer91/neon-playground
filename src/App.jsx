@@ -26,17 +26,30 @@ const colors = [
 ];
 const portfolioItems = [
   { src: '/assets/media/gallery-storefront.webp', title: 'Signage pintu kedai', type: 'Kedai fizikal' },
-  { src: '/assets/contoh-hasil/gallery-nasi-lemak.webp', title: 'Nasi Lemak Utara', type: 'Tulisan custom' },
-  { src: '/assets/media/gallery-burger-kotak.webp', title: 'Burger Kotak 6M', type: 'Logo & tulisan' },
+  { src: '/assets/contoh-hasil/1.jpeg', title: 'Event', type: 'Tulisan custom' },
+  { src: '/assets/media/IMG_20260625_143521.jpg', title: 'AL-ARJANS', type: 'Logo & tulisan' },
   { src: '/assets/media/gallery-jiwa-yogulp.webp', title: 'Jiwa Yogulp', type: 'Depan cermin' },
-  { src: '/assets/contoh-hasil/gallery-sampah.webp', title: 'Sampah: nice to meet you', type: 'Photo spot' },
+  { src: '/assets/media/WhatsApp Image 2024-03-12 at 3.30.06 PM.jpeg', title: 'MEK BIHA LOKCING', type: 'Signage gerai' },
   { src: '/assets/media/gallery-happy-birthday.webp', title: 'Happy Birthday', type: 'Majlis & dekorasi' },
 ];
 const posterSlides = [
-  { src: '/assets/contoh-hasil/gallery-nasi-lemak.webp', alt: 'Neon Nasi Lemak Utara' },
-  { src: '/assets/contoh-hasil/gallery-sampah.webp', alt: 'Neon Sampah, nice to meet you' },
-  { src: '/assets/contoh-hasil/poster-crispy-toast.webp', alt: 'Neon Crispy Toast' },
-  { src: '/assets/contoh-hasil/poster-short-drink.webp', alt: 'Neon Life is short drink chocolate' },
+  { src: '/assets/contoh-hasil/1.jpeg', alt: 'Contoh hasil neon LED 1' },
+  { src: '/assets/contoh-hasil/2.png', alt: 'Contoh hasil neon LED 2' },
+  { src: '/assets/contoh-hasil/3.jpg', alt: 'Contoh hasil neon LED 3' },
+  { src: '/assets/contoh-hasil/4.jpg', alt: 'Contoh hasil neon LED 4' },
+  { src: '/assets/contoh-hasil/AYAM GORENG RM1.jpg', alt: 'Neon Ayam Goreng RM1' },
+  { src: '/assets/contoh-hasil/AYAM GUNTING.jpg', alt: 'Neon Ayam Gunting' },
+  { src: '/assets/contoh-hasil/EZZATI CATERING.jpg', alt: 'Neon Ezzati Catering' },
+  { src: '/assets/contoh-hasil/KAK ZAN NASI AYAM TUMPAT.jpg', alt: 'Neon Kak Zan Nasi Ayam Tumpat' },
+  { src: '/assets/contoh-hasil/open rehat close.png', alt: 'Neon Open Rehat Close' },
+  { src: '/assets/contoh-hasil/TERATAK POKOK RHU.jpg', alt: 'Neon Teratak Pokok Rhu' },
+  { src: '/assets/contoh-hasil/WAK IKHSAN KEBAB.jpg', alt: 'Neon Wak Ikhsan Kebab' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-02-04 at 4.25.46 PM.jpeg', alt: 'Contoh hasil neon LED pelanggan' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-03-28 at 1.57.21 PM.jpeg', alt: 'Contoh hasil neon LED pelanggan' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-16 at 13.06.07_074a8094.jpg', alt: 'Contoh hasil neon LED pelanggan' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-16 at 13.23.55_18c51137.jpg', alt: 'Contoh hasil neon LED pelanggan' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-26 at 15.33.26_a38948c2.jpg', alt: 'Contoh hasil neon LED pelanggan' },
+  { src: '/assets/contoh-hasil/WhatsApp Image 2024-11-13 at 15.01.07_f2881413.jpg', alt: 'Contoh hasil neon LED pelanggan' },
 ];
 const testimonials = [
   {
@@ -84,11 +97,10 @@ const testimonials = [
     ],
   },
 ];
-const heroSlides = [
-  { src: '/assets/hero-wall-podcast-malaysia.webp', name: 'Podcast Malaysia', setting: 'Dinding indoor', alt: 'Neon Podcast Malaysia dipasang pada dinding studio podcast dalam paparan siang dan malam' },
-  { src: '/assets/hero-glass-kopi-jiwa.webp', name: 'Kopi Jiwa', setting: 'Depan cermin', alt: 'Neon Kopi Jiwa tergantung di hadapan cermin kedai kopi dalam paparan siang dan malam' },
-  { src: '/assets/hero-market-nasi-lemak.webp', name: 'Nasi Lemak', setting: 'Khemah pasar malam', alt: 'Neon Nasi Lemak tergantung pada khemah gerai pasar malam dalam paparan siang dan malam' },
-];
+const heroImage = {
+  src: '/assets/hero-storefront-v2.png',
+  alt: 'Kedai Kopi Jiwa dengan neon pada cermin dalam paparan siang dan malam',
+};
 const countCharacters = (value) => [...value.replace(/\s/g, '')].length;
 const getPackage = (count) => {
   if (!count) return { name: 'Belum dipilih', price: null, tier: 'none' };
@@ -114,7 +126,6 @@ export function App() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [previewFontSize, setPreviewFontSize] = useState(70);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [activeHeroSlide, setActiveHeroSlide] = useState(0);
   const [activePosterSlide, setActivePosterSlide] = useState(0);
   const previewStageRef = useRef(null);
   const characterCount = countCharacters(text);
@@ -127,11 +138,6 @@ export function App() {
       const face = new FontFace(font.family, `url(${font.file})`);
       face.load().then((loaded) => document.fonts.add(loaded)).catch(() => {});
     });
-  }, []);
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
-    const timer = window.setInterval(() => setActiveHeroSlide((current) => (current + 1) % heroSlides.length), 5500);
-    return () => window.clearInterval(timer);
   }, []);
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
@@ -209,7 +215,7 @@ export function App() {
   return <main id="top">
     <Header />
     <section className="hero">
-      <div className="hero-slides">{heroSlides.map((slide, index) => <img key={slide.src} className={activeHeroSlide === index ? 'active' : ''} src={slide.src} alt={slide.alt} aria-hidden={activeHeroSlide !== index} fetchPriority={index === 0 ? 'high' : 'auto'} />)}</div>
+      <div className="hero-slides"><img className="active" src={heroImage.src} alt={heroImage.alt} fetchPriority="high" /></div>
       <div className="hero-shade" />
       <div className="hero-content">
         <p className="eyebrow"><MapPin weight="fill" /> Untuk owner kedai fizikal</p>
@@ -219,7 +225,6 @@ export function App() {
         <div className="hero-note"><Check weight="bold" /> Reka · Sahkan · Baru kami hasilkan</div>
       </div>
       <div className="day-label">Siang biasa-biasa.</div><div className="night-label">Malam semua nampak kedai anda.</div>
-      <div className="hero-pagination" aria-label="Pilih visual cover">{heroSlides.map((slide, index) => <button key={slide.src} className={activeHeroSlide === index ? 'active' : ''} onClick={() => setActiveHeroSlide(index)} aria-label={`${slide.name} — ${slide.setting}`} aria-current={activeHeroSlide === index ? 'true' : undefined}><span>{String(index + 1).padStart(2, '0')}</span><small>{slide.name}</small></button>)}</div>
     </section>
 
     <section className="benefit-strip">
