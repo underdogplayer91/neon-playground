@@ -32,6 +32,12 @@ const portfolioItems = [
   { src: '/assets/media/gallery-sampah.webp', title: 'Sampah: nice to meet you', type: 'Photo spot' },
   { src: '/assets/media/gallery-happy-birthday.webp', title: 'Happy Birthday', type: 'Majlis & dekorasi' },
 ];
+const posterSlides = [
+  { src: '/assets/media/gallery-nasi-lemak.webp', alt: 'Neon Nasi Lemak Utara' },
+  { src: '/assets/media/gallery-sampah.webp', alt: 'Neon Sampah, nice to meet you' },
+  { src: '/assets/media/poster-crispy-toast.webp', alt: 'Neon Crispy Toast' },
+  { src: '/assets/media/poster-short-drink.webp', alt: 'Neon Life is short drink chocolate' },
+];
 const testimonials = [
   {
     business: 'DPermata Burger',
@@ -109,6 +115,7 @@ export function App() {
   const [previewFontSize, setPreviewFontSize] = useState(70);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+  const [activePosterSlide, setActivePosterSlide] = useState(0);
   const previewStageRef = useRef(null);
   const characterCount = countCharacters(text);
   const selectedPackage = getPackage(characterCount);
@@ -124,6 +131,17 @@ export function App() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     const timer = window.setInterval(() => setActiveHeroSlide((current) => (current + 1) % heroSlides.length), 5500);
+    return () => window.clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const timer = window.setInterval(() => {
+      setActivePosterSlide((current) => {
+        let next = current;
+        while (next === current) next = Math.floor(Math.random() * posterSlides.length);
+        return next;
+      });
+    }, 3800);
     return () => window.clearInterval(timer);
   }, []);
   useLayoutEffect(() => {
@@ -252,7 +270,10 @@ export function App() {
       <div className="real-gallery">{portfolioItems.map((item, index) => <figure key={item.src} className={index === 0 ? 'wide' : ''}><img src={item.src} alt={`${item.title}, hasil neon LED sebenar`} loading="lazy" /><figcaption><span>{item.type}</span><strong>{item.title}</strong></figcaption></figure>)}</div>
       <div className="type-poster">
         <div className="poster-copy"><span>01 / CONTOH HASIL</span><h3>Contoh hasil sebenar<br /><em>daripada Neon Playground</em><br />di atas.</h3><p>Gunakan configurator untuk cuba teks, font dan warna sebelum membuat tempahan.</p></div>
-        <div className="poster-mosaic"><img src="/assets/media/gallery-nasi-lemak.webp" alt="Neon Nasi Lemak Utara" loading="lazy" /><img src="/assets/media/gallery-sampah.webp" alt="Neon Sampah, nice to meet you" loading="lazy" /><img src="/assets/media/poster-crispy-toast.webp" alt="Neon Crispy Toast" loading="lazy" /><img src="/assets/media/poster-short-drink.webp" alt="Neon Life is short drink chocolate" loading="lazy" /></div>
+        <figure className="poster-slideshow" aria-label="Slideshow hasil neon sebenar">
+          {posterSlides.map((slide, index) => <img key={slide.src} className={activePosterSlide === index ? 'active' : ''} src={slide.src} alt={slide.alt} aria-hidden={activePosterSlide !== index} loading="lazy" />)}
+          <figcaption><span>Hasil sebenar</span><strong>{String(activePosterSlide + 1).padStart(2, '0')} / {String(posterSlides.length).padStart(2, '0')}</strong></figcaption>
+        </figure>
       </div>
     </section>
 
