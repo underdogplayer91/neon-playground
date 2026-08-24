@@ -26,17 +26,17 @@ const colors = [
 ];
 const portfolioItems = [
   { src: '/assets/media/gallery-storefront.webp', title: 'Signage pintu kedai', type: 'Kedai fizikal' },
-  { src: '/assets/media/gallery-nasi-lemak.webp', title: 'Nasi Lemak Utara', type: 'Tulisan custom' },
+  { src: '/assets/contoh-hasil/gallery-nasi-lemak.webp', title: 'Nasi Lemak Utara', type: 'Tulisan custom' },
   { src: '/assets/media/gallery-burger-kotak.webp', title: 'Burger Kotak 6M', type: 'Logo & tulisan' },
   { src: '/assets/media/gallery-jiwa-yogulp.webp', title: 'Jiwa Yogulp', type: 'Depan cermin' },
-  { src: '/assets/media/gallery-sampah.webp', title: 'Sampah: nice to meet you', type: 'Photo spot' },
+  { src: '/assets/contoh-hasil/gallery-sampah.webp', title: 'Sampah: nice to meet you', type: 'Photo spot' },
   { src: '/assets/media/gallery-happy-birthday.webp', title: 'Happy Birthday', type: 'Majlis & dekorasi' },
 ];
 const posterSlides = [
-  { src: '/assets/media/gallery-nasi-lemak.webp', alt: 'Neon Nasi Lemak Utara' },
-  { src: '/assets/media/gallery-sampah.webp', alt: 'Neon Sampah, nice to meet you' },
-  { src: '/assets/media/poster-crispy-toast.webp', alt: 'Neon Crispy Toast' },
-  { src: '/assets/media/poster-short-drink.webp', alt: 'Neon Life is short drink chocolate' },
+  { src: '/assets/contoh-hasil/gallery-nasi-lemak.webp', alt: 'Neon Nasi Lemak Utara' },
+  { src: '/assets/contoh-hasil/gallery-sampah.webp', alt: 'Neon Sampah, nice to meet you' },
+  { src: '/assets/contoh-hasil/poster-crispy-toast.webp', alt: 'Neon Crispy Toast' },
+  { src: '/assets/contoh-hasil/poster-short-drink.webp', alt: 'Neon Life is short drink chocolate' },
 ];
 const testimonials = [
   {
