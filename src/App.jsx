@@ -103,7 +103,7 @@ function Header() {
 export function App() {
   const [text, setText] = useState('Kopi Jiwa');
   const [fontId, setFontId] = useState('Alexa');
-  const [colorId, setColorId] = useState('cool-white');
+  const [colorId, setColorId] = useState('pink');
   const [backgroundMode, setBackgroundMode] = useState('night');
   const [hasInteracted, setHasInteracted] = useState(false);
   const [previewFontSize, setPreviewFontSize] = useState(70);
