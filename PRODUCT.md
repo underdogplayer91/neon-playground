@@ -146,6 +146,8 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 - Halaman pulangan menyemak status transaksi melalui API Get Bill Transactions dan tidak bergantung semata-mata pada parameter URL.
 - Maklumat penuh tempahan disimpan dalam Supabase sebelum pelanggan dihantar ke ToyyibPay.
 - Rekod tempahan menyimpan konfigurasi teks, font, warna dan pilihan pelanggan tanpa menghasilkan atau menyimpan gambar preview.
+- Selepas callback ToyyibPay mengesahkan bayaran, Resend menghantar notifikasi lengkap kepada penjual dan email pengesahan kepada pelanggan jika email diberikan.
+- Setiap email menggunakan idempotency key berdasarkan rujukan tempahan. Masa penghantaran direkodkan dalam `email_notified_at` dan `customer_email_sent_at` untuk mengelakkan email berganda.
 
 ### Pemasangan
 

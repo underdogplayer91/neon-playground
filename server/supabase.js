@@ -62,22 +62,26 @@ const getConfiguration = () => {
 
 async function requestSupabase(path, { method = 'GET', body, prefer = 'return=minimal' } = {}) {
   const { url, secretKey } = getConfiguration();
+  const headers = {
+    apikey: secretKey,
+    Authorization: `Bearer ${secretKey}`,
+    'Content-Type': 'application/json',
+  };
+  if (prefer) headers.Prefer = prefer;
   const result = await fetch(`${url}/rest/v1/${path}`, {
     method,
-    headers: {
-      apikey: secretKey,
-      Authorization: `Bearer ${secretKey}`,
-      'Content-Type': 'application/json',
-      Prefer: prefer,
-    },
+    headers,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+  const responseText = await result.text();
 
   if (!result.ok) {
-    const message = (await result.text()).slice(0, 500);
+    const message = responseText.slice(0, 500);
     console.error('Supabase order request failed', { path, method, status: result.status, message });
     throw new Error('Rekod tempahan tidak dapat disimpan. Sila cuba lagi.');
   }
+  if (!responseText) return null;
+  try { return JSON.parse(responseText); } catch { return null; }
 }
 
 export const createOrder = (record) => requestSupabase('orders', {
@@ -91,4 +95,14 @@ export const updateOrder = (reference, changes) => {
     method: 'PATCH',
     body: { ...changes, updated_at: new Date().toISOString() },
   });
+};
+
+export const getOrder = async (reference) => {
+  const query = new URLSearchParams({
+    reference: `eq.${reference}`,
+    select: '*',
+    limit: '1',
+  });
+  const records = await requestSupabase(`orders?${query}`, { prefer: '' });
+  return Array.isArray(records) ? records[0] || null : null;
 };
