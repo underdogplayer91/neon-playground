@@ -121,6 +121,7 @@ export function App() {
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [colorMessage, setColorMessage] = useState('');
   const [backgroundMode, setBackgroundMode] = useState('night');
+  const [isOtherFontsOpen, setIsOtherFontsOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activePosterSlide, setActivePosterSlide] = useState(0);
@@ -241,7 +242,8 @@ export function App() {
       <div className={`configurator ${backgroundMode}`}>
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
-          <textarea id="shop-name" value={text} maxLength={240} rows={4} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'Contoh:\nKopi itu pahit'} />
+          <textarea id="shop-name" value={text} maxLength={240} rows={4} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'contoh:\nkopi itu pahit'} />
+          <p className="lowercase-tip">Saranan: Huruf kecil semua lebih digalakkan untuk tulisan bersambung supaya nampak lebih kemas dan profesional.</p>
           <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 6 baris · 30 huruf/perkataan</small></div>
           <div className="field-head"><span>02</span><label htmlFor="other-font-select">Pilih font</label></div>
           <div className="featured-fonts" role="radiogroup" aria-label="Pilihan font utama">
@@ -250,17 +252,35 @@ export function App() {
               type="button"
               className={fontId === font.id ? 'selected' : ''}
               style={{ fontFamily: font.family }}
-              onClick={() => { setFontId(font.id); interact(); }}
+              onClick={() => { setFontId(font.id); setIsOtherFontsOpen(false); interact(); }}
               role="radio"
               aria-checked={fontId === font.id}
             >{font.name}</button>)}
           </div>
           <div className="other-font-field">
-            <label htmlFor="other-font-select">Other Font · {otherFonts.length} pilihan lagi</label>
-            <select id="other-font-select" className="font-select" value={otherFonts.some((font) => font.id === fontId) ? fontId : ''} style={{ fontFamily: otherFonts.some((font) => font.id === fontId) ? selectedFont.family : undefined }} onChange={(e) => { if (e.target.value) { setFontId(e.target.value); interact(); } }}>
-              <option value="">Other Font — Pilih font lain</option>
-              {otherFonts.map((font) => <option key={font.id} value={font.id} style={{ fontFamily: font.family }}>{font.name}</option>)}
-            </select>
+            <span className="other-font-label" id="other-font-label">Other Font · {otherFonts.length} pilihan lagi</span>
+            <div className="font-dropdown" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setIsOtherFontsOpen(false); }}>
+              <button
+                type="button"
+                className="font-dropdown-trigger"
+                aria-labelledby="other-font-label other-font-trigger-text"
+                aria-expanded={isOtherFontsOpen}
+                aria-controls="other-font-options"
+                onClick={() => setIsOtherFontsOpen((current) => !current)}
+                style={{ fontFamily: otherFonts.some((font) => font.id === fontId) ? selectedFont.family : undefined }}
+              ><span id="other-font-trigger-text">{otherFonts.some((font) => font.id === fontId) ? selectedFont.name : 'Pilih font lain'}</span><i aria-hidden="true">⌄</i></button>
+              {isOtherFontsOpen && <div className="font-dropdown-list" id="other-font-options" role="listbox" aria-label="Pilihan font lain">
+                {otherFonts.map((font) => <button
+                  type="button"
+                  key={font.id}
+                  role="option"
+                  aria-selected={fontId === font.id}
+                  className={fontId === font.id ? 'selected' : ''}
+                  style={{ fontFamily: font.family }}
+                  onClick={() => { setFontId(font.id); setIsOtherFontsOpen(false); interact(); }}
+                >{font.name}</button>)}
+              </div>}
+            </div>
           </div>
           <div className="field-head"><span>03</span><label>Pilih warna</label></div>
           <div className="color-mode-tabs" aria-label="Cara pemilihan warna">
