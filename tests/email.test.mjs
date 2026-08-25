@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildCustomerOrderEmail, buildOwnerOrderEmail } from '../server/email.js';
+import { buildCustomerOrderEmail, buildCustomerPendingEmail, buildOwnerOrderEmail } from '../server/email.js';
 
 const order = {
   reference: 'YH_TEST_123',
@@ -37,5 +37,20 @@ test('customer confirmation explains payment and the WhatsApp design confirmatio
   assert.match(email.subject, /YH_TEST_123/);
   assert.match(email.html, /RM150\.00/);
   assert.match(email.html, /WhatsApp/);
+  assert.match(email.html, /https:\/\/www\.wasap\.my\/601169530763/);
+  assert.match(email.html, /WhatsApp Team pakarneonled\.store/);
   assert.match(email.html, /kopi<br>jiwa/);
+});
+
+test('pending customer email clearly says payment is incomplete and links back to ToyyibPay', () => {
+  const email = buildCustomerPendingEmail({
+    ...order,
+    payment_url: 'https://toyyibpay.com/testBill123',
+  });
+  assert.match(email.subject, /Bayaran belum selesai/);
+  assert.match(email.html, /bayaran masih belum selesai/i);
+  assert.match(email.html, /https:\/\/toyyibpay\.com\/testBill123/);
+  assert.match(email.html, /Sambung Pembayaran/);
+  assert.match(email.html, /WhatsApp Team pakarneonled\.store/);
+  assert.doesNotMatch(email.html, /Pembayaran ToyyibPay telah disahkan/);
 });

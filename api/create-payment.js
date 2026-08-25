@@ -1,5 +1,6 @@
 import { buildBillFields, normaliseBaseUrl, parseRequestBody } from '../server/toyyibpay.js';
 import { randomUUID } from 'node:crypto';
+import { sendCustomerPendingEmail } from '../server/email.js';
 import { buildOrderRecord, createOrder, updateOrder } from '../server/supabase.js';
 
 const createReference = () => `YH_${Date.now().toString(36).toUpperCase()}_${randomUUID().slice(0, 6).toUpperCase()}`;
@@ -47,14 +48,24 @@ export default async function handler(request, response) {
       return response.status(502).json({ error: 'ToyyibPay tidak dapat mencipta bil. Sila cuba lagi.' });
     }
 
+    const paymentUrl = `${baseUrl}/${encodeURIComponent(billCode)}`;
     await updateOrder(reference, {
       bill_code: billCode,
       payment_status: 'unpaid',
     }).catch((error) => console.error('Order bill code update failed', { reference, message: error.message }));
 
+    if (orderRecord.customer_email) {
+      await sendCustomerPendingEmail({
+        ...orderRecord,
+        bill_code: billCode,
+        payment_status: 'unpaid',
+        payment_url: paymentUrl,
+      }).catch((error) => console.error('Pending payment email failed', { reference, message: error.message }));
+    }
+
     response.setHeader('Cache-Control', 'no-store');
     return response.status(200).json({
-      paymentUrl: `${baseUrl}/${encodeURIComponent(billCode)}`,
+      paymentUrl,
       billCode,
       reference,
       tier: payment.tier,

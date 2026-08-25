@@ -148,6 +148,7 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 - Rekod tempahan menyimpan konfigurasi teks, font, warna dan pilihan pelanggan tanpa menghasilkan atau menyimpan gambar preview.
 - Selepas callback ToyyibPay mengesahkan bayaran, Resend menghantar notifikasi lengkap kepada penjual dan email pengesahan kepada pelanggan jika email diberikan.
 - Setiap email menggunakan idempotency key berdasarkan rujukan tempahan. Masa penghantaran direkodkan dalam `email_notified_at` dan `customer_email_sent_at` untuk mengelakkan email berganda.
+- Selepas bil ToyyibPay berjaya dicipta, customer yang mengisi email menerima pengesahan tempahan berstatus bayaran belum selesai, bersama pautan untuk menyambung pembayaran dan menghubungi team melalui WhatsApp.
 
 ### Pemasangan
 

@@ -93,7 +93,11 @@ export function buildCustomerOrderEmail(order) {
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
     <p style="margin:20px 0 8px;color:#171411;font-size:14px;font-weight:800">Apa yang berlaku selepas ini?</p>
-    <p style="margin:0;color:#625b53;font-size:13px;line-height:1.7">Designer kami akan menghubungi tuan/puan melalui WhatsApp untuk mengesahkan teks, font, warna dan mockup sebelum pengeluaran bermula.</p>`;
+    <p style="margin:0;color:#625b53;font-size:13px;line-height:1.7">Designer kami akan menghubungi tuan/puan melalui WhatsApp untuk mengesahkan teks, font, warna dan mockup sebelum pengeluaran bermula.</p>
+    <div style="margin-top:18px;padding:16px;border:1px solid #dfe9e2;border-radius:12px;background:#f4fbf6">
+      <p style="margin:0 0 12px;color:#31533d;font-size:13px;line-height:1.65">Hubungi kami melalui WhatsApp untuk mengetahui status tempahan atau berbincang dengan designer kami jika anda mahu membuat perubahan pada design.</p>
+      <a href="https://www.wasap.my/601169530763" style="display:inline-block;padding:11px 16px;border-radius:8px;background:#1fa855;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none">WhatsApp Team pakarneonled.store</a>
+    </div>`;
 
   return {
     subject,
@@ -103,6 +107,38 @@ export function buildCustomerOrderEmail(order) {
       intro: 'Pembayaran anda telah diterima dan tempahan kini menunggu pengesahan designer.',
       content,
       footer: 'Simpan email ini sebagai rujukan tempahan. Balas email ini jika anda perlu berkongsi maklumat tambahan.',
+    }),
+  };
+}
+
+export function buildCustomerPendingEmail(order) {
+  const subject = `Tempahan diterima — Bayaran belum selesai · ${order.reference}`;
+  const paymentLink = String(order.payment_url || '').trim();
+  const content = `
+    <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #e3a008;background:#fff8e6;color:#7a5200;font-size:13px;font-weight:800">Tempahan anda telah diterima, tetapi bayaran masih belum selesai.</div>
+    <table role="presentation" style="width:100%;border-collapse:collapse">
+      ${detailRow('Rujukan tempahan', order.reference)}
+      ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
+      ${detailRow('Font', order.font_name)}
+      ${detailRow('Warna', getColorSummary(order))}
+      ${detailRow('Pakej', order.package_name)}
+      ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
+      ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
+    </table>
+    ${paymentLink ? `<div style="margin-top:20px"><a href="${escapeHtml(paymentLink)}" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#ff5b51;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none">Sambung Pembayaran</a></div>` : ''}
+    <div style="margin-top:18px;padding:16px;border:1px solid #dfe9e2;border-radius:12px;background:#f4fbf6">
+      <p style="margin:0 0 12px;color:#31533d;font-size:13px;line-height:1.65">Jika anda menghadapi masalah pembayaran atau mahu berbincang tentang perubahan design, hubungi team kami melalui WhatsApp.</p>
+      <a href="https://www.wasap.my/601169530763" style="display:inline-block;padding:11px 16px;border-radius:8px;background:#1fa855;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none">WhatsApp Team pakarneonled.store</a>
+    </div>`;
+
+  return {
+    subject,
+    html: emailShell({
+      eyebrow: 'Pakar LED & Neon by YH',
+      title: `Tempahan diterima, ${order.customer_name || 'tuan/puan'}`,
+      intro: 'Kami sudah menerima butiran rekaan anda. Lengkapkan pembayaran untuk meneruskan tempahan.',
+      content,
+      footer: 'Jika anda sudah membuat bayaran, abaikan peringatan ini. Email pengesahan bayaran akan dihantar selepas transaksi disahkan oleh ToyyibPay.',
     }),
   };
 }
@@ -153,5 +189,17 @@ export function sendCustomerOrderEmail(order) {
     replyTo: ownerEmail || undefined,
     ...email,
     idempotencyKey: `paid-customer/${order.reference}`,
+  });
+}
+
+export function sendCustomerPendingEmail(order) {
+  if (!order.customer_email) return null;
+  const ownerEmail = process.env.ORDER_NOTIFICATION_EMAIL;
+  const email = buildCustomerPendingEmail(order);
+  return sendResendEmail({
+    to: order.customer_email,
+    replyTo: ownerEmail || undefined,
+    ...email,
+    idempotencyKey: `pending-customer/${order.reference}`,
   });
 }
