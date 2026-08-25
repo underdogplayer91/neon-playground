@@ -11,6 +11,18 @@ const cleanWordColors = (items) => Array.isArray(items)
     }))
   : [];
 
+const cleanTracking = (tracking = {}) => ({
+  fbp: limitText(tracking.fbp, 200),
+  fbc: limitText(tracking.fbc, 300),
+  fbclid: limitText(tracking.fbclid, 300),
+  utmSource: limitText(tracking.utmSource, 100),
+  utmMedium: limitText(tracking.utmMedium, 100),
+  utmCampaign: limitText(tracking.utmCampaign, 200),
+  utmContent: limitText(tracking.utmContent, 200),
+  utmTerm: limitText(tracking.utmTerm, 200),
+  landingPage: limitText(tracking.landingPage, 1000),
+});
+
 export function buildOrderRecord({ order = {}, customer = {}, payment, reference }) {
   return {
     reference,
@@ -43,6 +55,7 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
       backgroundMode: limitText(order.backgroundMode, 30),
       sizeNote: limitText(order.sizeNote, 300),
       characterCount: payment.characterCount,
+      tracking: cleanTracking(order.tracking),
     },
   };
 }

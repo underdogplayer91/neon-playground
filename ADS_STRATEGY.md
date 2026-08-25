@@ -289,6 +289,8 @@ Pastikan nama ad membezakan angle dan versi. Jangan menukar nama ad selepas data
 
 ## 6. Tracking dan readiness gate
 
+Pixel ID `510580329408580` dipasang melalui kod aplikasi. Browser events yang dilaksanakan ialah `PageView`, `ViewContent`, `CustomizeProduct`, `InitiateCheckout` dan `AddPaymentInfo`. Event `Purchase` kekal menunggu pemasangan Conversions API pada callback ToyyibPay supaya hanya pembayaran yang disahkan direkodkan.
+
 Pemasangan Pixel atau Conversions API ialah fasa implementasi berasingan. Jangan lancarkan iklan sehingga semua item readiness gate yang kritikal telah lulus.
 
 ### Event funnel

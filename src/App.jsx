@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { limitNeonInput, tokenizeNeonText, useFittedNeonText } from './neonText';
+import { getMetaAttribution, trackMetaEventOnce } from './metaPixel';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -137,6 +138,15 @@ export function App() {
   const getWordColor = (wordIndex) => colors.find((color) => color.id === (wordColorIds[wordIndex] || colorId)) || selectedColor;
   const previewFontSize = useFittedNeonText(previewStageRef, displayText, selectedFont.family);
   useEffect(() => {
+    trackMetaEventOnce('view-content:landing', 'ViewContent', {
+      content_name: 'Custom Neon LED',
+      content_category: 'Indoor Custom Neon LED',
+      content_type: 'product',
+      currency: 'MYR',
+      value: 150,
+    });
+  }, []);
+  useEffect(() => {
     fonts.forEach((font) => {
       const face = new FontFace(font.family, `url(${font.file})`);
       face.load().then((loaded) => document.fonts.add(loaded)).catch(() => {});
@@ -196,6 +206,7 @@ export function App() {
         return { wordIndex: token.wordIndex, text: token.value, colorId: wordColor.id, label: wordColor.label, value: wordColor.value, glow: wordColor.glow };
       }) : [],
       backgroundMode,
+      tracking: getMetaAttribution(),
       sizeNote: tier === 'basic' ? 'Panjang bawah 60 cm' : tier === 'plus' ? 'Panjang bawah 85 cm' : 'Custom size · ukuran akhir disahkan designer',
     }));
   };
@@ -212,9 +223,16 @@ export function App() {
     colorValue: '#31d7ff',
     colorGlow: '49,215,255',
     backgroundMode: 'night',
+    tracking: getMetaAttribution(),
     sizeNote: 'Custom size & design',
   }));
-  const interact = () => setHasInteracted(true);
+  const interact = () => {
+    setHasInteracted(true);
+    trackMetaEventOnce('customize-product', 'CustomizeProduct', {
+      content_name: 'Neon Playground',
+      interaction_type: 'configurator',
+    }, { custom: true });
+  };
 
   return <main id="top">
     <Header />

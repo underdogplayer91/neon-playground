@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
+import { trackMetaEvent, trackMetaEventOnce } from './metaPixel';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -62,6 +63,18 @@ export function CheckoutPage() {
   }, [order]);
 
   useEffect(() => {
+    if (!order) return;
+    trackMetaEventOnce(`initiate-checkout:${order.reference}`, 'InitiateCheckout', {
+      content_name: order.packageName,
+      content_ids: [order.tier],
+      content_type: 'product',
+      currency: 'MYR',
+      value: Number(order.price || 0),
+      num_items: 1,
+    });
+  }, [order]);
+
+  useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     const timer = window.setInterval(() => setActiveCheckoutSlide((current) => (current + 1) % checkoutSlides.length), 3800);
     return () => window.clearInterval(timer);
@@ -94,6 +107,14 @@ export function CheckoutPage() {
         reference: result.reference,
         amount: result.amount,
       }));
+      trackMetaEvent('AddPaymentInfo', {
+        content_name: order.packageName,
+        content_ids: [result.tier || order.tier],
+        content_type: 'product',
+        currency: 'MYR',
+        value: Number(result.amount || order.price || 0),
+      });
+      await new Promise((resolve) => window.setTimeout(resolve, 150));
       window.location.assign(result.paymentUrl);
     } catch (paymentError) {
       setError(paymentError.message || 'Sambungan pembayaran gagal. Sila cuba lagi.');
