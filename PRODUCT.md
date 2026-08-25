@@ -150,7 +150,6 @@ Logo, simbol, bentuk khas dan saiz custom menggunakan aliran **Deposit Design Cu
 - Setiap email menggunakan idempotency key berdasarkan rujukan tempahan. Masa penghantaran direkodkan dalam `email_notified_at` dan `customer_email_sent_at` untuk mengelakkan email berganda.
 - Selepas bil ToyyibPay berjaya dicipta, customer yang mengisi email menerima pengesahan tempahan berstatus bayaran belum selesai, bersama pautan untuk menyambung pembayaran dan menghubungi team melalui WhatsApp.
 - Order yang masih `unpaid` atau `failed` selepas sekurang-kurangnya 30 minit dihantar kepada owner melalui email follow-up. Email menyediakan butang WhatsApp customer dengan butiran produk dan URL `pakarneonled.store` yang siap diisi.
-- Beberapa cubaan order belum dibayar daripada nombor customer yang sama digabungkan kepada satu follow-up sahaja, menggunakan order paling terkini.
 - Email owner untuk bayaran berjaya turut menyediakan butang WhatsApp customer dengan ringkasan rekaan bagi proses pengesahan seterusnya.
 
 ### Pemasangan

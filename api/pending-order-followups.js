@@ -1,6 +1,5 @@
 import { sendOwnerPendingEmail } from '../server/email.js';
-import { groupPendingFollowUps } from '../server/followup.js';
-import { getOrder, getPendingFollowUpOrders, markFollowUpOrders } from '../server/supabase.js';
+import { getOrder, getPendingFollowUpOrders, updateOrder } from '../server/supabase.js';
 
 const FOLLOW_UP_DELAY_MS = 30 * 60 * 1000;
 
@@ -27,31 +26,22 @@ export default async function handler(request, response) {
   let sent = 0;
   let skipped = 0;
   let failed = 0;
-  const groups = groupPendingFollowUps(candidates);
-  for (const group of groups) {
+  for (const candidate of candidates) {
     try {
-      const order = await getOrder(group.order.reference);
+      const order = await getOrder(candidate.reference);
       if (!order || !['unpaid', 'failed'].includes(order.payment_status) || order.followup_email_sent_at) {
         skipped += 1;
         continue;
       }
       await sendOwnerPendingEmail(order);
-      await markFollowUpOrders(group.references);
+      await updateOrder(order.reference, { followup_email_sent_at: new Date().toISOString() });
       sent += 1;
     } catch (error) {
       failed += 1;
-      console.error('Pending order follow-up email failed', { reference: group.order.reference, message: error.message });
+      console.error('Pending order follow-up email failed', { reference: candidate.reference, message: error.message });
     }
   }
 
   response.setHeader('Cache-Control', 'no-store');
-  return response.status(200).json({
-    success: true,
-    checked: candidates.length,
-    customerGroups: groups.length,
-    consolidated: candidates.length - groups.length,
-    sent,
-    skipped,
-    failed,
-  });
+  return response.status(200).json({ success: true, checked: candidates.length, sent, skipped, failed });
 }

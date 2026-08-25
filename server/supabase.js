@@ -107,27 +107,15 @@ export const getOrder = async (reference) => {
   return Array.isArray(records) ? records[0] || null : null;
 };
 
-export const getPendingFollowUpOrders = async (createdBefore, limit = 500) => {
+export const getPendingFollowUpOrders = async (createdBefore, limit = 20) => {
   const query = new URLSearchParams({
     payment_status: 'in.(unpaid,failed)',
     created_at: `lte.${createdBefore}`,
     followup_email_sent_at: 'is.null',
     select: '*',
-    order: 'created_at.desc',
+    order: 'created_at.asc',
     limit: String(limit),
   });
   const records = await requestSupabase(`orders?${query}`, { prefer: '' });
   return Array.isArray(records) ? records : [];
-};
-
-export const markFollowUpOrders = (references, sentAt = new Date().toISOString()) => {
-  const safeReferences = [...new Set(references)]
-    .map((reference) => String(reference || ''))
-    .filter((reference) => /^[A-Za-z0-9_-]{4,64}$/.test(reference));
-  if (!safeReferences.length) return null;
-  const query = new URLSearchParams({ reference: `in.(${safeReferences.join(',')})` });
-  return requestSupabase(`orders?${query}`, {
-    method: 'PATCH',
-    body: { followup_email_sent_at: sentAt, updated_at: sentAt },
-  });
 };
