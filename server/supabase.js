@@ -106,3 +106,16 @@ export const getOrder = async (reference) => {
   const records = await requestSupabase(`orders?${query}`, { prefer: '' });
   return Array.isArray(records) ? records[0] || null : null;
 };
+
+export const getPendingFollowUpOrders = async (createdBefore, limit = 20) => {
+  const query = new URLSearchParams({
+    payment_status: 'in.(unpaid,failed)',
+    created_at: `lte.${createdBefore}`,
+    followup_email_sent_at: 'is.null',
+    select: '*',
+    order: 'created_at.asc',
+    limit: String(limit),
+  });
+  const records = await requestSupabase(`orders?${query}`, { prefer: '' });
+  return Array.isArray(records) ? records : [];
+};

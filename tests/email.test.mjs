@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildCustomerOrderEmail, buildCustomerPendingEmail, buildOwnerOrderEmail } from '../server/email.js';
+import { buildCustomerOrderEmail, buildCustomerPendingEmail, buildOwnerOrderEmail, buildOwnerPendingEmail } from '../server/email.js';
 
 const order = {
   reference: 'YH_TEST_123',
@@ -30,6 +30,19 @@ test('owner notification contains the complete order without unsafe customer HTM
   assert.match(email.html, /kopi — Pink, jiwa — Yellow/);
   assert.doesNotMatch(email.html, /<script>alert/);
   assert.match(email.html, /Ali &lt;script&gt;alert/);
+  assert.match(email.html, /WhatsApp Customer — Sahkan Rekaan/);
+  assert.match(email.html, /wa\.me\/60123456789/);
+  assert.match(email.html, /www\.pakarneonled\.store/);
+});
+
+test('owner pending notification includes a prefilled WhatsApp follow-up', () => {
+  const email = buildOwnerPendingEmail({ ...order, created_at: '2026-08-25T10:00:00.000Z' });
+  assert.match(email.subject, /Follow-up diperlukan/);
+  assert.match(email.html, /pembayaran masih belum diselesaikan/i);
+  assert.match(email.html, /WhatsApp Customer — Bantu Selesaikan Bayaran/);
+  assert.match(email.html, /wa\.me\/60123456789/);
+  assert.match(email.html, /Website%20rasmi%3A/);
+  assert.match(email.html, /https%3A%2F%2Fwww\.pakarneonled\.store/);
 });
 
 test('customer confirmation explains payment and the WhatsApp design confirmation', () => {
