@@ -17,3 +17,5 @@ On tablet and mobile, keep the Neon Playground preview sticky only within the co
 The Playground text field should prefer lowercase by disabling mobile auto-capitalization. Preserve the customer's exact casing when they deliberately type uppercase, and show a short recommendation that lowercase generally produces a cleaner result.
 
 Use an in-page expandable list for the Playground's additional fonts instead of a native mobile select. The list must open downward inside the controls, remain independently scrollable, and allow the sticky neon preview to stay visible while fonts are tried.
+
+On narrow mobile screens, keep the complete hero copy and the “Reka · Sahkan · Baru kami hasilkan” note above the dark storefront portion of the hero image so all text remains readable in in-app browsers.
