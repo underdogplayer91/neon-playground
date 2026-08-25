@@ -1,5 +1,6 @@
 import { parseRequestBody, verifyCallbackHash } from '../server/toyyibpay.js';
 import { sendCustomerOrderEmail, sendOwnerOrderEmail } from '../server/email.js';
+import { sendMetaPurchase } from '../server/metaConversions.js';
 import { getOrder, mapToyyibPayStatus, updateOrder } from '../server/supabase.js';
 
 export default async function handler(request, response) {
@@ -48,6 +49,19 @@ export default async function handler(request, response) {
     try {
       const order = await getOrder(payload.order_id);
       if (!order) throw new Error('Order tidak dijumpai selepas pembayaran disahkan.');
+
+      if (!order.meta_purchase_sent_at) {
+        try {
+          const metaResult = await sendMetaPurchase(order);
+          await updateOrder(order.reference, {
+            meta_purchase_sent_at: new Date().toISOString(),
+            meta_purchase_event_id: metaResult.eventId,
+            meta_purchase_response: metaResult.response,
+          });
+        } catch (error) {
+          console.error('Meta Purchase event failed', { reference: order.reference, message: error.message });
+        }
+      }
 
       if (!order.email_notified_at) {
         try {

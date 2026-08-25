@@ -21,6 +21,8 @@ const cleanTracking = (tracking = {}) => ({
   utmContent: limitText(tracking.utmContent, 200),
   utmTerm: limitText(tracking.utmTerm, 200),
   landingPage: limitText(tracking.landingPage, 1000),
+  clientIpAddress: limitText(tracking.clientIpAddress, 100),
+  clientUserAgent: limitText(tracking.clientUserAgent, 1000),
 });
 
 export function buildOrderRecord({ order = {}, customer = {}, payment, reference }) {

@@ -5,6 +5,16 @@ import { buildOrderRecord, createOrder, updateOrder } from '../server/supabase.j
 
 const createReference = () => `YH_${Date.now().toString(36).toUpperCase()}_${randomUUID().slice(0, 6).toUpperCase()}`;
 
+const getRequestHeader = (request, name) => {
+  const value = request.headers?.[name];
+  return Array.isArray(value) ? value[0] : String(value || '');
+};
+
+const getClientIpAddress = (request) => {
+  const forwarded = getRequestHeader(request, 'x-forwarded-for').split(',')[0].trim();
+  return forwarded || getRequestHeader(request, 'x-real-ip').trim();
+};
+
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST');
@@ -21,7 +31,15 @@ export default async function handler(request, response) {
 
   try {
     const payload = parseRequestBody(request.body);
-    const trustedOrder = { ...payload.order, reference: createReference() };
+    const trustedOrder = {
+      ...payload.order,
+      reference: createReference(),
+      tracking: {
+        ...(payload.order?.tracking || {}),
+        clientIpAddress: getClientIpAddress(request),
+        clientUserAgent: getRequestHeader(request, 'user-agent'),
+      },
+    };
     const { fields, payment, reference, customer } = buildBillFields({
       order: trustedOrder,
       customer: payload.customer,
