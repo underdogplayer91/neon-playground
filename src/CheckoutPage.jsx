@@ -112,7 +112,6 @@ export function CheckoutPage() {
         currency: 'MYR',
         value: Number(result.amount || order.price || 0),
       });
-      await new Promise((resolve) => window.setTimeout(resolve, 150));
       window.location.assign(result.paymentUrl);
     } catch (paymentError) {
       setError(paymentError.message || 'Sambungan pembayaran gagal. Sila cuba lagi.');
