@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { limitNeonInput, tokenizeNeonText, useFittedNeonText } from './neonText';
 import { getMetaAttribution, trackMetaEventOnce } from './metaPixel';
+import { createDisplayReference } from './orderReference';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -189,6 +190,7 @@ export function App() {
     const tier = selectedPackage.price ? selectedPackage.tier : 'custom';
     window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({
       reference: `YH-${Date.now().toString(36).toUpperCase()}`,
+      displayReference: createDisplayReference(),
       tier,
       packageName: selectedPackage.price ? selectedPackage.name : 'Design Custom',
       price: selectedPackage.price || 100,
@@ -212,6 +214,7 @@ export function App() {
   };
   const prepareCustomCheckout = () => window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({
     reference: `YH-${Date.now().toString(36).toUpperCase()}`,
+    displayReference: createDisplayReference(),
     tier: 'custom',
     packageName: 'Design Custom',
     price: 100,

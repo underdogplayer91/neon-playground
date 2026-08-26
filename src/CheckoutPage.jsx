@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { tokenizeNeonText, useFittedNeonText } from './neonText';
+import { useEffect, useRef, useState } from 'react';
+import { estimateNeonDimensions, tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEvent, trackMetaEventOnce } from './metaPixel';
+import { createDisplayReference } from './orderReference';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -21,16 +22,9 @@ const readStoredOrder = () => {
   }
 };
 
-const getShippingInfo = (state, tier) => {
-  if (tier === 'custom') return { amount: 'Akan disahkan', note: 'Kadar penghantaran Design Custom bergantung pada saiz akhir.' };
-  if (!state) return { amount: 'Pilih negeri', note: 'Kadar dipaparkan selepas negeri penghantaran dipilih.' };
-  if (state === 'Sabah' || state === 'Sarawak') return { amount: 'RM40', note: 'Dibayar oleh penerima apabila barang sampai.' };
-  if (state === 'Labuan') return { amount: 'Akan disahkan', note: 'Kadar penghantaran Labuan belum ditetapkan.' };
-  return { amount: 'Maksimum RM10', note: 'Kadar Semenanjung. Dibayar oleh penerima apabila barang sampai.' };
-};
-
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
+  const [displayReference] = useState(() => order?.displayReference || createDisplayReference());
   const orderNeonRef = useRef(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,8 +39,8 @@ export function CheckoutPage() {
     city: '',
     state: '',
   });
-  const shippingInfo = useMemo(() => order ? getShippingInfo(customer.state, order.tier) : null, [customer.state, order]);
   const checkoutText = order?.text || 'Design Custom';
+  const estimatedDimensions = order?.text ? estimateNeonDimensions(order.text) : null;
   const checkoutTokens = tokenizeNeonText(checkoutText);
   const isMultiColor = order?.colorMode === 'multi' && order?.wordColors?.length;
   const checkoutWordColors = new Map((order?.wordColors || []).map((item) => [item.wordIndex, item]));
@@ -162,18 +156,18 @@ export function CheckoutPage() {
           </div>
         </div>
         <dl>
-          <div><dt>Rujukan</dt><dd>{order.reference}</dd></div>
+          <div><dt>Rujukan</dt><dd>{displayReference}</dd></div>
           <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
           {order.colorLabel && <div><dt>Warna</dt><dd>{isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel}</dd></div>}
-          <div><dt>Saiz</dt><dd>{order.sizeNote}</dd></div>
+          <div><dt>Anggaran Saiz</dt>{estimatedDimensions
+            ? <dd className="size-estimate"><span>Panjang: {estimatedDimensions.minLength}–{estimatedDimensions.maxLength} cm</span><span>Tinggi: {estimatedDimensions.minHeight}–{estimatedDimensions.maxHeight} cm</span></dd>
+            : <dd>Saiz akan disahkan selepas design dibincangkan</dd>}</div>
           {order.estimatedPrice && <div><dt>Anggaran harga penuh</dt><dd>RM{order.estimatedPrice}*</dd></div>}
-          <div><dt>Penghantaran</dt><dd>{shippingInfo.amount}</dd></div>
         </dl>
-        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit dibayar sekarang' : 'Bayaran produk sekarang'}</span><strong>RM{order.price}</strong></div>
+        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit dibayar sekarang' : 'Total'}</span><div className="order-total-price"><strong>RM{order.price}</strong><small>QR PAY disediakan di halaman sebelah</small></div></div>
         {order.estimatedPrice && <p className="estimate-note">*Anggaran berdasarkan jumlah huruf. Deposit RM100 ialah tanda komitmen tempahan. Kami akan menghubungi anda melalui WhatsApp dan deposit ditolak daripada harga akhir.</p>}
-        <p className="shipping-note"><strong>Caj penghantaran tidak termasuk dalam bayaran di atas.</strong> {shippingInfo.note}</p>
       </aside>
     </div>
   </main>;
