@@ -108,6 +108,20 @@ export function buildBillFields({ order, customer, siteUrl, secretKey, categoryC
 
 export const normaliseBaseUrl = (value) => String(value || 'https://toyyibpay.com').replace(/\/+$/, '');
 
+export async function getBillTransaction(billCode, orderReference = '') {
+  const baseUrl = normaliseBaseUrl(process.env.TOYYIBPAY_BASE_URL);
+  const result = await fetch(`${baseUrl}/index.php/api/getBillTransactions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ billCode }),
+  });
+  if (!result.ok) throw new Error(`Semakan ToyyibPay gagal dengan status ${result.status}.`);
+  const transactions = await result.json();
+  return Array.isArray(transactions)
+    ? transactions.find((item) => !orderReference || item.billExternalReferenceNo === orderReference) || null
+    : null;
+}
+
 export function verifyCallbackHash(payload, secretKey) {
   const expected = createHash('md5')
     .update(`${secretKey}${payload.status || ''}${payload.order_id || ''}${payload.refno || ''}ok`)

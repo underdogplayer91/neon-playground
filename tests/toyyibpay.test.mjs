@@ -7,6 +7,7 @@ import {
   verifyCallbackHash,
 } from '../server/toyyibpay.js';
 import { buildOrderRecord, mapToyyibPayStatus } from '../server/supabase.js';
+import { validatePaidOrder } from '../server/paidOrder.js';
 
 test('server derives trusted package amounts from neon text', () => {
   assert.deepEqual(resolvePayment({ tier: 'custom', text: 'ABCDEFGH' }).amount, 150);
@@ -63,4 +64,11 @@ test('ToyyibPay callback statuses map to stored payment states', () => {
   assert.equal(mapToyyibPayStatus('1'), 'paid');
   assert.equal(mapToyyibPayStatus('3'), 'failed');
   assert.equal(mapToyyibPayStatus('2'), 'pending');
+});
+
+test('paid fulfillment only accepts the bill and amount stored on the order', () => {
+  const order = { reference: 'YH_TEST_123', bill_code: 'abc123', amount: 150 };
+  assert.doesNotThrow(() => validatePaidOrder(order, { billCode: 'abc123', amount: '150.00' }));
+  assert.throws(() => validatePaidOrder(order, { billCode: 'different', amount: '150.00' }), /Bill Code/);
+  assert.throws(() => validatePaidOrder(order, { billCode: 'abc123', amount: '100.00' }), /Jumlah pembayaran/);
 });

@@ -1,4 +1,5 @@
-import { normaliseBaseUrl } from '../server/toyyibpay.js';
+import { getBillTransaction } from '../server/toyyibpay.js';
+import { fulfillPaidOrder } from '../server/paidOrder.js';
 
 const STATUS_LABELS = { '1': 'success', '2': 'pending', '3': 'failed', '4': 'pending' };
 
@@ -15,22 +16,36 @@ export default async function handler(request, response) {
   }
 
   try {
-    const baseUrl = normaliseBaseUrl(process.env.TOYYIBPAY_BASE_URL);
-    const toyyibResponse = await fetch(`${baseUrl}/index.php/api/getBillTransactions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ billCode }),
-    });
-    const transactions = await toyyibResponse.json();
-    const matching = Array.isArray(transactions)
-      ? transactions.find((item) => !orderId || item.billExternalReferenceNo === orderId)
-      : null;
+    const matching = await getBillTransaction(billCode, orderId);
 
     response.setHeader('Cache-Control', 'no-store');
     if (!matching) return response.status(200).json({ status: 'pending', reference: orderId, billCode });
+    const reference = matching.billExternalReferenceNo || orderId;
+    const status = STATUS_LABELS[String(matching.billpaymentStatus)] || 'pending';
+
+    if (status === 'success' && reference) {
+      try {
+        await fulfillPaidOrder({
+          reference,
+          billCode,
+          toyyibpayReference: matching.billpaymentInvoiceNo,
+          amount: matching.billpaymentAmount,
+          paymentPayload: {
+            status: String(matching.billpaymentStatus || ''),
+            billcode: billCode,
+            refno: String(matching.billpaymentInvoiceNo || ''),
+            amount: String(matching.billpaymentAmount || ''),
+          },
+          source: 'status-check',
+        });
+      } catch (error) {
+        console.error('Paid status reconciliation failed', { reference, billCode, message: error.message });
+      }
+    }
+
     return response.status(200).json({
-      status: STATUS_LABELS[String(matching.billpaymentStatus)] || 'pending',
-      reference: matching.billExternalReferenceNo || orderId,
+      status,
+      reference,
       billCode,
       amount: matching.billpaymentAmount || null,
       invoice: matching.billpaymentInvoiceNo || null,
@@ -41,4 +56,3 @@ export default async function handler(request, response) {
     return response.status(502).json({ error: 'Status bayaran belum dapat disahkan.' });
   }
 }
-
