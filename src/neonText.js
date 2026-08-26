@@ -20,25 +20,6 @@ export const limitNeonInput = (value, maxWordLength = 30, maxLines = 6) => value
     .join(''))
   .join('\n');
 
-export const estimateNeonDimensions = (text) => {
-  const lines = String(text || '').split('\n');
-  const estimates = lines.map((line) => {
-    const characters = [...line].filter((character) => !/\s/.test(character)).length;
-    const spaces = [...line].filter((character) => /\s/.test(character)).length;
-    return {
-      minLength: (characters * 5) + (spaces * 2),
-      maxLength: (characters * 6) + (spaces * 2),
-    };
-  });
-
-  return {
-    minLength: Math.max(0, ...estimates.map((estimate) => estimate.minLength)),
-    maxLength: Math.max(0, ...estimates.map((estimate) => estimate.maxLength)),
-    minHeight: 10,
-    maxHeight: 20,
-  };
-};
-
 export function useFittedNeonText(containerRef, text, fontFamily, options = {}) {
   const {
     baseSize = 70,
