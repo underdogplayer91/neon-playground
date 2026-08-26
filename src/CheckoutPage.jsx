@@ -41,9 +41,9 @@ export function CheckoutPage() {
   });
   const checkoutText = order?.text || 'Design Custom';
   const estimatedDimensions = order?.tier === 'basic'
-    ? { length: 'Maksimum 60 cm', height: '10–20 cm' }
+    ? { length: '≤60cm' }
     : order?.tier === 'plus'
-      ? { length: '70–85 cm', height: '10–20 cm' }
+      ? { length: '≤85cm' }
       : null;
   const checkoutTokens = tokenizeNeonText(checkoutText);
   const isMultiColor = order?.colorMode === 'multi' && order?.wordColors?.length;
@@ -165,8 +165,8 @@ export function CheckoutPage() {
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
           {order.colorLabel && <div><dt>Warna</dt><dd>{isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel}</dd></div>}
-          <div><dt>Anggaran Saiz</dt>{estimatedDimensions
-            ? <dd className="size-estimate"><span>Panjang: {estimatedDimensions.length}</span><span>Tinggi: {estimatedDimensions.height}</span></dd>
+          <div><dt>Saiz</dt>{estimatedDimensions
+            ? <dd>{estimatedDimensions.length}</dd>
             : <dd>Saiz akan disahkan selepas design dibincangkan</dd>}</div>
           {order.estimatedPrice && <div><dt>Anggaran harga penuh</dt><dd>RM{order.estimatedPrice}*</dd></div>}
         </dl>
