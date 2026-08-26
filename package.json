@@ -11,6 +11,7 @@
     "test:payment": "node --test tests/toyyibpay.test.mjs tests/email.test.mjs tests/meta-conversions.test.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@vitejs/plugin-react": "5.0.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
