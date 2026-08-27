@@ -115,7 +115,7 @@ function Header() {
 }
 
 export function App() {
-  const [text, setText] = useState('pulang bawa rindu');
+  const [text, setText] = useState('cuba nama anda disini');
   const [fontId, setFontId] = useState('Amanda');
   const [colorId, setColorId] = useState('pink');
   const [colorMode, setColorMode] = useState('multi');
@@ -130,7 +130,7 @@ export function App() {
   const previewStageRef = useRef(null);
   const characterCount = countCharacters(text);
   const selectedPackage = getPackage(characterCount);
-  const displayText = text.trim() || 'pulang bawa rindu';
+  const displayText = text.trim() || 'cuba nama anda disini';
   const selectedFont = fonts.find((font) => font.id === fontId);
   const selectedColor = colors.find((color) => color.id === colorId);
   const previewTokens = tokenizeNeonText(displayText);
@@ -246,7 +246,7 @@ export function App() {
         <p className="eyebrow"><MapPin weight="fill" /> Untuk bisnes, ruang &amp; momen anda</p>
         <h1>Dari ruang yang suram<br />kepada suasana yang<br /><em>hidup menyala.</em></h1>
         <p className="hero-copy">Meriahkan kedai, bilik, acara atau studio dengan Custom Neon LED daripada nama dan kata-kata pilihan anda.</p>
-        <a className="primary-button" href="#playground">Cuba Nama Kedai Anda <ArrowDown weight="bold" /></a>
+        <a className="primary-button" href="#playground">Tulis Nama Anda Disini <ArrowDown weight="bold" /></a>
         <div className="hero-note"><Check weight="bold" /> Reka · Sahkan · Baru kami hasilkan</div>
       </div>
       <div className="day-label">Siang biasa-biasa.</div><div className="night-label">Malam semua nampak kedai anda.</div>
