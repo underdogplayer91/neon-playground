@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
-import { trackMetaEvent, trackMetaEventOnce } from './metaPixel';
+import { trackMetaEventOnce } from './metaPixel';
 import { createDisplayReference } from './orderReference';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
@@ -105,7 +105,7 @@ export function CheckoutPage() {
         reference: result.reference,
         amount: result.amount,
       }));
-      trackMetaEvent('AddPaymentInfo', {
+      trackMetaEventOnce(`add-payment-info:${result.reference}`, 'AddPaymentInfo', {
         content_name: order.packageName,
         content_ids: [result.tier || order.tier],
         content_type: 'product',
