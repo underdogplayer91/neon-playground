@@ -6,6 +6,8 @@ import { createDisplayReference } from './orderReference';
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
 const checkoutSlides = [
+  { src: '/assets/contoh-hasil/michael-jackson-neon.jpg', alt: 'Hasil sebenar neon nama Michael Jackson' },
+  { src: '/assets/contoh-hasil/haikal-feroz-neon.jpg', alt: 'Hasil sebenar neon nama Haikal Feroz' },
   { src: '/assets/contoh-hasil/1.jpeg', alt: 'Contoh hasil neon LED untuk event' },
   { src: '/assets/contoh-hasil/2.png', alt: 'Contoh hasil neon LED pelanggan 2' },
   { src: '/assets/contoh-hasil/3.jpg', alt: 'Contoh hasil neon LED pelanggan 3' },
