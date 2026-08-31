@@ -60,6 +60,23 @@ test('validated checkout becomes a complete Supabase order record', () => {
   assert.equal(record.payment_status, 'creating_bill');
 });
 
+test('free shipping voucher is labelled inside the stored order snapshot', () => {
+  const record = buildOrderRecord({
+    order: { fontName: 'Amanda', colorLabel: 'Pink', wordColors: [] },
+    customer: { name: 'Ali Ahmad', phone: '0123456789', email: '', address1: 'Jalan Satu', address2: '', postcode: '43000', city: 'Kajang', state: 'Selangor' },
+    payment: { tier: 'basic', packageName: 'Pakej 8 Huruf', amount: 150, text: 'KOPI', characterCount: 4 },
+    reference: 'YH_FREE_SHIPPING',
+    shippingVoucher: { id: 'voucher-123', active: true },
+  });
+  assert.equal(record.amount, 150);
+  assert.equal(record.order_snapshot.shippingFeeOriginal, 20);
+  assert.equal(record.order_snapshot.shippingFee, 0);
+  assert.equal(record.order_snapshot.freeShipping, true);
+  assert.equal(record.order_snapshot.shippingVoucherClaimId, 'voucher-123');
+  assert.equal(record.order_snapshot.warrantyMonthsOriginal, 3);
+  assert.equal(record.order_snapshot.warrantyMonths, 6);
+});
+
 test('ToyyibPay callback statuses map to stored payment states', () => {
   assert.equal(mapToyyibPayStatus('1'), 'paid');
   assert.equal(mapToyyibPayStatus('3'), 'failed');

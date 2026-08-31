@@ -1,7 +1,7 @@
 import { buildBillFields, normaliseBaseUrl, parseRequestBody } from '../server/toyyibpay.js';
 import { randomUUID } from 'node:crypto';
 import { sendCustomerPendingEmail } from '../server/email.js';
-import { buildOrderRecord, createOrder, updateOrder } from '../server/supabase.js';
+import { attachShippingVoucherClaim, buildOrderRecord, createOrder, getShippingVoucherClaim, updateOrder } from '../server/supabase.js';
 
 const createReference = () => `YH_${Date.now().toString(36).toUpperCase()}_${randomUUID().slice(0, 6).toUpperCase()}`;
 
@@ -47,8 +47,16 @@ export default async function handler(request, response) {
       secretKey,
       categoryCode,
     });
-    const orderRecord = buildOrderRecord({ order: trustedOrder, customer, payment, reference });
+    let shippingVoucher = null;
+    if (payload.shippingVoucherClaim) {
+      shippingVoucher = await getShippingVoucherClaim(payload.shippingVoucherClaim).catch(() => null);
+    }
+    const orderRecord = buildOrderRecord({ order: trustedOrder, customer, payment, reference, shippingVoucher });
     await createOrder(orderRecord);
+    if (shippingVoucher?.active) {
+      await attachShippingVoucherClaim(payload.shippingVoucherClaim, reference)
+        .catch((error) => console.error('Shipping voucher order link failed', { reference, message: error.message }));
+    }
 
     const toyyibResponse = await fetch(`${baseUrl}/index.php/api/createBill`, {
       method: 'POST',
@@ -88,6 +96,7 @@ export default async function handler(request, response) {
       reference,
       tier: payment.tier,
       amount: payment.amount,
+      freeShipping: Boolean(shippingVoucher?.active),
     });
   } catch (error) {
     return response.status(400).json({ error: error.message || 'Maklumat tempahan tidak sah.' });

@@ -25,7 +25,8 @@ const cleanTracking = (tracking = {}) => ({
   clientUserAgent: limitText(tracking.clientUserAgent, 1000),
 });
 
-export function buildOrderRecord({ order = {}, customer = {}, payment, reference }) {
+export function buildOrderRecord({ order = {}, customer = {}, payment, reference, shippingVoucher }) {
+  const hasFreeShipping = Boolean(shippingVoucher?.active);
   return {
     reference,
     payment_status: 'creating_bill',
@@ -57,6 +58,12 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
       backgroundMode: limitText(order.backgroundMode, 30),
       sizeNote: limitText(order.sizeNote, 300),
       characterCount: payment.characterCount,
+      shippingFeeOriginal: 20,
+      shippingFee: hasFreeShipping ? 0 : 20,
+      freeShipping: hasFreeShipping,
+      shippingVoucherClaimId: shippingVoucher?.id || null,
+      warrantyMonthsOriginal: 3,
+      warrantyMonths: hasFreeShipping ? 6 : 3,
       tracking: cleanTracking(order.tracking),
     },
   };
@@ -133,4 +140,54 @@ export const getPendingFollowUpOrders = async (createdBefore, limit = 20) => {
   });
   const records = await requestSupabase(`orders?${query}`, { prefer: '' });
   return Array.isArray(records) ? records : [];
+};
+
+const normaliseVoucherClaim = (claim) => {
+  const expiresAt = claim?.expires_at ? new Date(claim.expires_at).getTime() : 0;
+  return {
+    id: claim?.id || null,
+    claimSession: limitText(claim?.claim_session, 100),
+    claimedAt: claim?.claimed_at || null,
+    expiresAt: claim?.expires_at || null,
+    shippingValue: Number(claim?.shipping_value || 20),
+    warrantyMonths: Number(claim?.warranty_months || 6),
+    active: Boolean(claim?.id) && expiresAt > Date.now(),
+  };
+};
+
+export const getShippingVoucherClaim = async (claimSession) => {
+  const query = new URLSearchParams({
+    claim_session: `eq.${limitText(claimSession, 100)}`,
+    select: '*',
+    limit: '1',
+  });
+  const records = await requestSupabase(`checkout_voucher_claims?${query}`, { prefer: '' });
+  return normaliseVoucherClaim(Array.isArray(records) ? records[0] : null);
+};
+
+export const createShippingVoucherClaim = async (claimSession) => {
+  const claimedAt = new Date();
+  const expiresAt = new Date(claimedAt.getTime() + (10 * 60 * 1000));
+  const query = new URLSearchParams({ on_conflict: 'claim_session' });
+  const records = await requestSupabase(`checkout_voucher_claims?${query}`, {
+    method: 'POST',
+    body: {
+      claim_session: limitText(claimSession, 100),
+      shipping_value: 20,
+      warranty_months: 6,
+      claimed_at: claimedAt.toISOString(),
+      expires_at: expiresAt.toISOString(),
+    },
+    prefer: 'resolution=ignore-duplicates,return=representation',
+  });
+  const inserted = Array.isArray(records) ? records[0] : null;
+  return inserted ? normaliseVoucherClaim(inserted) : getShippingVoucherClaim(claimSession);
+};
+
+export const attachShippingVoucherClaim = async (claimSession, reference) => {
+  const query = new URLSearchParams({ claim_session: `eq.${limitText(claimSession, 100)}` });
+  return requestSupabase(`checkout_voucher_claims?${query}`, {
+    method: 'PATCH',
+    body: { order_reference: limitText(reference, 100), used_at: new Date().toISOString() },
+  });
 };

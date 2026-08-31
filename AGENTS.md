@@ -23,3 +23,9 @@ On narrow mobile screens, keep the complete hero copy and the “Reka · Sahkan 
 In the Playground preview card, keep the two states named “Preview” and “Gambar Sebenar”. “Preview” must retain the live text, font and colour configurator; “Gambar Sebenar” must show real completed customer photos and preserve the full neon wording without cropping either end.
 
 Keep the mobile floating “Tempah Sekarang” button visible even before a name is entered. When the name field is empty, tapping it must scroll to and focus the name field, briefly highlight that field, and must not open checkout. Checkout is enabled only after the visitor enters at least one counted character.
+
+Keep the overall purchase flow simple: Step 1 is the Playground Configurator, Step 2 is the checkout confirmation page containing both customer fields and the order summary, and Step 3 is ToyyibPay payment. Do not add a separate customer-information step before confirmation. The checkout submit button must create the bill and go directly to ToyyibPay.
+
+At the top of checkout, keep the honest running urgency message that orders are processed according to payment order and payment locks the customer's design slot. The checkout CTA should read “Tempah Untuk Slot Sekarang!” and continue directly to ToyyibPay.
+
+Checkout may offer a genuine RM20 Free Shipping voucher plus a warranty extension from three months to six months after four seconds. Once claimed, its ten-minute expiry must be based on a stored claim timestamp rather than a resetting visual timer. Record the claim and its linked order in Supabase, show RM20 struck through and “PERCUMA” plus the six-month warranty while active, and keep the ToyyibPay product amount unchanged because shipping is handled separately.
