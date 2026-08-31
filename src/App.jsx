@@ -92,6 +92,20 @@ const heroImage = {
   src: '/assets/hero-storefront-v2.png',
   alt: 'Kedai Kopi Jiwa dengan neon pada cermin dalam paparan siang dan malam',
 };
+const realResultSlides = [
+  {
+    src: '/assets/contoh-hasil/haikal-feroz-neon.jpg',
+    title: 'Haikal Feroz',
+    font: 'Avante',
+    alt: 'Hasil sebenar neon Haikal Feroz yang telah siap',
+  },
+  {
+    src: '/assets/contoh-hasil/michael-jackson-neon.jpg',
+    title: 'Michael Jackson',
+    font: 'Barcelona',
+    alt: 'Hasil sebenar neon Michael Jackson yang telah siap',
+  },
+];
 const countCharacters = (value) => [...value.replace(/\s/g, '')].length;
 const getEstimatedCustomPrice = (count) => {
   if (count <= 15) return null;
@@ -109,28 +123,31 @@ const ORDER_KEY = 'yh-neon-checkout-order';
 function Header() {
   return <header className="site-header">
     <a className="brand" href="#top"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></a>
-    <nav><a href="#playground">Reka Neon</a><a href="#inspirasi">Inspirasi</a><a href="#cara">Cara Tempah</a><a href="#faq">FAQ</a></nav>
+    <nav><a href="#playground">Reka Neon</a><a href="#inspirasi">Inspirasi</a><a href="#faq">FAQ</a></nav>
     <a className="header-cta" href="#playground"><PencilSimple weight="bold" /> Cuba Sekarang</a>
   </header>;
 }
 
 export function App() {
-  const [text, setText] = useState('cuba nama anda disini');
-  const [fontId, setFontId] = useState('Amanda');
+  const [text, setText] = useState('');
+  const [fontId, setFontId] = useState('Beachfront');
   const [colorId, setColorId] = useState('pink');
   const [colorMode, setColorMode] = useState('multi');
   const [wordColorIds, setWordColorIds] = useState({ 0: 'pink', 1: 'yellow', 2: 'pink' });
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [colorMessage, setColorMessage] = useState('');
-  const [backgroundMode, setBackgroundMode] = useState('night');
+  const [previewMode, setPreviewMode] = useState('preview');
+  const [activeRealResult, setActiveRealResult] = useState(0);
   const [isOtherFontsOpen, setIsOtherFontsOpen] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(3);
   const [activePosterSlide, setActivePosterSlide] = useState(0);
   const previewStageRef = useRef(null);
+  const nameFieldRef = useRef(null);
+  const namePromptTimerRef = useRef(null);
   const characterCount = countCharacters(text);
   const selectedPackage = getPackage(characterCount);
-  const displayText = text.trim() || 'cuba nama anda disini';
+  const displayText = text.trim() || 'tulis nama anda';
   const selectedFont = fonts.find((font) => font.id === fontId);
   const selectedColor = colors.find((color) => color.id === colorId);
   const previewTokens = tokenizeNeonText(displayText);
@@ -138,6 +155,13 @@ export function App() {
   const activeColorId = colorMode === 'multi' ? (wordColorIds[activeWordIndex] || colorId) : colorId;
   const getWordColor = (wordIndex) => colors.find((color) => color.id === (wordColorIds[wordIndex] || colorId)) || selectedColor;
   const previewFontSize = useFittedNeonText(previewStageRef, displayText, selectedFont.family);
+  useEffect(() => {
+    if (window.location.hash) return;
+    const playground = document.getElementById('playground');
+    if (!playground) return;
+    window.history.replaceState(null, '', '#playground');
+    window.requestAnimationFrame(() => playground.scrollIntoView({ block: 'start' }));
+  }, []);
   useEffect(() => {
     trackMetaEventOnce('view-content:landing', 'ViewContent', {
       content_name: 'Custom Neon LED',
@@ -165,8 +189,16 @@ export function App() {
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => {
+    if (previewMode !== 'real' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const timer = window.setInterval(() => {
+      setActiveRealResult((current) => (current + 1) % realResultSlides.length);
+    }, 3800);
+    return () => window.clearInterval(timer);
+  }, [previewMode]);
+  useEffect(() => {
     if (activeWordIndex >= wordTokens.length) setActiveWordIndex(Math.max(0, wordTokens.length - 1));
   }, [activeWordIndex, wordTokens.length]);
+  useEffect(() => () => window.clearTimeout(namePromptTimerRef.current), []);
   const chooseColor = (nextColorId) => {
     if (colorMode === 'single') {
       setColorId(nextColorId);
@@ -207,7 +239,7 @@ export function App() {
         const wordColor = getWordColor(token.wordIndex);
         return { wordIndex: token.wordIndex, text: token.value, colorId: wordColor.id, label: wordColor.label, value: wordColor.value, glow: wordColor.glow };
       }) : [],
-      backgroundMode,
+      backgroundMode: 'night',
       tracking: getMetaAttribution(),
       sizeNote: tier === 'basic' ? 'Panjang bawah 60 cm' : tier === 'plus' ? 'Panjang bawah 85 cm' : 'Custom size · ukuran akhir disahkan designer',
     }));
@@ -230,11 +262,30 @@ export function App() {
     sizeNote: 'Custom size & design',
   }));
   const interact = () => {
-    setHasInteracted(true);
     trackMetaEventOnce('customize-product', 'CustomizeProduct', {
       content_name: 'Neon Playground',
       interaction_type: 'configurator',
     }, { custom: true });
+  };
+  const focusNameField = (event) => {
+    event.preventDefault();
+    const field = nameFieldRef.current;
+    if (!field) return;
+    window.clearTimeout(namePromptTimerRef.current);
+    setShowNamePrompt(false);
+    window.requestAnimationFrame(() => {
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      field.focus({ preventScroll: true });
+      setShowNamePrompt(true);
+      namePromptTimerRef.current = window.setTimeout(() => setShowNamePrompt(false), 1600);
+    });
+  };
+  const handleMobileOrderClick = (event) => {
+    if (!characterCount) {
+      focusNameField(event);
+      return;
+    }
+    prepareCheckout();
   };
 
   return <main id="top">
@@ -259,11 +310,11 @@ export function App() {
     </section>
 
     <section className="playground-section" id="playground">
-      <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Tulis perkataan anda.<br /><em>Biar ia menyala.</em></h2><p>Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p></div>
-      <div className={`configurator ${backgroundMode}`}>
+      <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Tulis perkataan anda.<br /><em>Biar ia menyala.</em></h2><p className="playground-prompt">Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p></div>
+      <div className={`configurator ${previewMode}`}>
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
-          <textarea id="shop-name" value={text} maxLength={240} rows={4} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder={'contoh:\nkopi itu pahit'} />
+          <textarea ref={nameFieldRef} id="shop-name" className={showNamePrompt ? 'name-attention' : ''} value={text} maxLength={240} rows={4} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder="Masukkan nama anda" />
           <p className="lowercase-tip">Saranan: Huruf kecil semua lebih digalakkan untuk tulisan bersambung supaya nampak lebih kemas dan profesional.</p>
           <div className={`count-row ${characterCount > 15 ? 'over' : ''}`}><span>{characterCount} huruf</span><small>Maks. 6 baris · 30 huruf/perkataan</small></div>
           <div className="field-head"><span>02</span><label htmlFor="other-font-select">Pilih font</label></div>
@@ -319,16 +370,46 @@ export function App() {
           {colorMessage && <p className="color-message" role="status">{colorMessage}</p>}
         </div>
         <div className="preview-stage" ref={previewStageRef}>
-          <img src="/assets/configurator-wall-branded.png" alt="Dinding kedai untuk pratonton neon" />
-          <div className="mode-toggle"><button className={backgroundMode === 'day' ? 'active' : ''} onClick={() => { setBackgroundMode('day'); interact(); }}><Sun /> Siang</button><button className={backgroundMode === 'night' ? 'active' : ''} onClick={() => { setBackgroundMode('night'); interact(); }}><Moon /> Malam</button></div>
-          {colorMode === 'single'
-            ? <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
-            : <div className="neon-text multi-color" style={{ fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{previewTokens.map((token, index) => {
-              if (token.type === 'space') return token.value;
-              const wordColor = getWordColor(token.wordIndex);
-              return <span className="neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--neon': wordColor.value, '--glow': wordColor.glow }}>{token.value}</span>;
-            })}</div>}
-          {!text.trim() && <span className="preview-hint">Taip untuk mula lihat hasil</span>}
+          <div className="mode-toggle" aria-label="Jenis paparan">
+            <button type="button" className={previewMode === 'preview' ? 'active' : ''} aria-pressed={previewMode === 'preview'} onClick={() => { setPreviewMode('preview'); interact(); }}>Preview</button>
+            <button type="button" className={previewMode === 'real' ? 'active' : ''} aria-pressed={previewMode === 'real'} onClick={() => { setPreviewMode('real'); setActiveRealResult(0); interact(); }}>Gambar Sebenar</button>
+          </div>
+          {previewMode === 'preview' ? <>
+            <img className="preview-wall" src="/assets/configurator-wall-branded.png" alt="Preview neon pada dinding sebelum ditempah" />
+            {colorMode === 'single'
+              ? <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
+              : <div className="neon-text multi-color" style={{ fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{previewTokens.map((token, index) => {
+                if (token.type === 'space') return token.value;
+                const wordColor = getWordColor(token.wordIndex);
+                return <span className="neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--neon': wordColor.value, '--glow': wordColor.glow }}>{token.value}</span>;
+              })}</div>}
+            {!text.trim() && <span className="preview-hint">Taip untuk mula lihat hasil</span>}
+          </> : <>
+            <div className="real-result-slides" aria-live="polite">
+              {realResultSlides.map((slide, index) => <div
+                key={slide.src}
+                className={`real-result-slide ${activeRealResult === index ? 'active' : ''}`}
+                aria-hidden={activeRealResult !== index}
+              >
+                <img className="real-result-backdrop" src={slide.src} alt="" aria-hidden="true" />
+                <img className="real-result-image" src={slide.src} alt={slide.alt} />
+              </div>)}
+            </div>
+            <div className="real-result-caption">
+              <div><span>Hasil sebenar</span><strong>{realResultSlides[activeRealResult].title} - Tulisan {realResultSlides[activeRealResult].font}</strong></div>
+              <div className="real-result-pagination" aria-label="Pilih gambar hasil sebenar">
+                {realResultSlides.map((slide, index) => <button
+                  type="button"
+                  key={slide.src}
+                  className={activeRealResult === index ? 'active' : ''}
+                  aria-label={`Lihat hasil ${slide.title}`}
+                  aria-current={activeRealResult === index ? 'true' : undefined}
+                  onClick={() => setActiveRealResult(index)}
+                />)}
+              </div>
+              <small>{String(activeRealResult + 1).padStart(2, '0')} / {String(realResultSlides.length).padStart(2, '0')}</small>
+            </div>
+          </>}
         </div>
       </div>
       <div className="live-summary" aria-live="polite">
@@ -336,6 +417,7 @@ export function App() {
         <div className="summary-price"><span>{selectedPackage.price ? 'Harga tetap' : selectedPackage.estimatedPrice ? 'Anggaran harga penuh' : 'Harga'}</span><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : selectedPackage.estimatedPrice ? `RM${selectedPackage.estimatedPrice}*` : '—'}</strong>{selectedPackage.estimatedPrice && <small>Deposit komitmen RM100 · Kami hubungi melalui WhatsApp</small>}</div>
         <a className={`order-button ${!characterCount ? 'disabled' : ''}`} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a>
       </div>
+      <a className="testimonial-jump" href="#testimoni">Lihat Apa Kata Pelanggan Kami <ArrowDown weight="bold" /></a>
     </section>
 
     <section className="pricing" id="harga">
@@ -351,16 +433,7 @@ export function App() {
       <div className="package-includes-grid">
         <figure className="package-includes-visual"><img src="/assets/package-includes.jfif" alt="Custom neon LED bersama power adapter, black PVC dan mounting set" loading="lazy" /></figure>
         <div className="package-includes-copy">
-          <p className="eyebrow">Lengkap dalam kotak</p>
           <h2 id="package-includes-title">Apa yang anda dapat<br /><em>bila dah beli.</em></h2>
-          <p className="package-includes-lead">Dah sampai, sambungkan adapter dan neon anda sedia untuk dinyalakan.</p>
-          <div className="package-includes-list">
-            <article><span>01</span><h3>Power Adapter 12V</h3><p>Bekalan kuasa untuk menyalakan neon LED.</p></article>
-            <article><span>02</span><h3>Black PVC</h3><p>Tapak belakang PVC hitam untuk hasil yang kemas.</p></article>
-            <article><span>03</span><h3>Custom Neon LED</h3><p>Neon mengikut teks, font dan warna tempahan anda.</p></article>
-            <article><span>04</span><h3>Mounting</h3><p>Aksesori asas untuk menggantung atau memasang neon.</p></article>
-          </div>
-          <small>Servis pemasangan di lokasi tidak termasuk.</small>
         </div>
       </div>
     </section>
@@ -397,10 +470,8 @@ export function App() {
       </figure>
     </section>
 
-    <section className="process" id="cara"><div className="section-intro"><p className="eyebrow">Cara tempahan</p><h2>Dari idea ke neon<br /><em>dalam 4 langkah.</em></h2></div><ol><li><span>01</span><PencilSimple /><h3>Pilih</h3><p>Guna configurator atau pilih servis Design Custom.</p></li><li><span>02</span><ShoppingBagOpen /><h3>Tempah</h3><p>Teruskan tempahan melalui payment gateway yang selamat.</p></li><li><span>03</span><ShieldCheck /><h3>Sahkan</h3><p>Semak mockup akhir. Design custom bermula selepas deposit RM100.</p></li><li><span>04</span><Truck /><h3>Hasilkan</h3><p>Pengeluaran bermula selepas mockup dan bayaran berkaitan disahkan.</p></li></ol><a className="process-order-button" href="#playground"><ShoppingBagOpen weight="fill" /> Tempah Sekarang <ArrowRight /></a></section>
-
     <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Adakah RM150 dan RM200 ikut rekaan configurator?</summary><p>Ya. Teks, font dan warna pilihan anda menjadi rujukan tempahan. Pakej RM150 mempunyai panjang bawah 60 cm dan pakej RM200 bawah 85 cm. Semakin banyak huruf, semakin panjang hasilnya sehingga had maksimum pakej.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau teks lebih 15 huruf?</summary><p>Configurator akan memaparkan harga anggaran yang hampir 90% tepat. Anda hanya membayar deposit RM100 semasa checkout; kami akan menghubungi anda melalui WhatsApp untuk mengesahkan harga dan ukuran yang tepat.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah tanda komitmen tempahan bagi teks melebihi 15 huruf, custom size, logo, simbol atau bentuk khas. Selepas bayaran dibuat, kami akan menghubungi anda melalui WhatsApp untuk perbincangan bersama designer. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Untuk pakej RM150 dan RM200, caj penghantaran maksimum RM10 bagi Semenanjung dan RM40 bagi Sabah atau Sarawak. Caj penghantaran dibayar oleh penerima apabila barang sampai.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>
-    {hasInteracted && <div className="mobile-sticky"><div><small>{selectedPackage.estimatedPrice ? `Anggaran RM${selectedPackage.estimatedPrice}` : selectedPackage.name}</small><strong>{selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100'}</strong></div><a className={!characterCount ? 'disabled' : ''} href={checkoutUrl} onClick={prepareCheckout}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>}
+    <div className="mobile-sticky"><div><small>{characterCount ? (selectedPackage.estimatedPrice ? `Anggaran RM${selectedPackage.estimatedPrice}` : selectedPackage.name) : 'Mulakan tempahan'}</small><strong>{characterCount ? (selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100') : 'Masukkan nama anda'}</strong></div><a className={!characterCount ? 'needs-name' : ''} href={characterCount ? checkoutUrl : '#shop-name'} onClick={handleMobileOrderClick}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>
   </main>;
 }

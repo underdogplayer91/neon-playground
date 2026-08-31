@@ -19,3 +19,7 @@ The Playground text field should prefer lowercase by disabling mobile auto-capit
 Use an in-page expandable list for the Playground's additional fonts instead of a native mobile select. The list must open downward inside the controls, remain independently scrollable, and allow the sticky neon preview to stay visible while fonts are tried.
 
 On narrow mobile screens, keep the complete hero copy and the “Reka · Sahkan · Baru kami hasilkan” note above the dark storefront portion of the hero image so all text remains readable in in-app browsers.
+
+In the Playground preview card, keep the two states named “Preview” and “Gambar Sebenar”. “Preview” must retain the live text, font and colour configurator; “Gambar Sebenar” must show real completed customer photos and preserve the full neon wording without cropping either end.
+
+Keep the mobile floating “Tempah Sekarang” button visible even before a name is entered. When the name field is empty, tapping it must scroll to and focus the name field, briefly highlight that field, and must not open checkout. Checkout is enabled only after the visitor enters at least one counted character.

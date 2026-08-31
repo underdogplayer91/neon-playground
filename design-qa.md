@@ -1,46 +1,78 @@
-# Design QA — Neon Playground
+# Design QA — Preview / Gambar Sebenar
 
-**Source visual truth**
-- `C:\Users\Ryzen\.codex\generated_images\01a02d5b-0471-7f60-9581-0cfe555248db\exec-91a3e8b0-8fdd-41f1-9895-ed18a6024d46.png`
-- Source pixels: 1024 × 1536.
+## Comparison Target
 
-**Implementation evidence**
-- Hero: `D:\Website\Salespage\Project\neon-playground\implementation-hero-final.png`
-- Configurator: `D:\Website\Salespage\Project\neon-playground\implementation-config-final.png`
-- Mobile: `D:\Website\Salespage\Project\neon-playground\implementation-mobile.png`
-- Combined comparison: `D:\Website\Salespage\Project\neon-playground\design-comparison.png`
-- Desktop capture: requested CSS viewport 1440 × 1000; captured 1425 × 990 at density 1 after browser scrollbar/chrome normalization.
-- Mobile capture: requested CSS viewport 390 × 844; captured 375 × 812 at density 1 after browser scrollbar/chrome normalization.
-- State: hero default; configurator default text `Kopi Jiwa`, script font, coral neon, night mode.
+- Source visual truth:
+  - `C:\Users\Ryzen\Downloads\Capture.JPG`
+  - `C:\Users\Ryzen\Downloads\Michael Jackson.JPG`
+  - `C:\Users\Ryzen\Downloads\IMG_20260828_113449 (1).jpg`
+  - `C:\Users\Ryzen\Downloads\IMG_20260828_113637 (1).jpg`
+- Browser-rendered implementation:
+  - `D:\Website\Salespage\Project\neon-playground\.codex-real-mobile-final.jpg`
+  - `D:\Website\Salespage\Project\neon-playground\.codex-real-desktop-final.jpg`
+- Combined focused comparison:
+  - `D:\Website\Salespage\Project\neon-playground\.codex-design-qa-comparison.jpg`
+- Route: `http://127.0.0.1:5173/#playground`
+- State: Playground configurator with **Gambar Sebenar** selected; Haikal Feroz and Michael Jackson states both tested.
 
-**Findings**
-- No actionable P0/P1/P2 issues remain.
-- Fonts and typography: local system display and script faces reproduce the bold editorial hierarchy without external font loading. Headline wrapping and optical weight match the selected direction.
-- Spacing and layout rhythm: hero split, dark configurator stage, horizontal pricing, section spacing, radii and mobile stacking preserve the selected composition.
-- Colors and visual tokens: warm paper, near-black stage, coral CTA and cobalt accent map closely to the source palette with sufficient contrast.
-- Image quality and asset fidelity: hero and configurator use dedicated generated raster assets matching the selected art direction; no visual placeholders or CSS-drawn imagery are used.
-- Copy and content: Malay conversion copy, package limits and WhatsApp path are consistent with the approved plan. Unsupported claims were excluded.
+## Capture Normalization
 
-**Focused comparison evidence**
-- Hero comparison confirms the off-white editorial opening, day/night storefront split, coral CTA and oversized black display type.
-- Configurator comparison confirms the dark wall stage, left-side controls, live central neon preview and six color choices.
-- A separate focused crop was unnecessary because the two 1425 × 990 browser captures keep all important typography and controls readable in `design-comparison.png`.
+- Source real-photo size: 4096 × 2304 px, 16:9.
+- Mobile implementation capture: 455 × 891 px at device pixel ratio 1.
+- Focused implementation crop: 405 × 260 px, resized only for the side-by-side comparison.
+- Desktop implementation capture: 1265 × 889 px at device pixel ratio 1.
+- The source photo and implementation crop were placed in one 1600 × 620 comparison board. The implementation deliberately includes its toggle and result caption; the source is shown without surrounding UI.
 
-**Interaction checks**
-- 8 non-space characters → RM150.
-- 9 and 15 non-space characters → RM200.
-- 16 non-space characters → special quote.
-- Spaces are ignored.
-- Font, color and day/night controls update state and preview.
-- WhatsApp href contains URL-encoded text, count, font, color, mode, package and price.
-- Browser console checked: no errors.
+## Full-View Comparison Evidence
 
-**Comparison history**
-- First mobile pass found a P2 overlap between the handwritten night label and the primary CTA, plus an empty mobile header CTA after optional icon dependencies were removed.
-- Fixed by hiding the decorative night label and redundant header CTA below 560px while retaining the main hero CTA.
-- Post-fix mobile evidence shows a clean hierarchy with no overlapping persistent controls.
+- The existing configurator remains intact and defaults to **Preview**, so visitor text, font and colour changes still appear live.
+- **Gambar Sebenar** replaces the configurator artwork with the supplied real customer photos without changing the surrounding controls or checkout flow.
+- On mobile, the complete sign remains visible and the toggle plus result caption stay inside the sticky preview card.
+- On desktop, the full 16:9 photo is preserved with a subdued blurred extension from the same photo instead of cropping either end of the long neon sign.
 
-**Follow-up polish**
-- P3: replace the temporary WhatsApp number and portfolio note with production content before publishing.
+## Focused Region Comparison Evidence
+
+- The combined comparison image verifies the same Haikal Feroz sign, sofa background, lighting and framing are preserved.
+- No logo, neon lettering or product artwork was redrawn in CSS or replaced with a placeholder.
+- A focused comparison was necessary because image fidelity and crop were the main acceptance criteria; the surrounding landing-page sections were intentionally unchanged.
+
+## Required Fidelity Surfaces
+
+- Fonts and typography: Existing Manrope-based UI typography is preserved. Toggle labels and result names remain readable at desktop and mobile sizes.
+- Spacing and layout rhythm: Toggle stays at the top-right; caption remains inset at the bottom; mobile padding was reduced proportionally without crowding the image.
+- Colors and visual tokens: Existing black, white and coral visual system is unchanged. The real photo colours remain intact; the backdrop uses a darkened copy of the same image only to fill tall desktop space.
+- Image quality and asset fidelity: Both real photos use the existing optimized 1920 × 1080 project assets. `object-fit: contain` prevents the long neon signs from being cut off.
+- Copy and content: Labels are exactly **Preview**, **Gambar Sebenar** and **Hasil sebenar**, with the correct Haikal Feroz and Michael Jackson names.
+
+## Interaction And Runtime Checks
+
+- Preview toggle: passed; dynamic configurator wall and neon text reappear.
+- Gambar Sebenar toggle: passed; real-photo gallery appears.
+- Haikal Feroz selector: passed.
+- Michael Jackson selector: passed.
+- Automatic result rotation: passed.
+- Responsive mobile and desktop rendering: passed.
+- Production build: passed.
+- Browser console: checked; no warning or error entries during the final run.
+
+## Comparison History
+
+- Initial P2: desktop real-photo mode left a visibly empty black area because the 16:9 photo was contained inside the taller configurator column.
+- Fix: added a dark, blurred backdrop made from the same active customer photo while keeping the sharp foreground photo fully contained.
+- Post-fix evidence: `.codex-real-desktop-final.jpg` shows the tall area filled without cropping the neon wording; `.codex-design-qa-comparison.jpg` confirms the focused source-image fidelity.
+
+## Findings
+
+- No actionable P0, P1 or P2 mismatch remains.
+- P3 accepted: on very tall desktop configurator layouts, the foreground photo has more breathing room above and below than on mobile. This preserves the complete long sign and avoids destructive cropping.
+
+## Implementation Checklist
+
+- [x] Rename Siang to Preview.
+- [x] Rename Malam to Gambar Sebenar.
+- [x] Preserve live configurator behavior under Preview.
+- [x] Add both supplied real customer results.
+- [x] Add manual and automatic switching between real results.
+- [x] Verify desktop, mobile, build and console.
 
 final result: passed
