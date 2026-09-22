@@ -41,7 +41,8 @@ export function validateCheckout(order, customer) {
 
   if (!name || name.length > 100) throw new Error('Nama pelanggan tidak sah.');
   if (!/^\+?[0-9]{9,15}$/.test(phone)) throw new Error('Nombor telefon tidak sah.');
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Alamat email tidak sah.');
+  if (!email) throw new Error('Alamat email diperlukan.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Alamat email tidak sah.');
   if (!address1 || address1.length > 300) throw new Error('Alamat penghantaran tidak sah.');
   if (!/^[0-9]{5}$/.test(postcode)) throw new Error('Poskod tidak sah.');
   if (!city || city.length > 100 || !state || state.length > 100) throw new Error('Bandar atau negeri tidak sah.');

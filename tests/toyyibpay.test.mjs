@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   buildBillFields,
   resolvePayment,
+  validateCheckout,
   verifyCallbackHash,
 } from '../server/toyyibpay.js';
 import { buildOrderRecord, mapToyyibPayStatus } from '../server/supabase.js';
@@ -36,6 +37,15 @@ test('bill amount is fixed in cents and secret remains server-side', () => {
   assert.equal(result.fields.userSecretKey, 'test-secret');
   assert.equal(result.fields.billReturnUrl, 'https://www.pakarneonled.store/payment-status');
   assert.equal(result.fields.billCallbackUrl, 'https://www.pakarneonled.store/api/payment-callback');
+});
+
+test('checkout requires a valid customer email', () => {
+  const order = { reference: 'YH-TEST123', tier: 'basic', text: 'KOPI' };
+  const customer = { name: 'Ali Ahmad', phone: '0123456789', email: 'ali@example.com', address1: 'Jalan Satu', postcode: '43000', city: 'Kajang', state: 'Selangor' };
+
+  assert.throws(() => validateCheckout(order, { ...customer, email: '' }), /Alamat email diperlukan/);
+  assert.throws(() => validateCheckout(order, { ...customer, email: 'ali@invalid' }), /Alamat email tidak sah/);
+  assert.equal(validateCheckout(order, customer).customer.email, 'ali@example.com');
 });
 
 test('callback hash must match ToyyibPay verification formula', () => {

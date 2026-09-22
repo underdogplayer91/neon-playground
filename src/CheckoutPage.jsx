@@ -246,7 +246,7 @@ export function CheckoutPage() {
         <div className="checkout-fields">
           <label className="field-wide">Nama penuh<input name="name" value={customer.name} onChange={updateField} autoComplete="name" required /></label>
           <label>Nombor telefon<input name="phone" value={customer.phone} onChange={updateField} inputMode="tel" autoComplete="tel" placeholder="01X-XXXXXXX" required /></label>
-          <label>Email <small>(pilihan)</small><input name="email" type="email" value={customer.email} onChange={updateField} autoComplete="email" /></label>
+          <label>Email <small>(wajib)</small><input name="email" type="email" value={customer.email} onChange={updateField} autoComplete="email" required /></label>
           <label className="field-wide">Alamat penghantaran<input name="address1" value={customer.address1} onChange={updateField} autoComplete="address-line1" placeholder="No. rumah, jalan dan kawasan" required /></label>
           <label className="field-wide">Alamat tambahan <small>(pilihan)</small><input name="address2" value={customer.address2} onChange={updateField} autoComplete="address-line2" /></label>
           <label>Poskod<input name="postcode" value={customer.postcode} onChange={updateField} inputMode="numeric" autoComplete="postal-code" pattern="[0-9]{5}" maxLength="5" required /></label>
