@@ -17,15 +17,18 @@ export const countBillableCharacters = (value) => [...String(value || '').replac
 export function resolvePayment(order = {}) {
   const text = String(order.text || '').trim();
   const characterCount = countBillableCharacters(text);
-  let tier;
-
-  if (!text && order.tier === 'custom') tier = 'custom';
-  else if (characterCount >= 1 && characterCount <= 8) tier = 'basic';
-  else if (characterCount <= 15) tier = 'plus';
-  else tier = 'custom';
-
-  const payment = PAYMENT_TIERS[tier];
-  return { ...payment, tier, characterCount, text };
+  const estimatedPrice = Number(order.estimatedPrice);
+  if (!text && order.tier === 'custom') return { ...PAYMENT_TIERS.custom, tier: 'custom', characterCount, text };
+  if (!Number.isFinite(estimatedPrice) || estimatedPrice < 150) throw new Error('Harga anggaran configurator tidak sah.');
+  const roundedEstimate = Math.round(estimatedPrice * 100) / 100;
+  const requiresDeposit = roundedEstimate >= 200;
+  return {
+    amount: requiresDeposit ? 100 : roundedEstimate,
+    packageName: requiresDeposit ? 'Deposit Custom Neon' : 'Custom Neon',
+    tier: requiresDeposit ? 'custom' : 'basic',
+    characterCount,
+    text,
+  };
 }
 
 export function validateCheckout(order, customer) {
@@ -87,7 +90,7 @@ export function buildBillFields({ order, customer, siteUrl, secretKey, categoryC
       billDescription: description || 'Tempahan Custom Neon LED',
       billPriceSetting: '1',
       billPayorInfo: '1',
-      billAmount: String(payment.amount * 100),
+      billAmount: String(Math.round(payment.amount * 100)),
       billReturnUrl: `${siteUrl}/payment-status`,
       billCallbackUrl: `${siteUrl}/api/payment-callback`,
       billExternalReferenceNo: reference,

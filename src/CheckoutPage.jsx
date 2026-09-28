@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEventOnce } from './metaPixel';
-import { createDisplayReference } from './orderReference';
+import { toJpeg } from 'html-to-image';
+import { sizingFonts } from './neonSizing';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
-const SHIPPING_VOUCHER_KEY = 'yh-neon-shipping-voucher';
-const SHIPPING_VOUCHER_SESSION_KEY = 'yh-neon-shipping-voucher-session';
-const VOUCHER_DURATION_MINUTES = 10;
 const checkoutSlides = [
   { src: '/assets/contoh-hasil/michael-jackson-neon.jpg', alt: 'Hasil sebenar neon nama Michael Jackson' },
   { src: '/assets/contoh-hasil/haikal-feroz-neon.jpg', alt: 'Hasil sebenar neon nama Haikal Feroz' },
@@ -27,36 +25,31 @@ const readStoredOrder = () => {
   }
 };
 
-const readStoredVoucher = () => {
-  try {
-    const voucher = JSON.parse(window.sessionStorage.getItem(SHIPPING_VOUCHER_KEY));
-    if (import.meta.env.DEV && voucher?.id === 'local-preview' && voucher?.claimedAt) {
-      return {
-        ...voucher,
-        expiresAt: new Date(new Date(voucher.claimedAt).getTime() + (VOUCHER_DURATION_MINUTES * 60 * 1000)).toISOString(),
-        warrantyMonths: 6,
-      };
-    }
-    return voucher;
-  } catch {
-    return null;
-  }
-};
-
-const formatCountdown = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+function OrderDesignPreview({ snapshot, fallback }) {
+  if (!snapshot?.layers?.length) return fallback;
+  const safePaddingX = Math.max(3, snapshot.backboardWidthCm * 0.05);
+  const safePaddingY = Math.max(4, snapshot.backboardHeightCm * 0.14);
+  const viewBox = `${snapshot.boardOriginX - safePaddingX} ${snapshot.boardOriginY - safePaddingY} ${snapshot.backboardWidthCm + (safePaddingX * 2)} ${snapshot.backboardHeightCm + (safePaddingY * 2)}`;
+  return <svg className="checkout-design-svg" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Preview design neon yang dipilih">
+    {(snapshot.layers || []).map((layer) => {
+      const centerX = layer.x_cm + layer.width_cm / 2;
+      const centerY = layer.y_cm + layer.target_height_cm / 2;
+      return <g key={layer.id} transform={`rotate(${Number(layer.rotation_deg) || 0} ${centerX} ${centerY})`}>
+        <foreignObject x={layer.x_cm} y={layer.y_cm} width={layer.width_cm} height={layer.target_height_cm} overflow="visible">
+          <div xmlns="http://www.w3.org/1999/xhtml" className="canvas-neon-word neon-word checkout-design-word" data-text={layer.text} style={{ '--neon': layer.colorValue, '--glow': layer.colorGlow, fontFamily: layer.fontFamily, fontSize: `${layer.target_height_cm}px`, letterSpacing: `${layer.letter_spacing_cm}px` }}>{layer.text}</div>
+        </foreignObject>
+      </g>;
+    })}
+  </svg>;
+}
 
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
-  const [displayReference] = useState(() => order?.displayReference || createDisplayReference());
   const orderNeonRef = useRef(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
-  const [showShippingVoucher, setShowShippingVoucher] = useState(false);
-  const [shippingVoucher, setShippingVoucher] = useState(readStoredVoucher);
-  const [isClaimingVoucher, setIsClaimingVoucher] = useState(false);
-  const [voucherError, setVoucherError] = useState('');
-  const [voucherNow, setVoucherNow] = useState(Date.now());
+  const [testEmailState, setTestEmailState] = useState({ status: 'idle', message: '' });
   const [customer, setCustomer] = useState({
     name: '',
     phone: '',
@@ -68,25 +61,26 @@ export function CheckoutPage() {
     state: '',
   });
   const checkoutText = order?.text || 'Design Custom';
-  const estimatedDimensions = order?.tier === 'basic'
-    ? { length: '≤60cm' }
-    : order?.tier === 'plus'
-      ? { length: '≤85cm' }
-      : null;
+  const isDepositOrder = order?.tier === 'custom';
   const checkoutTokens = tokenizeNeonText(checkoutText);
   const isMultiColor = order?.colorMode === 'multi' && order?.wordColors?.length;
   const checkoutWordColors = new Map((order?.wordColors || []).map((item) => [item.wordIndex, item]));
   const checkoutFontSize = useFittedNeonText(orderNeonRef, checkoutText, order?.fontFamily || 'Manrope Variable', { maxSize: 82 });
-  const voucherSecondsLeft = Math.max(0, Math.ceil((new Date(shippingVoucher?.expiresAt || 0).getTime() - voucherNow) / 1000));
-  const hasActiveShippingVoucher = Boolean(shippingVoucher?.claimSession && voucherSecondsLeft > 0);
+  const fullPrice = Number(order?.estimatedPrice || order?.price || 0);
+  const fontNameByFamily = new Map(sizingFonts.map((font) => [font.family, font.name]));
+  const selectedFontNames = [...new Set((order?.designSnapshot?.layers || []).map((layer) => layer.fontName || fontNameByFamily.get(layer.fontFamily) || layer.fontFamily).filter(Boolean))];
+  const fontSummary = selectedFontNames.length ? selectedFontNames.join(', ') : order?.fontName;
+  const testCaptureEnabled = import.meta.env.VITE_DESIGN_CAPTURE_TEST_MODE === 'true';
 
   useEffect(() => {
-    if (!order?.fontName || !order?.fontFamily) return undefined;
-    const selectedFont = new FontFace(order.fontFamily, `url(/fonts/${order.fontName}.ttf)`);
+    const snapshotFonts = (order?.designSnapshot?.layers || []).map((layer) => ({ family: layer.fontFamily, file: layer.fontFile })).filter((font) => font.family && font.file);
+    const fontSources = snapshotFonts.length ? snapshotFonts : order?.fontName && order?.fontFamily ? [{ family: order.fontFamily, file: `/fonts/${encodeURIComponent(order.fontName)}.ttf` }] : [];
+    if (!fontSources.length) return undefined;
     let active = true;
-    selectedFont.load().then((loadedFont) => {
-      if (active) document.fonts.add(loadedFont);
-    }).catch(() => {});
+    Promise.allSettled(fontSources.map((font) => new FontFace(font.family, `url("${font.file}") format("truetype")`).load())).then((results) => {
+      if (!active) return;
+      results.forEach((result) => { if (result.status === 'fulfilled') document.fonts.add(result.value); });
+    });
     return () => { active = false; };
   }, [order]);
 
@@ -108,18 +102,6 @@ export function CheckoutPage() {
     return () => window.clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (shippingVoucher?.claimSession) return undefined;
-    const timer = window.setTimeout(() => setShowShippingVoucher(true), 4000);
-    return () => window.clearTimeout(timer);
-  }, [shippingVoucher]);
-
-  useEffect(() => {
-    if (!shippingVoucher?.expiresAt) return undefined;
-    const timer = window.setInterval(() => setVoucherNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, [shippingVoucher]);
-
   if (!order) {
     return <main className="checkout-page checkout-empty">
       <a className="checkout-brand" href="/">PAKAR LED &amp; NEON <i>BY YH</i></a>
@@ -128,42 +110,6 @@ export function CheckoutPage() {
   }
 
   const updateField = (event) => setCustomer((current) => ({ ...current, [event.target.name]: event.target.value }));
-  const claimShippingVoucher = async () => {
-    if (isClaimingVoucher) return;
-    setVoucherError('');
-    setIsClaimingVoucher(true);
-    let claimSession = window.sessionStorage.getItem(SHIPPING_VOUCHER_SESSION_KEY);
-    if (!claimSession) {
-      claimSession = window.crypto?.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
-        const randomValue = Math.floor(Math.random() * 16);
-        return (character === 'x' ? randomValue : (randomValue & 0x3) | 0x8).toString(16);
-      });
-      window.sessionStorage.setItem(SHIPPING_VOUCHER_SESSION_KEY, claimSession);
-    }
-    try {
-      let result;
-      if (import.meta.env.DEV && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
-        const claimedAt = new Date();
-        result = { id: 'local-preview', claimSession, claimedAt: claimedAt.toISOString(), expiresAt: new Date(claimedAt.getTime() + (VOUCHER_DURATION_MINUTES * 60 * 1000)).toISOString(), shippingValue: 20, warrantyMonths: 6, active: true };
-      } else {
-        const claimResponse = await fetch('/api/claim-shipping-voucher', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ claimSession }),
-        });
-        result = await claimResponse.json();
-        if (!claimResponse.ok || !result.active) throw new Error(result.error || 'Voucher tidak dapat diclaim.');
-      }
-      const claimedVoucher = { ...result, claimSession };
-      window.sessionStorage.setItem(SHIPPING_VOUCHER_KEY, JSON.stringify(claimedVoucher));
-      setShippingVoucher(claimedVoucher);
-      setVoucherNow(Date.now());
-    } catch (claimError) {
-      setVoucherError(claimError.message || 'Voucher tidak dapat diclaim sekarang.');
-    } finally {
-      setIsClaimingVoucher(false);
-    }
-  };
   const submitOrder = async (event) => {
     event.preventDefault();
     if (isSubmitting) return;
@@ -174,7 +120,7 @@ export function CheckoutPage() {
       const paymentResponse = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order, customer, shippingVoucherClaim: hasActiveShippingVoucher ? shippingVoucher.claimSession : '' }),
+        body: JSON.stringify({ order, customer }),
       });
       const result = await paymentResponse.json();
       if (!paymentResponse.ok || !result.paymentUrl) throw new Error(result.error || 'Bil pembayaran tidak dapat dicipta.');
@@ -197,13 +143,40 @@ export function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+  const sendTestPreviewEmail = async () => {
+    if (!testCaptureEnabled || !orderNeonRef.current || testEmailState.status === 'sending') return;
+    setTestEmailState({ status: 'sending', message: 'Menjana dan menghantar gambar test…' });
+    try {
+      await document.fonts.ready;
+      const previewDataUrl = await toJpeg(orderNeonRef.current, { quality: 0.88, pixelRatio: 2, cacheBust: true, backgroundColor: '#11131a' });
+      const response = await fetch('/api/test-design-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          previewDataUrl,
+          reference: order.reference,
+          text: order.text,
+          textSize: order.sizeNote,
+          backboardSize: order.backboardSizeNote,
+          estimatedPrice: order.estimatedPrice,
+          fonts: [...new Set((order.designSnapshot?.layers || []).map((layer) => layer.fontFamily))].join(', ') || order.fontName,
+          colours: isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Email test tidak berjaya dihantar.');
+      setTestEmailState({ status: 'sent', message: `Email test dihantar. Cloudinary: ${result.previewUrl}` });
+    } catch (captureError) {
+      setTestEmailState({ status: 'error', message: captureError.message || 'Ujian gambar dan email gagal.' });
+    }
+  };
 
   return <main className="checkout-page">
     <header className="checkout-header"><a className="checkout-brand" href="/">PAKAR LED &amp; NEON <i>BY YH</i></a><div><span>Checkout selamat</span><strong>Semak sebelum bayar</strong></div></header>
-    <div className="checkout-urgency" role="status" aria-label="Tempahan diproses mengikut giliran bayaran. Claim tawaran 10 minit untuk Free Shipping RM20 dan warranty 6 bulan.">
+    <div className="checkout-urgency" role="status" aria-label="Tempahan diproses mengikut giliran bayaran dan bayaran mengunci slot design anda.">
       <div className="checkout-urgency-track" aria-hidden="true">
-        <span>Tempahan diproses mengikut giliran bayaran <b>•</b> Claim dalam 10 minit: Free Shipping RM20 + Warranty 6 Bulan <b>•</b></span>
-        <span>Tempahan diproses mengikut giliran bayaran <b>•</b> Claim dalam 10 minit: Free Shipping RM20 + Warranty 6 Bulan <b>•</b></span>
+        <span>Tempahan diproses mengikut giliran bayaran <b>•</b> Bayaran mengunci slot design anda <b>•</b></span>
+        <span>Tempahan diproses mengikut giliran bayaran <b>•</b> Bayaran mengunci slot design anda <b>•</b></span>
       </div>
     </div>
     <nav className="checkout-progress" aria-label="Kemajuan checkout">
@@ -211,32 +184,6 @@ export function CheckoutPage() {
       <div className="checkout-progress-step active" aria-current="step"><span>2</span><strong>Pengesahan</strong></div>
       <div className="checkout-progress-step"><span>3</span><strong>Bayaran</strong></div>
     </nav>
-    {showShippingVoucher && <div className="shipping-voucher-overlay" role="dialog" aria-modal="true" aria-labelledby="shipping-voucher-title">
-      <section className="shipping-voucher-modal">
-        <button className="shipping-voucher-close" type="button" onClick={() => setShowShippingVoucher(false)} aria-label="Tutup popup voucher">×</button>
-        {hasActiveShippingVoucher ? <>
-          <span className="shipping-voucher-gift">✓</span>
-          <p className="checkout-kicker">Voucher berjaya diclaim</p>
-          <h2 id="shipping-voucher-title">Free Shipping + Warranty 6 Bulan</h2>
-          <p>Selesaikan checkout dalam masa 10 minit untuk gunakan kedua-dua manfaat ini.</p>
-          <strong className="shipping-voucher-countdown">{formatCountdown(voucherSecondsLeft)}</strong>
-          <button className="shipping-voucher-claim" type="button" onClick={() => setShowShippingVoucher(false)}>Teruskan Checkout</button>
-        </> : shippingVoucher?.expiresAt ? <>
-          <span className="shipping-voucher-gift">!</span>
-          <p className="checkout-kicker">Masa telah tamat</p>
-          <h2 id="shipping-voucher-title">Voucher Tamat</h2>
-          <p>Teruskan tempahan dengan penghantaran biasa RM20 dan warranty standard 3 bulan.</p>
-          <button className="shipping-voucher-claim secondary" type="button" onClick={() => setShowShippingVoucher(false)}>Teruskan Checkout</button>
-        </> : <>
-          <span className="shipping-voucher-gift">🎁</span>
-          <p className="checkout-kicker">Berita baik!</p>
-          <h2 id="shipping-voucher-title">Hadiah Untuk Tempahan Anda</h2>
-          <p>Claim sekarang untuk dapat <strong>FREE SHIPPING RM20</strong> dan warranty dilanjutkan daripada <strong>3 bulan kepada 6 bulan</strong>. Selepas claim, tawaran sah selama 10 minit.</p>
-          {voucherError && <p className="checkout-error" role="alert">{voucherError}</p>}
-          <button className="shipping-voucher-claim" type="button" onClick={claimShippingVoucher} disabled={isClaimingVoucher}>{isClaimingVoucher ? 'Sedang claim...' : 'Claim Free Shipping + Warranty 6 Bulan'}</button>
-        </>}
-      </section>
-    </div>}
     <div className="checkout-layout">
       <form className="checkout-form checkout-card" onSubmit={submitOrder}>
         <a className="checkout-back checkout-back-prominent" href="/#playground">← Kembali ke configurator</a>
@@ -259,7 +206,6 @@ export function CheckoutPage() {
         <button className="checkout-pay" type="submit" disabled={isSubmitting}>
           <span className="checkout-pay-copy">
             <strong>{isSubmitting ? 'Menyediakan halaman bayaran...' : 'Tempah Untuk Slot Sekarang!'}</strong>
-            {hasActiveShippingVoucher && !isSubmitting && <small>Free Shipping + Warranty 6 Bulan · {formatCountdown(voucherSecondsLeft)}</small>}
           </span>
           <span aria-hidden="true">{isSubmitting ? '···' : '→'}</span>
         </button>
@@ -270,29 +216,26 @@ export function CheckoutPage() {
       <aside className="order-review">
         <p className="checkout-kicker">Ringkasan pesanan</p>
         <div className="order-neon" ref={orderNeonRef} style={{ '--checkout-neon': order.colorValue, '--checkout-glow': order.colorGlow, fontFamily: order.fontFamily }}>
-          <div className={`order-neon-text ${isMultiColor ? 'multi-color' : ''}`} data-text={isMultiColor ? undefined : checkoutText} style={{ fontSize: `${checkoutFontSize}px` }}>
+          <OrderDesignPreview snapshot={order.designSnapshot} fallback={<div className={`order-neon-text ${isMultiColor ? 'multi-color' : ''}`} data-text={isMultiColor ? undefined : checkoutText} style={{ fontSize: `${checkoutFontSize}px` }}>
             {isMultiColor ? checkoutTokens.map((token, index) => {
               if (token.type === 'space') return token.value;
               const wordColor = checkoutWordColors.get(token.wordIndex) || { value: order.colorValue, glow: order.colorGlow };
               return <span className="checkout-neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--checkout-neon': wordColor.value, '--checkout-glow': wordColor.glow }}>{token.value}</span>;
             }) : checkoutText}
-          </div>
+          </div>} />
         </div>
         <dl>
-          <div><dt>Rujukan</dt><dd>{displayReference}</dd></div>
-          <div><dt>Pakej</dt><dd>{order.packageName}</dd></div>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
-          {order.fontName && <div><dt>Font</dt><dd>{order.fontName}</dd></div>}
+          {fontSummary && <div><dt>Font</dt><dd>{fontSummary}</dd></div>}
           {order.colorLabel && <div><dt>Warna</dt><dd>{isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel}</dd></div>}
-          <div><dt>Saiz</dt>{estimatedDimensions
-            ? <dd>{estimatedDimensions.length}</dd>
-            : <dd>Saiz akan disahkan selepas design dibincangkan</dd>}</div>
-          {order.estimatedPrice && <div><dt>Anggaran harga penuh</dt><dd>RM{order.estimatedPrice}*</dd></div>}
-          <div className="shipping-summary"><dt>Penghantaran</dt><dd>{hasActiveShippingVoucher ? <><s>RM20</s><strong>PERCUMA</strong><small>Voucher tamat dalam {formatCountdown(voucherSecondsLeft)}</small></> : <>RM20<small>Dibayar apabila barang dihantar</small></>}</dd></div>
-          <div className="warranty-summary"><dt>Warranty</dt><dd>{hasActiveShippingVoucher ? <><s>3 bulan</s><strong>6 BULAN</strong><small>Dengan voucher aktif</small></> : <>3 bulan<small>Warranty standard</small></>}</dd></div>
+          <div><dt>Saiz tulisan</dt><dd>{order.sizeNote || 'Akan disahkan selepas design dibincangkan'}</dd></div>
+          {order.backboardSizeNote && <div><dt>Saiz backboard</dt><dd>{order.backboardSizeNote}</dd></div>}
+          {fullPrice > 0 && <div className="full-price-summary"><dt>Harga penuh</dt><dd>RM{fullPrice.toFixed(2)}</dd></div>}
+          <div className="warranty-summary"><dt>Warranty</dt><dd>3 bulan<small>Warranty standard</small></dd></div>
         </dl>
-        <div className="order-total"><span>{order.tier === 'custom' ? 'Deposit dibayar sekarang' : 'Total'}</span><div className="order-total-price"><strong>RM{order.price}</strong><small>QR PAY disediakan di halaman sebelah</small></div></div>
-        {order.estimatedPrice && <p className="estimate-note">*Anggaran berdasarkan jumlah huruf. Deposit RM100 ialah tanda komitmen tempahan. Kami akan menghubungi anda melalui WhatsApp dan deposit ditolak daripada harga akhir.</p>}
+        <div className="order-total"><span>{isDepositOrder ? 'Harga deposit' : 'Jumlah dibayar sekarang'}</span><div className="order-total-price"><strong>RM{Number(order.price).toFixed(2)}</strong><small>{isDepositOrder ? 'Dibayar sekarang · Ditolak daripada harga penuh' : 'QR PAY disediakan di halaman sebelah'}</small></div></div>
+        <p className="estimate-note">{isDepositOrder ? 'Harga RM200 ke atas memerlukan deposit RM100. Kami akan menghubungi anda untuk mengesahkan design dan harga akhir; deposit ditolak daripada jumlah akhir.' : 'Jumlah bayaran ini mengikut harga anggaran live dalam configurator.'}</p>
+        {testCaptureEnabled && <div className="test-capture-panel"><strong>Mod ujian gambar</strong><p>Upload ke folder Cloudinary test dan hantar email [TEST]. ToyyibPay serta order live tidak digunakan.</p><button type="button" onClick={sendTestPreviewEmail} disabled={testEmailState.status === 'sending'}>{testEmailState.status === 'sending' ? 'Sedang menghantar…' : 'Hantar Email Test Preview'}</button>{testEmailState.message && <small className={testEmailState.status}>{testEmailState.message}</small>}</div>}
       </aside>
     </div>
     <section className="checkout-proof" aria-label="Slideshow hasil neon sebenar">

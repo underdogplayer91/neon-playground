@@ -25,8 +25,8 @@ const cleanTracking = (tracking = {}) => ({
   clientUserAgent: limitText(tracking.clientUserAgent, 1000),
 });
 
-export function buildOrderRecord({ order = {}, customer = {}, payment, reference, shippingVoucher }) {
-  const hasFreeShipping = Boolean(shippingVoucher?.active);
+export function buildOrderRecord({ order = {}, customer = {}, payment, reference }) {
+  const fullPrice = Number.isFinite(Number(order.estimatedPrice)) ? Number(order.estimatedPrice) : Number(payment.amount);
   return {
     reference,
     payment_status: 'creating_bill',
@@ -58,12 +58,12 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
       backgroundMode: limitText(order.backgroundMode, 30),
       sizeNote: limitText(order.sizeNote, 300),
       characterCount: payment.characterCount,
-      shippingFeeOriginal: 20,
-      shippingFee: hasFreeShipping ? 0 : 20,
-      freeShipping: hasFreeShipping,
-      shippingVoucherClaimId: shippingVoucher?.id || null,
+      shippingVoucherClaimId: null,
+      fullPrice,
+      discountPercent: 0,
+      discountedFullPrice: fullPrice,
       warrantyMonthsOriginal: 3,
-      warrantyMonths: hasFreeShipping ? 6 : 3,
+      warrantyMonths: 3,
       tracking: cleanTracking(order.tracking),
     },
   };
@@ -149,7 +149,7 @@ const normaliseVoucherClaim = (claim) => {
     claimSession: limitText(claim?.claim_session, 100),
     claimedAt: claim?.claimed_at || null,
     expiresAt: claim?.expires_at || null,
-    shippingValue: Number(claim?.shipping_value || 20),
+    discountPercent: 10,
     warrantyMonths: Number(claim?.warranty_months || 6),
     active: Boolean(claim?.id) && expiresAt > Date.now(),
   };

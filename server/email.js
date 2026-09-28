@@ -133,6 +133,32 @@ export function buildOwnerPendingEmail(order) {
   };
 }
 
+export function buildTestDesignEmail(design) {
+  const content = `
+    <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #2a7fff;background:#eef5ff;color:#184f9b;font-size:13px;font-weight:800">Ini ialah ujian snapshot daripada Vercel Preview. Tiada bil ToyyibPay atau order live dicipta.</div>
+    <img src="${escapeHtml(design.previewUrl)}" alt="Preview design neon test" style="display:block;width:100%;height:auto;margin:0 0 20px;border-radius:12px;background:#11131a" />
+    <table role="presentation" style="width:100%;border-collapse:collapse">
+      ${detailRow('Rujukan test', design.reference)}
+      ${detailRow('Teks neon', design.text)}
+      ${detailRow('Saiz tulisan', design.textSize)}
+      ${detailRow('Saiz backboard', design.backboardSize)}
+      ${detailRow('Font', design.fonts)}
+      ${detailRow('Warna', design.colours)}
+      ${detailRow('Harga anggaran', displayMoney(design.estimatedPrice))}
+      ${detailRow('Link Cloudinary', design.previewUrl)}
+    </table>`;
+  return {
+    subject: `[TEST] Preview Design Neon · ${design.reference}`,
+    html: emailShell({
+      eyebrow: 'Vercel Preview · Cloudinary Test',
+      title: 'Snapshot design berjaya dihantar',
+      intro: 'Semak sama ada gambar, susunan dan ukuran sepadan dengan configurator.',
+      content,
+      footer: 'Email test sahaja. Website production, Supabase live dan ToyyibPay tidak disentuh.',
+    }),
+  };
+}
+
 export function buildCustomerOrderEmail(order) {
   const subject = `Bayaran diterima — Tempahan ${order.reference}`;
   const isDeposit = order.package_tier === 'custom';
@@ -244,6 +270,17 @@ export function sendOwnerPendingEmail(order) {
     replyTo: order.customer_email || undefined,
     ...email,
     idempotencyKey: `pending-owner/${order.reference}`,
+  });
+}
+
+export function sendTestDesignEmail(design) {
+  const ownerEmail = process.env.ORDER_NOTIFICATION_EMAIL;
+  if (!ownerEmail) throw new Error('Email penerima notifikasi belum ditetapkan.');
+  const email = buildTestDesignEmail(design);
+  return sendResendEmail({
+    to: ownerEmail,
+    ...email,
+    idempotencyKey: `test-design/${design.reference}`,
   });
 }
 

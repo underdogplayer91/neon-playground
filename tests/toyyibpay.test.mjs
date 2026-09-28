@@ -10,29 +10,30 @@ import {
 import { buildOrderRecord, mapToyyibPayStatus } from '../server/supabase.js';
 import { validatePaidOrder } from '../server/paidOrder.js';
 
-test('server derives trusted package amounts from neon text', () => {
-  assert.deepEqual(resolvePayment({ tier: 'custom', text: 'ABCDEFGH' }).amount, 150);
-  assert.deepEqual(resolvePayment({ tier: 'basic', text: 'ABCDEFGHI' }).amount, 200);
-  assert.deepEqual(resolvePayment({ tier: 'plus', text: 'ABCDEFGHIJKLMNOP' }).amount, 100);
+test('server charges the live estimate below RM200 and a RM100 deposit from RM200', () => {
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGH', estimatedPrice: 150 }).amount, 150);
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 199.99 }).amount, 199.99);
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 200 }).amount, 100);
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHIJKLMNOP', estimatedPrice: 845.27 }).amount, 100);
   assert.deepEqual(resolvePayment({ tier: 'custom', text: '' }).amount, 100);
 });
 
 test('spaces and line breaks do not change the package tier', () => {
-  const payment = resolvePayment({ text: 'KOPI\nJIWA' });
+  const payment = resolvePayment({ text: 'KOPI\nJIWA', estimatedPrice: 175 });
   assert.equal(payment.characterCount, 8);
   assert.equal(payment.tier, 'basic');
 });
 
 test('bill amount is fixed in cents and secret remains server-side', () => {
   const result = buildBillFields({
-    order: { reference: 'YH-TEST123', tier: 'basic', text: 'KOPI JIWA', fontName: 'Amanda', colorLabel: 'Pink' },
+    order: { reference: 'YH-TEST123', tier: 'basic', text: 'KOPI JIWA', estimatedPrice: 175.55, fontName: 'Amanda', colorLabel: 'Pink' },
     customer: { name: 'Ali Ahmad', phone: '0123456789', email: 'ali@example.com', address1: 'Jalan Satu', postcode: '43000', city: 'Kajang', state: 'Selangor' },
     siteUrl: 'https://www.pakarneonled.store',
     secretKey: 'test-secret',
     categoryCode: 'w4npro7z',
   });
   assert.equal(result.fields.billPriceSetting, '1');
-  assert.equal(result.fields.billAmount, '15000');
+  assert.equal(result.fields.billAmount, '17555');
   assert.equal(result.fields.billName, 'Tempahan Pakar Neon LED');
   assert.equal(result.fields.userSecretKey, 'test-secret');
   assert.equal(result.fields.billReturnUrl, 'https://www.pakarneonled.store/payment-status');
@@ -40,7 +41,7 @@ test('bill amount is fixed in cents and secret remains server-side', () => {
 });
 
 test('checkout requires a valid customer email', () => {
-  const order = { reference: 'YH-TEST123', tier: 'basic', text: 'KOPI' };
+  const order = { reference: 'YH-TEST123', tier: 'basic', text: 'KOPI', estimatedPrice: 150 };
   const customer = { name: 'Ali Ahmad', phone: '0123456789', email: 'ali@example.com', address1: 'Jalan Satu', postcode: '43000', city: 'Kajang', state: 'Selangor' };
 
   assert.throws(() => validateCheckout(order, { ...customer, email: '' }), /Alamat email diperlukan/);
@@ -70,21 +71,21 @@ test('validated checkout becomes a complete Supabase order record', () => {
   assert.equal(record.payment_status, 'creating_bill');
 });
 
-test('free shipping voucher is labelled inside the stored order snapshot', () => {
+test('legacy voucher input cannot apply a discount or extended warranty', () => {
   const record = buildOrderRecord({
-    order: { fontName: 'Amanda', colorLabel: 'Pink', wordColors: [] },
+    order: { fontName: 'Amanda', colorLabel: 'Pink', wordColors: [], estimatedPrice: 500 },
     customer: { name: 'Ali Ahmad', phone: '0123456789', email: '', address1: 'Jalan Satu', address2: '', postcode: '43000', city: 'Kajang', state: 'Selangor' },
     payment: { tier: 'basic', packageName: 'Pakej 8 Huruf', amount: 150, text: 'KOPI', characterCount: 4 },
-    reference: 'YH_FREE_SHIPPING',
-    shippingVoucher: { id: 'voucher-123', active: true },
+    reference: 'YH_DISCOUNT',
+    shippingVoucher: { id: 'voucher-123', active: true, discountPercent: 10 },
   });
   assert.equal(record.amount, 150);
-  assert.equal(record.order_snapshot.shippingFeeOriginal, 20);
-  assert.equal(record.order_snapshot.shippingFee, 0);
-  assert.equal(record.order_snapshot.freeShipping, true);
-  assert.equal(record.order_snapshot.shippingVoucherClaimId, 'voucher-123');
+  assert.equal(record.order_snapshot.shippingVoucherClaimId, null);
+  assert.equal(record.order_snapshot.fullPrice, 500);
+  assert.equal(record.order_snapshot.discountPercent, 0);
+  assert.equal(record.order_snapshot.discountedFullPrice, 500);
   assert.equal(record.order_snapshot.warrantyMonthsOriginal, 3);
-  assert.equal(record.order_snapshot.warrantyMonths, 6);
+  assert.equal(record.order_snapshot.warrantyMonths, 3);
 });
 
 test('ToyyibPay callback statuses map to stored payment states', () => {

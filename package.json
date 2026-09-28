@@ -8,12 +8,14 @@
     "build": "vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
     "test:sites": "node --test tests/sites-worker.test.mjs",
-    "test:payment": "node --test tests/toyyibpay.test.mjs tests/email.test.mjs tests/meta-conversions.test.mjs tests/meta-pixel.test.mjs"
+    "test:payment": "node --test tests/toyyibpay.test.mjs tests/email.test.mjs tests/meta-conversions.test.mjs tests/meta-pixel.test.mjs tests/cloudinary.test.mjs",
+    "test:sizing": "node --test tests/neon-sizing.test.mjs tests/neon-pricing.test.mjs tests/neon-layers.test.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@vitejs/plugin-react": "5.0.4",
+    "html-to-image": "^1.11.13",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "vite": "6.4.2"
