@@ -1,6 +1,6 @@
 import { buildBillFields, normaliseBaseUrl, parseRequestBody } from '../server/toyyibpay.js';
 import { randomUUID } from 'node:crypto';
-import { sendCustomerPendingEmail } from '../server/email.js';
+import { sendCustomerPendingEmail, sendOwnerPendingEmail } from '../server/email.js';
 import { buildOrderRecord, createOrder, updateOrder } from '../server/supabase.js';
 
 const createReference = () => `YH_${Date.now().toString(36).toUpperCase()}_${randomUUID().slice(0, 6).toUpperCase()}`;
@@ -80,6 +80,14 @@ export default async function handler(request, response) {
         payment_url: paymentUrl,
       }).catch((error) => console.error('Pending payment email failed', { reference, message: error.message }));
     }
+
+    await sendOwnerPendingEmail({
+      ...orderRecord,
+      bill_code: billCode,
+      payment_status: 'unpaid',
+      payment_url: paymentUrl,
+    }).then(() => updateOrder(reference, { followup_email_sent_at: new Date().toISOString() }))
+      .catch((error) => console.error('Owner pending order email failed', { reference, message: error.message }));
 
     response.setHeader('Cache-Control', 'no-store');
     return response.status(200).json({

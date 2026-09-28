@@ -46,7 +46,7 @@ test('owner notification contains the complete order without unsafe customer HTM
 
 test('owner pending notification includes a prefilled WhatsApp follow-up', () => {
   const email = buildOwnerPendingEmail({ ...order, created_at: '2026-08-25T10:00:00.000Z' });
-  assert.match(email.subject, /Follow-up diperlukan/);
+  assert.match(email.subject, /Tempahan menunggu bayaran/);
   assert.match(email.html, /pembayaran masih belum diselesaikan/i);
   assert.match(email.html, /WhatsApp Customer — Bantu Selesaikan Bayaran/);
   assert.match(email.html, /wa\.me\/60123456789/);

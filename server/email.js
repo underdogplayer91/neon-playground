@@ -145,7 +145,7 @@ export function buildOwnerOrderEmail(order) {
 }
 
 export function buildOwnerPendingEmail(order) {
-  const subject = `Follow-up diperlukan · Bayaran belum selesai · ${order.reference}`;
+  const subject = `Tempahan menunggu bayaran · ${order.reference}`;
   const whatsappLink = buildWhatsAppLink(order, 'pending');
   const content = `
     <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #e3a008;background:#fff8e6;color:#7a5200;font-size:13px;font-weight:800">Customer telah mengisi maklumat tempahan, tetapi pembayaran masih belum diselesaikan.</div>
@@ -170,8 +170,8 @@ export function buildOwnerPendingEmail(order) {
     subject,
     html: emailShell({
       eyebrow: 'Order belum dibayar · Follow-up',
-      title: 'Customer memerlukan follow-up',
-      intro: 'Order ini masih belum dibayar selepas sekurang-kurangnya 30 minit. Gunakan butang WhatsApp untuk menghubungi customer dengan ringkasan produk yang siap diisi.',
+      title: 'Tempahan menunggu pembayaran',
+      intro: 'Customer telah membuka bil ToyyibPay tetapi pembayaran belum disahkan. Simpan ringkasan ini untuk follow-up jika transaksi tidak diselesaikan.',
       content,
       footer: 'Email automatik daripada pakarneonled.store. Semak status terkini dalam Supabase sebelum membuat susulan jika perlu.',
     }),
