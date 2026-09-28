@@ -7,6 +7,12 @@ const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
 const EMAIL_CAPTURE_WIDTH = 1200;
 const EMAIL_CAPTURE_HEIGHT = 523;
+const CHECKOUT_PROGRESS_STEPS = [
+  { id: 'generating', label: 'Menjana gambar design' },
+  { id: 'uploading', label: 'Memuat naik gambar dengan selamat' },
+  { id: 'creating', label: 'Menyimpan tempahan & menyediakan bil' },
+  { id: 'redirecting', label: 'Membuka halaman pembayaran' },
+];
 const checkoutSlides = [
   { src: '/assets/contoh-hasil/michael-jackson-neon.jpg', alt: 'Hasil sebenar neon nama Michael Jackson' },
   { src: '/assets/contoh-hasil/haikal-feroz-neon.jpg', alt: 'Hasil sebenar neon nama Haikal Feroz' },
@@ -106,10 +112,12 @@ async function renderEmailDesignCapture(snapshot) {
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
   const orderNeonRef = useRef(null);
+  const checkoutFormRef = useRef(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
   const [testEmailState, setTestEmailState] = useState({ status: 'idle', message: '' });
+  const [checkoutProgress, setCheckoutProgress] = useState({ open: false, stage: 'generating', error: '', failedStage: '' });
   const [customer, setCustomer] = useState({
     name: '',
     phone: '',
@@ -131,6 +139,9 @@ export function CheckoutPage() {
   const selectedFontNames = [...new Set((order?.designSnapshot?.layers || []).map((layer) => layer.fontName || fontNameByFamily.get(layer.fontFamily) || layer.fontFamily).filter(Boolean))];
   const fontSummary = selectedFontNames.length ? selectedFontNames.join(', ') : order?.fontName;
   const testCaptureEnabled = import.meta.env.VITE_DESIGN_CAPTURE_TEST_MODE === 'true';
+  const checkoutProgressSteps = order?.designSnapshot?.layers?.length
+    ? CHECKOUT_PROGRESS_STEPS
+    : CHECKOUT_PROGRESS_STEPS.filter((step) => ['creating', 'redirecting'].includes(step.id));
 
   useEffect(() => {
     const snapshotFonts = (order?.designSnapshot?.layers || []).map((layer) => ({ family: layer.fontFamily, file: layer.fontFile })).filter((font) => font.family && font.file);
@@ -175,12 +186,39 @@ export function CheckoutPage() {
     if (isSubmitting) return;
     setError('');
     setIsSubmitting(true);
+    const hasDesignSnapshot = Boolean(order.designSnapshot?.layers?.length);
+    let activeStage = hasDesignSnapshot ? 'generating' : 'creating';
+    setCheckoutProgress({ open: true, stage: activeStage, error: '' });
     window.sessionStorage.setItem(CUSTOMER_KEY, JSON.stringify({ ...customer, orderReference: order.reference }));
     try {
+      let uploadResult = {};
+      if (hasDesignSnapshot) {
+        await document.fonts.ready;
+        const previewDataUrl = await renderEmailDesignCapture(order.designSnapshot);
+        activeStage = 'uploading';
+        setCheckoutProgress({ open: true, stage: activeStage, error: '' });
+        const uploadResponse = await fetch('/api/upload-design-preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ previewDataUrl, reference: order.reference }),
+        });
+        uploadResult = await uploadResponse.json();
+        if (!uploadResponse.ok || !uploadResult.previewUrl) throw new Error(uploadResult.error || 'Gambar design tidak dapat dimuat naik.');
+      }
+      activeStage = 'creating';
+      setCheckoutProgress({ open: true, stage: activeStage, error: '' });
+      const designLayers = (order.designSnapshot?.layers || []).map((layer, index) => ({
+        word: layer.text,
+        font: layer.fontName || layer.fontFamily,
+        colour: layer.colorLabel || order.wordColors?.[index]?.label || order.colorLabel,
+        widthCm: layer.width_cm,
+        heightCm: layer.target_height_cm,
+        rotationDeg: layer.rotation_deg || 0,
+      }));
       const paymentResponse = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order, customer }),
+        body: JSON.stringify({ order: { ...order, previewUrl: uploadResult.previewUrl, previewPublicId: uploadResult.previewPublicId, designLayers }, customer }),
       });
       const result = await paymentResponse.json();
       if (!paymentResponse.ok || !result.paymentUrl) throw new Error(result.error || 'Bil pembayaran tidak dapat dicipta.');
@@ -196,10 +234,13 @@ export function CheckoutPage() {
         currency: 'MYR',
         value: Number(result.amount || order.price || 0),
       });
+      activeStage = 'redirecting';
+      setCheckoutProgress({ open: true, stage: activeStage, error: '' });
       await new Promise((resolve) => window.setTimeout(resolve, 150));
       window.location.assign(result.paymentUrl);
     } catch (paymentError) {
       setError(paymentError.message || 'Sambungan pembayaran gagal. Sila cuba lagi.');
+      setCheckoutProgress({ open: true, stage: 'error', failedStage: activeStage, error: paymentError.message || 'Sambungan pembayaran gagal. Sila cuba lagi.' });
       setIsSubmitting(false);
     }
   };
@@ -253,7 +294,7 @@ export function CheckoutPage() {
       <div className="checkout-progress-step"><span>3</span><strong>Bayaran</strong></div>
     </nav>
     <div className="checkout-layout">
-      <form className="checkout-form checkout-card" onSubmit={submitOrder}>
+      <form ref={checkoutFormRef} className="checkout-form checkout-card" onSubmit={submitOrder}>
         <a className="checkout-back checkout-back-prominent" href="/#playground">← Kembali ke configurator</a>
         <p className="checkout-kicker">Langkah 2 daripada 3</p>
         <h1>Sahkan tempahan</h1>
@@ -313,5 +354,26 @@ export function CheckoutPage() {
         <div className="checkout-slide-label"><span>Hasil sebenar pelanggan</span><strong>{String(activeCheckoutSlide + 1).padStart(2, '0')} / {String(checkoutSlides.length).padStart(2, '0')}</strong></div>
       </div>
     </section>
+    {checkoutProgress.open && <div className="checkout-progress-overlay" role="dialog" aria-modal="true" aria-labelledby="checkout-progress-title">
+      <div className="checkout-progress-modal">
+        <div className="checkout-progress-modal-head">
+          <span>{checkoutProgress.stage === 'error' ? 'Proses terhenti' : 'Sedang menyediakan tempahan'}</span>
+          <h2 id="checkout-progress-title">{checkoutProgress.stage === 'error' ? 'Tempahan belum dihantar' : 'Tunggu sebentar ya'}</h2>
+          <p>{checkoutProgress.stage === 'error' ? 'Maklumat yang anda isi masih tersimpan.' : 'Kami sedang menyediakan design dan halaman pembayaran anda.'}</p>
+        </div>
+        <ol className="checkout-progress-list">
+          {checkoutProgressSteps.map((step, index) => {
+            const currentStage = checkoutProgress.stage === 'error' ? checkoutProgress.failedStage : checkoutProgress.stage;
+            const activeIndex = checkoutProgressSteps.findIndex((item) => item.id === currentStage);
+            const status = checkoutProgress.stage === 'error' && step.id === checkoutProgress.failedStage ? 'error' : index < activeIndex ? 'complete' : index === activeIndex ? 'active' : 'waiting';
+            return <li key={step.id} className={status}><span aria-hidden="true">{status === 'complete' ? '✓' : status === 'error' ? '!' : index + 1}</span><div><strong>{step.label}</strong>{status === 'active' && <small>Sedang diproses…</small>}{status === 'error' && <small>{checkoutProgress.error}</small>}</div></li>;
+          })}
+        </ol>
+        {checkoutProgress.stage === 'error' && <div className="checkout-progress-actions">
+          <button type="button" className="checkout-progress-back" onClick={() => setCheckoutProgress((current) => ({ ...current, open: false }))}>Kembali semak</button>
+          <button type="button" className="checkout-progress-retry" onClick={() => checkoutFormRef.current?.requestSubmit()}>Cuba semula</button>
+        </div>}
+      </div>
+    </div>}
   </main>;
 }

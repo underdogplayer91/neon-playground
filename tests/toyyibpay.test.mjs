@@ -57,9 +57,9 @@ test('callback hash must match ToyyibPay verification formula', () => {
   assert.equal(verifyCallbackHash({ ...payload, status: '3' }, secret), false);
 });
 
-test('validated checkout becomes a complete Supabase order record', () => {
+test('validated checkout becomes a complete Supabase order record with its Cloudinary design reference', () => {
   const record = buildOrderRecord({
-    order: { fontName: 'Amanda', colorLabel: 'Pink', wordColors: [] },
+    order: { fontName: 'Amanda', colorLabel: 'Pink', wordColors: [], previewUrl: 'https://res.cloudinary.com/demo/design.jpg', previewPublicId: 'pakar-neon/orders/YH_TEST_123', sizeNote: '64 × 48 cm', backboardSizeNote: '70 × 54 cm', designLayers: [{ word: 'KOPI', font: 'Amanda', colour: 'Pink', widthCm: 32.4, heightCm: 15, rotationDeg: -5 }] },
     customer: { name: 'Ali Ahmad', phone: '0123456789', email: '', address1: 'Jalan Satu', address2: '', postcode: '43000', city: 'Kajang', state: 'Selangor' },
     payment: { tier: 'basic', packageName: 'Pakej 8 Huruf', amount: 150, text: 'KOPI', characterCount: 4 },
     reference: 'YH_TEST_123',
@@ -69,6 +69,9 @@ test('validated checkout becomes a complete Supabase order record', () => {
   assert.equal(record.customer_phone, '0123456789');
   assert.equal(record.amount, 150);
   assert.equal(record.payment_status, 'creating_bill');
+  assert.equal(record.order_snapshot.previewUrl, 'https://res.cloudinary.com/demo/design.jpg');
+  assert.equal(record.order_snapshot.backboardSizeNote, '70 × 54 cm');
+  assert.deepEqual(record.order_snapshot.designLayers[0], { word: 'KOPI', font: 'Amanda', colour: 'Pink', widthCm: 32.4, heightCm: 15, rotationDeg: -5 });
 });
 
 test('legacy voucher input cannot apply a discount or extended warranty', () => {

@@ -68,11 +68,53 @@ const emailShell = ({ eyebrow, title, intro, content, footer }) => `<!doctype ht
   </div>
 </body></html>`;
 
+const getOrderDesign = (order) => {
+  const snapshot = order?.order_snapshot && typeof order.order_snapshot === 'object' ? order.order_snapshot : {};
+  return {
+    previewUrl: String(snapshot.previewUrl || '').trim(),
+    layers: Array.isArray(snapshot.designLayers) ? snapshot.designLayers : [],
+    textSize: snapshot.sizeNote || '',
+    backboardSize: snapshot.backboardSizeNote || '',
+  };
+};
+
+const designPreviewBlock = (order) => {
+  const design = getOrderDesign(order);
+  if (!design.previewUrl) return '';
+  return `<div style="margin:18px 0">
+    <img src="${escapeHtml(design.previewUrl)}" alt="Preview design neon pelanggan" style="display:block;width:100%;height:auto;border-radius:12px;background:#11131a" />
+    <div style="margin-top:7px;color:#756e66;font-size:10px">Snapshot design yang dihantar oleh customer.</div>
+  </div>`;
+};
+
+const designLayerTable = (order) => {
+  const design = getOrderDesign(order);
+  if (!design.layers.length) return '';
+  return `<div style="margin:22px 0 8px;color:#18191d;font-size:14px;font-weight:900">Detail setiap perkataan</div>
+    <table role="presentation" style="width:100%;border-collapse:collapse;border:1px solid #ddd7ce">
+      <tr style="background:#11131a;color:#fff">
+        <th style="padding:10px 8px;text-align:left;font-size:11px">Perkataan</th>
+        <th style="padding:10px 8px;text-align:left;font-size:11px">Font</th>
+        <th style="padding:10px 8px;text-align:left;font-size:11px">Warna</th>
+        <th style="padding:10px 8px;text-align:left;font-size:11px">Saiz</th>
+        <th style="padding:10px 8px;text-align:left;font-size:11px">Putaran</th>
+      </tr>
+      ${design.layers.map((layer) => `<tr>
+        <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px;font-weight:800">${displayValue(layer.word)}</td>
+        <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px">${displayValue(layer.font)}</td>
+        <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px">${displayValue(layer.colour)}</td>
+        <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px;white-space:nowrap">${Math.round(Number(layer.widthCm) || 0)} × ${Math.round(Number(layer.heightCm) || 0)} cm</td>
+        <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px;white-space:nowrap">${Math.round(Number(layer.rotationDeg) || 0)}°</td>
+      </tr>`).join('')}
+    </table>`;
+};
+
 export function buildOwnerOrderEmail(order) {
   const subject = `Bayaran diterima · ${order.reference} · ${displayMoney(order.amount)}`;
   const whatsappLink = buildWhatsAppLink(order, 'paid');
   const content = `
     <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #36b96b;background:#edf9f1;color:#176635;font-size:13px;font-weight:800">Pembayaran ToyyibPay telah disahkan.</div>
+    ${designPreviewBlock(order)}
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan', order.reference)}
       ${detailRow('Nama pelanggan', order.customer_name)}
@@ -86,6 +128,7 @@ export function buildOwnerOrderEmail(order) {
       ${detailRow('Bayaran diterima', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
+    ${designLayerTable(order)}
     <p style="margin:20px 0 0;color:#625b53;font-size:13px;line-height:1.65">Hubungi customer untuk memperkenalkan diri, mengesahkan maklumat rekaan dan menerangkan proses seterusnya sebelum pengeluaran dimulakan.</p>
     ${whatsappButton(whatsappLink, 'WhatsApp Customer — Sahkan Rekaan')}`;
 
@@ -106,6 +149,7 @@ export function buildOwnerPendingEmail(order) {
   const whatsappLink = buildWhatsAppLink(order, 'pending');
   const content = `
     <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #e3a008;background:#fff8e6;color:#7a5200;font-size:13px;font-weight:800">Customer telah mengisi maklumat tempahan, tetapi pembayaran masih belum diselesaikan.</div>
+    ${designPreviewBlock(order)}
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan', order.reference)}
       ${detailRow('Nama customer', order.customer_name)}
@@ -118,6 +162,7 @@ export function buildOwnerPendingEmail(order) {
       ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
       ${detailRow('Masa tempahan', order.created_at)}
     </table>
+    ${designLayerTable(order)}
     <p style="margin:20px 0 0;color:#625b53;font-size:13px;line-height:1.65">Hubungi customer untuk bertanya jika mereka menghadapi masalah pembayaran atau mahu membuat perubahan pada design.</p>
     ${whatsappButton(whatsappLink, 'WhatsApp Customer — Bantu Selesaikan Bayaran')}`;
 
@@ -182,6 +227,7 @@ export function buildCustomerOrderEmail(order) {
   const isDeposit = order.package_tier === 'custom';
   const content = `
     <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #36b96b;background:#edf9f1;color:#176635;font-size:13px;font-weight:800">Bayaran ${displayMoney(order.amount)} telah berjaya diterima.</div>
+    ${designPreviewBlock(order)}
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan tempahan', order.reference)}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
@@ -191,6 +237,7 @@ export function buildCustomerOrderEmail(order) {
       ${detailRow(isDeposit ? 'Deposit dibayar' : 'Jumlah dibayar', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
+    ${designLayerTable(order)}
     <p style="margin:20px 0 8px;color:#171411;font-size:14px;font-weight:800">Apa yang berlaku selepas ini?</p>
     <p style="margin:0;color:#625b53;font-size:13px;line-height:1.7">Designer kami akan menghubungi tuan/puan melalui WhatsApp untuk mengesahkan teks, font, warna dan mockup sebelum pengeluaran bermula.</p>
     <div style="margin-top:18px;padding:16px;border:1px solid #dfe9e2;border-radius:12px;background:#f4fbf6">
@@ -215,6 +262,7 @@ export function buildCustomerPendingEmail(order) {
   const paymentLink = String(order.payment_url || '').trim();
   const content = `
     <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #e3a008;background:#fff8e6;color:#7a5200;font-size:13px;font-weight:800">Tempahan anda telah diterima, tetapi bayaran masih belum selesai.</div>
+    ${designPreviewBlock(order)}
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan tempahan', order.reference)}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
@@ -224,6 +272,7 @@ export function buildCustomerPendingEmail(order) {
       ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
+    ${designLayerTable(order)}
     ${paymentLink ? `<div style="margin-top:20px"><a href="${escapeHtml(paymentLink)}" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#ff5b51;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none">Sambung Pembayaran</a></div>` : ''}
     <div style="margin-top:18px;padding:16px;border:1px solid #dfe9e2;border-radius:12px;background:#f4fbf6">
       <p style="margin:0 0 12px;color:#31533d;font-size:13px;line-height:1.65">Jika anda menghadapi masalah pembayaran atau mahu berbincang tentang perubahan design, hubungi team kami melalui WhatsApp.</p>

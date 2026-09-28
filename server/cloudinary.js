@@ -24,13 +24,12 @@ export function buildCloudinarySignature(parameters, secret) {
   return createHash('sha1').update(`${content}${secret}`).digest('hex');
 }
 
-export async function uploadTestDesignPreview({ dataUrl, reference }) {
+async function uploadDesignPreviewToFolder({ dataUrl, reference, folder, label }) {
   validatePreviewDataUrl(dataUrl);
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
-  const folder = process.env.CLOUDINARY_TEST_FOLDER || 'pakar-neon/test-orders';
-  if (!cloudName || !apiKey || !apiSecret) throw new Error('Konfigurasi Cloudinary test belum lengkap.');
+  if (!cloudName || !apiKey || !apiSecret) throw new Error(`Konfigurasi Cloudinary ${label} belum lengkap.`);
 
   const timestamp = Math.floor(Date.now() / 1000);
   const publicId = `${safeSegment(reference, 'TEST')}-${timestamp}`;
@@ -51,3 +50,17 @@ export async function uploadTestDesignPreview({ dataUrl, reference }) {
   if (!response.ok || !result.secure_url) throw new Error(`Upload Cloudinary gagal (${response.status}).`);
   return { secureUrl: result.secure_url, publicId: result.public_id, bytes: result.bytes };
 }
+
+export const uploadTestDesignPreview = ({ dataUrl, reference }) => uploadDesignPreviewToFolder({
+  dataUrl,
+  reference,
+  folder: process.env.CLOUDINARY_TEST_FOLDER || 'pakar-neon/test-orders',
+  label: 'test',
+});
+
+export const uploadOrderDesignPreview = ({ dataUrl, reference }) => uploadDesignPreviewToFolder({
+  dataUrl,
+  reference,
+  folder: process.env.CLOUDINARY_ORDER_FOLDER || 'pakar-neon/orders',
+  label: 'production',
+});

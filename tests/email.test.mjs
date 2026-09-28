@@ -20,6 +20,12 @@ const order = {
   package_name: 'Pakej 8 Huruf',
   amount: 150,
   estimated_price: null,
+  order_snapshot: {
+    previewUrl: 'https://res.cloudinary.com/demo/image/upload/orders/YH_TEST_123.jpg',
+    sizeNote: '64 × 48 cm',
+    backboardSizeNote: '70 × 54 cm',
+    designLayers: [{ word: 'kopi', font: 'Amanda', colour: 'Pink', widthCm: 32, heightCm: 15, rotationDeg: -5 }],
+  },
 };
 
 test('owner notification contains the complete order without unsafe customer HTML', () => {
@@ -33,6 +39,9 @@ test('owner notification contains the complete order without unsafe customer HTM
   assert.match(email.html, /WhatsApp Customer — Sahkan Rekaan/);
   assert.match(email.html, /wa\.me\/60123456789/);
   assert.match(email.html, /www\.pakarneonled\.store/);
+  assert.match(email.html, /res\.cloudinary\.com\/demo\/image\/upload\/orders/);
+  assert.match(email.html, /Detail setiap perkataan/);
+  assert.match(email.html, /32 × 15 cm/);
 });
 
 test('owner pending notification includes a prefilled WhatsApp follow-up', () => {
@@ -43,6 +52,7 @@ test('owner pending notification includes a prefilled WhatsApp follow-up', () =>
   assert.match(email.html, /wa\.me\/60123456789/);
   assert.match(email.html, /Website%20rasmi%3A/);
   assert.match(email.html, /https%3A%2F%2Fwww\.pakarneonled\.store/);
+  assert.match(email.html, /Preview design neon pelanggan/);
 });
 
 test('customer confirmation explains payment and the WhatsApp design confirmation', () => {
@@ -53,6 +63,7 @@ test('customer confirmation explains payment and the WhatsApp design confirmatio
   assert.match(email.html, /https:\/\/www\.wasap\.my\/601169530763/);
   assert.match(email.html, /WhatsApp Team pakarneonled\.store/);
   assert.match(email.html, /kopi<br>jiwa/);
+  assert.match(email.html, /Preview design neon pelanggan/);
 });
 
 test('pending customer email clearly says payment is incomplete and links back to ToyyibPay', () => {
@@ -66,4 +77,5 @@ test('pending customer email clearly says payment is incomplete and links back t
   assert.match(email.html, /Sambung Pembayaran/);
   assert.match(email.html, /WhatsApp Team pakarneonled\.store/);
   assert.doesNotMatch(email.html, /Pembayaran ToyyibPay telah disahkan/);
+  assert.match(email.html, /Preview design neon pelanggan/);
 });

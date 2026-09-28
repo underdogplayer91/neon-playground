@@ -94,6 +94,8 @@ Show the approved “Warung / Pak / Atan / Kedai / Runcit / Aman / Cafe / Retro 
 
 Keep design-capture testing isolated from production. The test flow is enabled only by Preview environment flags, uploads to the configured Cloudinary test folder, sends an email clearly prefixed `[TEST]`, and must never create a ToyyibPay bill or write an order to the live Supabase project.
 
+Only show the order-processing progress modal after the customer submits the final checkout CTA, never when entering checkout from the Playground. Its status must follow real work: generate the snapshot, upload it to Cloudinary, save the pending order and create its ToyyibPay bill, then redirect. Preserve entered customer data on failure and offer retry. Store the Cloudinary image and per-word font, colour, size and rotation details in the Supabase order snapshot so both unpaid follow-up and paid-confirmation emails can display the same design.
+
 In the Playground preview, do not render transparent acrylic or black PVC as a visual board. Keep those as pricing/material choices only, and place the W × H dimension guides directly around the visible neon lettering using its visual glyph bounds.
 
 The Playground automatically treats every typed word as a draggable object in the preview, without exposing a Layers panel or add, duplicate, delete, lock, visibility, or ordering controls. Tapping a word selects it for per-word font and colour changes. Size, letter spacing, and production mode remain global controls applied to every word. Preserve the original neon tube and glow effect while adding selection and dragging. Auto-size the acrylic from the combined word bounds plus 3 cm padding on every side and do not add any new purchase CTA.

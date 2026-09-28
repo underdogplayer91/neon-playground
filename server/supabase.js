@@ -11,6 +11,17 @@ const cleanWordColors = (items) => Array.isArray(items)
     }))
   : [];
 
+const cleanDesignLayers = (items) => Array.isArray(items)
+  ? items.slice(0, 100).map((layer) => ({
+      word: limitText(layer?.word, 100),
+      font: limitText(layer?.font, 100),
+      colour: limitText(layer?.colour, 60),
+      widthCm: Math.max(0, Number(layer?.widthCm) || 0),
+      heightCm: Math.max(0, Number(layer?.heightCm) || 0),
+      rotationDeg: Number(layer?.rotationDeg) || 0,
+    })).filter((layer) => layer.word)
+  : [];
+
 const cleanTracking = (tracking = {}) => ({
   fbp: limitText(tracking.fbp, 200),
   fbc: limitText(tracking.fbc, 300),
@@ -24,6 +35,17 @@ const cleanTracking = (tracking = {}) => ({
   clientIpAddress: limitText(tracking.clientIpAddress, 100),
   clientUserAgent: limitText(tracking.clientUserAgent, 1000),
 });
+
+const cleanCloudinaryUrl = (value) => {
+  const candidate = limitText(value, 1500);
+  if (!candidate) return '';
+  try {
+    const url = new URL(candidate);
+    return url.protocol === 'https:' && url.hostname === 'res.cloudinary.com' ? url.toString() : '';
+  } catch {
+    return '';
+  }
+};
 
 export function buildOrderRecord({ order = {}, customer = {}, payment, reference }) {
   const fullPrice = Number.isFinite(Number(order.estimatedPrice)) ? Number(order.estimatedPrice) : Number(payment.amount);
@@ -57,6 +79,10 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
       wordColors: cleanWordColors(order.wordColors),
       backgroundMode: limitText(order.backgroundMode, 30),
       sizeNote: limitText(order.sizeNote, 300),
+      backboardSizeNote: limitText(order.backboardSizeNote, 300),
+      previewUrl: cleanCloudinaryUrl(order.previewUrl),
+      previewPublicId: limitText(order.previewPublicId, 300),
+      designLayers: cleanDesignLayers(order.designLayers),
       characterCount: payment.characterCount,
       shippingVoucherClaimId: null,
       fullPrice,
