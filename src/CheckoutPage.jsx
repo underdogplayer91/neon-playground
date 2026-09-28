@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEventOnce } from './metaPixel';
 import { sizingFonts } from './neonSizing';
+import { getCheckoutColourSummary } from './orderSummary';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -138,6 +139,7 @@ export function CheckoutPage() {
   const fontNameByFamily = new Map(sizingFonts.map((font) => [font.family, font.name]));
   const selectedFontNames = [...new Set((order?.designSnapshot?.layers || []).map((layer) => layer.fontName || fontNameByFamily.get(layer.fontFamily) || layer.fontFamily).filter(Boolean))];
   const fontSummary = selectedFontNames.length ? selectedFontNames.join(', ') : order?.fontName;
+  const colourSummary = getCheckoutColourSummary(order);
   const testCaptureEnabled = import.meta.env.VITE_DESIGN_CAPTURE_TEST_MODE === 'true';
   const checkoutProgressSteps = order?.designSnapshot?.layers?.length
     ? CHECKOUT_PROGRESS_STEPS
@@ -261,7 +263,7 @@ export function CheckoutPage() {
           backboardSize: order.backboardSizeNote,
           estimatedPrice: order.estimatedPrice,
           fonts: [...new Set((order.designSnapshot?.layers || []).map((layer) => layer.fontFamily))].join(', ') || order.fontName,
-          colours: isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel,
+          colours: colourSummary,
           layers: (order.designSnapshot?.layers || []).map((layer, index) => ({
             word: layer.text,
             font: layer.fontName || layer.fontFamily,
@@ -336,7 +338,7 @@ export function CheckoutPage() {
         <dl>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {fontSummary && <div><dt>Font</dt><dd>{fontSummary}</dd></div>}
-          {order.colorLabel && <div><dt>Warna</dt><dd>{isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel}</dd></div>}
+          {colourSummary && <div><dt>Warna</dt><dd>{colourSummary}</dd></div>}
           <div><dt>Saiz tulisan</dt><dd>{order.sizeNote || 'Akan disahkan selepas design dibincangkan'}</dd></div>
           {order.backboardSizeNote && <div><dt>Saiz backboard</dt><dd>{order.backboardSizeNote}</dd></div>}
           {fullPrice > 0 && <div className="full-price-summary"><dt>Harga penuh</dt><dd>RM{fullPrice.toFixed(2)}</dd></div>}
