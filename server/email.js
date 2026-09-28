@@ -161,8 +161,6 @@ export function buildTestDesignEmail(design) {
       ${detailRow('Teks neon', design.text)}
       ${detailRow('Saiz tulisan', design.textSize)}
       ${detailRow('Saiz backboard', design.backboardSize)}
-      ${detailRow('Font', design.fonts)}
-      ${detailRow('Warna', design.colours)}
       ${detailRow('Harga anggaran', displayMoney(design.estimatedPrice))}
       ${detailRow('Link Cloudinary', design.previewUrl)}
     </table>

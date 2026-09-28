@@ -21,4 +21,6 @@ test('test email contains image URL, dimensions, a clear test label, and per-wor
   assert.match(email.html, /Detail setiap perkataan/);
   assert.match(email.html, /42 × 15 cm/);
   assert.match(email.html, /-8°/);
+  assert.doesNotMatch(email.html, />Font<\/td>/);
+  assert.doesNotMatch(email.html, />Warna<\/td>/);
 });
