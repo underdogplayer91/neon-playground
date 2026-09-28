@@ -221,6 +221,14 @@ export function CheckoutPage() {
           estimatedPrice: order.estimatedPrice,
           fonts: [...new Set((order.designSnapshot?.layers || []).map((layer) => layer.fontFamily))].join(', ') || order.fontName,
           colours: isMultiColor ? [...new Set(order.wordColors.map((item) => item.label))].join(', ') : order.colorLabel,
+          layers: (order.designSnapshot?.layers || []).map((layer, index) => ({
+            word: layer.text,
+            font: layer.fontName || layer.fontFamily,
+            colour: layer.colorLabel || order.wordColors?.[index]?.label || order.colorLabel,
+            widthCm: layer.width_cm,
+            heightCm: layer.target_height_cm,
+            rotationDeg: layer.rotation_deg || 0,
+          })),
         }),
       });
       const result = await response.json();

@@ -342,6 +342,7 @@ export function App() {
             fontName: layerFont?.name || layer.font_id,
             fontFamily: layerFont?.family || selectedFont.family,
             fontFile: layerFont?.file || '',
+            colorLabel: layerColor.label,
             colorValue: layerColor.value,
             colorGlow: layerColor.glow,
           };

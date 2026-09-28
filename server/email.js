@@ -134,6 +134,25 @@ export function buildOwnerPendingEmail(order) {
 }
 
 export function buildTestDesignEmail(design) {
+  const layerRows = Array.isArray(design.layers) && design.layers.length
+    ? `<div style="margin:22px 0 8px;color:#18191d;font-size:14px;font-weight:900">Detail setiap perkataan</div>
+      <table role="presentation" style="width:100%;border-collapse:collapse;border:1px solid #ddd7ce">
+        <tr style="background:#11131a;color:#fff">
+          <th style="padding:10px 8px;text-align:left;font-size:11px">Perkataan</th>
+          <th style="padding:10px 8px;text-align:left;font-size:11px">Font</th>
+          <th style="padding:10px 8px;text-align:left;font-size:11px">Warna</th>
+          <th style="padding:10px 8px;text-align:left;font-size:11px">Saiz</th>
+          <th style="padding:10px 8px;text-align:left;font-size:11px">Putaran</th>
+        </tr>
+        ${design.layers.map((layer) => `<tr>
+          <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px;font-weight:800">${displayValue(layer.word)}</td>
+          <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px">${displayValue(layer.font)}</td>
+          <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px">${displayValue(layer.colour)}</td>
+          <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px;white-space:nowrap">${Math.round(Number(layer.widthCm) || 0)} × ${Math.round(Number(layer.heightCm) || 0)} cm</td>
+          <td style="padding:10px 8px;border-top:1px solid #ddd7ce;font-size:12px;white-space:nowrap">${Math.round(Number(layer.rotationDeg) || 0)}°</td>
+        </tr>`).join('')}
+      </table>`
+    : '';
   const content = `
     <div style="margin-bottom:18px;padding:14px 16px;border-left:4px solid #2a7fff;background:#eef5ff;color:#184f9b;font-size:13px;font-weight:800">Ini ialah ujian snapshot daripada Vercel Preview. Tiada bil ToyyibPay atau order live dicipta.</div>
     <img src="${escapeHtml(design.previewUrl)}" alt="Preview design neon test" style="display:block;width:100%;height:auto;margin:0 0 20px;border-radius:12px;background:#11131a" />
@@ -146,7 +165,8 @@ export function buildTestDesignEmail(design) {
       ${detailRow('Warna', design.colours)}
       ${detailRow('Harga anggaran', displayMoney(design.estimatedPrice))}
       ${detailRow('Link Cloudinary', design.previewUrl)}
-    </table>`;
+    </table>
+    ${layerRows}`;
   return {
     subject: `[TEST] Preview Design Neon · ${design.reference}`,
     html: emailShell({
