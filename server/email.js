@@ -122,8 +122,8 @@ export function buildOwnerOrderEmail(order) {
       ${detailRow('Email', order.customer_email)}
       ${detailRow('Alamat', getAddress(order))}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
-      ${detailRow('Font', order.font_name)}
-      ${detailRow('Warna', getColorSummary(order))}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Font', order.font_name)}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Bayaran diterima', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
@@ -156,8 +156,8 @@ export function buildOwnerPendingEmail(order) {
       ${detailRow('Telefon', order.customer_phone)}
       ${detailRow('Email', order.customer_email)}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
-      ${detailRow('Font', order.font_name)}
-      ${detailRow('Warna', getColorSummary(order))}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Font', order.font_name)}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
       ${detailRow('Masa tempahan', order.created_at)}
@@ -231,8 +231,8 @@ export function buildCustomerOrderEmail(order) {
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan tempahan', order.reference)}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
-      ${detailRow('Font', order.font_name)}
-      ${detailRow('Warna', getColorSummary(order))}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Font', order.font_name)}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow(isDeposit ? 'Deposit dibayar' : 'Jumlah dibayar', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
@@ -266,8 +266,8 @@ export function buildCustomerPendingEmail(order) {
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan tempahan', order.reference)}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
-      ${detailRow('Font', order.font_name)}
-      ${detailRow('Warna', getColorSummary(order))}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Font', order.font_name)}
+      ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}

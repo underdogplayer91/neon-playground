@@ -33,7 +33,8 @@ test('owner notification contains the complete order without unsafe customer HTM
   assert.match(email.subject, /YH_TEST_123/);
   assert.match(email.html, /0123456789/);
   assert.match(email.html, /Jalan Satu/);
-  assert.match(email.html, /kopi — Pink, jiwa — Yellow/);
+  assert.match(email.html, /<td[^>]*>Amanda<\/td>/);
+  assert.match(email.html, /<td[^>]*>Pink<\/td>/);
   assert.doesNotMatch(email.html, /<script>alert/);
   assert.match(email.html, /Ali &lt;script&gt;alert/);
   assert.match(email.html, /WhatsApp Customer — Sahkan Rekaan/);
@@ -42,6 +43,8 @@ test('owner notification contains the complete order without unsafe customer HTM
   assert.match(email.html, /res\.cloudinary\.com\/demo\/image\/upload\/orders/);
   assert.match(email.html, /Detail setiap perkataan/);
   assert.match(email.html, /32 × 15 cm/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Font<\/td>/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Warna<\/td>/);
 });
 
 test('owner pending notification includes a prefilled WhatsApp follow-up', () => {
@@ -53,6 +56,8 @@ test('owner pending notification includes a prefilled WhatsApp follow-up', () =>
   assert.match(email.html, /Website%20rasmi%3A/);
   assert.match(email.html, /https%3A%2F%2Fwww\.pakarneonled\.store/);
   assert.match(email.html, /Preview design neon pelanggan/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Font<\/td>/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Warna<\/td>/);
 });
 
 test('customer confirmation explains payment and the WhatsApp design confirmation', () => {
@@ -64,6 +69,8 @@ test('customer confirmation explains payment and the WhatsApp design confirmatio
   assert.match(email.html, /WhatsApp Team pakarneonled\.store/);
   assert.match(email.html, /kopi<br>jiwa/);
   assert.match(email.html, /Preview design neon pelanggan/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Font<\/td>/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Warna<\/td>/);
 });
 
 test('pending customer email clearly says payment is incomplete and links back to ToyyibPay', () => {
@@ -78,4 +85,12 @@ test('pending customer email clearly says payment is incomplete and links back t
   assert.match(email.html, /WhatsApp Team pakarneonled\.store/);
   assert.doesNotMatch(email.html, /Pembayaran ToyyibPay telah disahkan/);
   assert.match(email.html, /Preview design neon pelanggan/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Font<\/td>/);
+  assert.doesNotMatch(email.html, /<td[^>]*>Warna<\/td>/);
+});
+
+test('custom orders without preview layers keep their font and colour fallback rows', () => {
+  const email = buildOwnerPendingEmail({ ...order, order_snapshot: {}, created_at: '2026-08-25T10:00:00.000Z' });
+  assert.match(email.html, /<td[^>]*>Font<\/td>/);
+  assert.match(email.html, /<td[^>]*>Warna<\/td>/);
 });
