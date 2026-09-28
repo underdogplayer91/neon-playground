@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEventOnce } from './metaPixel';
-import { toJpeg } from 'html-to-image';
 import { sizingFonts } from './neonSizing';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
@@ -45,8 +44,25 @@ function OrderDesignPreview({ snapshot, fallback }) {
   </svg>;
 }
 
-function EmailDesignCapture({ snapshot, fallback }) {
-  if (!snapshot?.layers?.length) return fallback;
+const loadCaptureImage = (source) => new Promise((resolve, reject) => {
+  const image = new Image();
+  image.onload = () => resolve(image);
+  image.onerror = () => reject(new Error('Latar preview tidak dapat dimuatkan.'));
+  image.src = source;
+});
+
+async function renderEmailDesignCapture(snapshot) {
+  if (!snapshot?.layers?.length) throw new Error('Data susunan design tidak dijumpai.');
+  const canvas = document.createElement('canvas');
+  canvas.width = EMAIL_CAPTURE_WIDTH;
+  canvas.height = EMAIL_CAPTURE_HEIGHT;
+  const context = canvas.getContext('2d');
+  const background = await loadCaptureImage('/assets/configurator-wall-branded.png');
+  const imageScale = Math.max(canvas.width / background.naturalWidth, canvas.height / background.naturalHeight);
+  const imageWidth = background.naturalWidth * imageScale;
+  const imageHeight = background.naturalHeight * imageScale;
+  context.drawImage(background, (canvas.width - imageWidth) / 2, (canvas.height - imageHeight) / 2, imageWidth, imageHeight);
+
   const safePaddingX = Math.max(3, snapshot.backboardWidthCm * 0.05);
   const safePaddingY = Math.max(4, snapshot.backboardHeightCm * 0.14);
   const viewX = snapshot.boardOriginX - safePaddingX;
@@ -58,35 +74,38 @@ function EmailDesignCapture({ snapshot, fallback }) {
   const scale = Math.min(stageWidth / viewWidth, stageHeight / viewHeight);
   const offsetX = (EMAIL_CAPTURE_WIDTH - (viewWidth * scale)) / 2;
   const offsetY = (EMAIL_CAPTURE_HEIGHT - (viewHeight * scale)) / 2;
-
-  return <div className="email-design-layers">
-    {(snapshot.layers || []).map((layer) => {
-      const width = layer.width_cm * scale;
-      const height = layer.target_height_cm * scale;
-      return <div
-        key={layer.id}
-        className="email-design-word"
-        style={{
-          left: `${offsetX + ((layer.x_cm - viewX) * scale)}px`,
-          top: `${offsetY + ((layer.y_cm - viewY) * scale)}px`,
-          width: `${width}px`,
-          height: `${height}px`,
-          color: layer.colorValue,
-          fontFamily: layer.fontFamily,
-          fontSize: `${height}px`,
-          letterSpacing: `${(Number(layer.letter_spacing_cm) || 0) * scale}px`,
-          transform: `rotate(${Number(layer.rotation_deg) || 0}deg)`,
-          textShadow: `0 0 2px #fff, 0 0 7px ${layer.colorValue}, 0 0 18px ${layer.colorValue}, 0 0 38px ${layer.colorValue}`,
-        }}
-      >{layer.text}</div>;
-    })}
-  </div>;
+  snapshot.layers.forEach((layer) => {
+    const width = layer.width_cm * scale;
+    const height = layer.target_height_cm * scale;
+    const x = offsetX + ((layer.x_cm - viewX) * scale);
+    const y = offsetY + ((layer.y_cm - viewY) * scale);
+    const fontSize = height;
+    context.save();
+    context.translate(x + (width / 2), y + (height / 2));
+    context.rotate(((Number(layer.rotation_deg) || 0) * Math.PI) / 180);
+    context.font = `400 ${fontSize}px "${layer.fontFamily}"`;
+    if ('letterSpacing' in context) context.letterSpacing = `${(Number(layer.letter_spacing_cm) || 0) * scale}px`;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    const measuredWidth = Math.max(1, context.measureText(layer.text).width);
+    context.scale(width / measuredWidth, 1);
+    context.fillStyle = layer.colorValue;
+    context.shadowColor = layer.colorValue;
+    context.shadowBlur = 38;
+    context.fillText(layer.text, 0, 0);
+    context.shadowBlur = 18;
+    context.fillText(layer.text, 0, 0);
+    context.shadowBlur = 6;
+    context.fillStyle = '#fff';
+    context.fillText(layer.text, 0, 0);
+    context.restore();
+  });
+  return canvas.toDataURL('image/jpeg', 0.9);
 }
 
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
   const orderNeonRef = useRef(null);
-  const emailCaptureRef = useRef(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
@@ -185,11 +204,11 @@ export function CheckoutPage() {
     }
   };
   const sendTestPreviewEmail = async () => {
-    if (!testCaptureEnabled || !emailCaptureRef.current || testEmailState.status === 'sending') return;
+    if (!testCaptureEnabled || testEmailState.status === 'sending') return;
     setTestEmailState({ status: 'sending', message: 'Menjana dan menghantar gambar test…' });
     try {
       await document.fonts.ready;
-      const previewDataUrl = await toJpeg(emailCaptureRef.current, { quality: 0.9, pixelRatio: 1, cacheBust: true, backgroundColor: '#11131a' });
+      const previewDataUrl = await renderEmailDesignCapture(order.designSnapshot);
       const response = await fetch('/api/test-design-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -265,9 +284,6 @@ export function CheckoutPage() {
             }) : checkoutText}
           </div>} />
         </div>
-        {testCaptureEnabled && <div className="email-design-capture" ref={emailCaptureRef} aria-hidden="true">
-          <EmailDesignCapture snapshot={order.designSnapshot} fallback={<div className="email-design-fallback" style={{ color: order.colorValue, fontFamily: order.fontFamily }}>{checkoutText}</div>} />
-        </div>}
         <dl>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {fontSummary && <div><dt>Font</dt><dd>{fontSummary}</dd></div>}
