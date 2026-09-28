@@ -6,6 +6,8 @@ import { sizingFonts } from './neonSizing';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
+const EMAIL_CAPTURE_WIDTH = 1200;
+const EMAIL_CAPTURE_HEIGHT = 523;
 const checkoutSlides = [
   { src: '/assets/contoh-hasil/michael-jackson-neon.jpg', alt: 'Hasil sebenar neon nama Michael Jackson' },
   { src: '/assets/contoh-hasil/haikal-feroz-neon.jpg', alt: 'Hasil sebenar neon nama Haikal Feroz' },
@@ -43,9 +45,48 @@ function OrderDesignPreview({ snapshot, fallback }) {
   </svg>;
 }
 
+function EmailDesignCapture({ snapshot, fallback }) {
+  if (!snapshot?.layers?.length) return fallback;
+  const safePaddingX = Math.max(3, snapshot.backboardWidthCm * 0.05);
+  const safePaddingY = Math.max(4, snapshot.backboardHeightCm * 0.14);
+  const viewX = snapshot.boardOriginX - safePaddingX;
+  const viewY = snapshot.boardOriginY - safePaddingY;
+  const viewWidth = snapshot.backboardWidthCm + (safePaddingX * 2);
+  const viewHeight = snapshot.backboardHeightCm + (safePaddingY * 2);
+  const stageWidth = EMAIL_CAPTURE_WIDTH * 0.92;
+  const stageHeight = EMAIL_CAPTURE_HEIGHT * 0.82;
+  const scale = Math.min(stageWidth / viewWidth, stageHeight / viewHeight);
+  const offsetX = (EMAIL_CAPTURE_WIDTH - (viewWidth * scale)) / 2;
+  const offsetY = (EMAIL_CAPTURE_HEIGHT - (viewHeight * scale)) / 2;
+
+  return <div className="email-design-layers">
+    {(snapshot.layers || []).map((layer) => {
+      const width = layer.width_cm * scale;
+      const height = layer.target_height_cm * scale;
+      return <div
+        key={layer.id}
+        className="email-design-word"
+        style={{
+          left: `${offsetX + ((layer.x_cm - viewX) * scale)}px`,
+          top: `${offsetY + ((layer.y_cm - viewY) * scale)}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+          color: layer.colorValue,
+          fontFamily: layer.fontFamily,
+          fontSize: `${height}px`,
+          letterSpacing: `${(Number(layer.letter_spacing_cm) || 0) * scale}px`,
+          transform: `rotate(${Number(layer.rotation_deg) || 0}deg)`,
+          textShadow: `0 0 2px #fff, 0 0 7px ${layer.colorValue}, 0 0 18px ${layer.colorValue}, 0 0 38px ${layer.colorValue}`,
+        }}
+      >{layer.text}</div>;
+    })}
+  </div>;
+}
+
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
   const orderNeonRef = useRef(null);
+  const emailCaptureRef = useRef(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeCheckoutSlide, setActiveCheckoutSlide] = useState(0);
@@ -144,11 +185,11 @@ export function CheckoutPage() {
     }
   };
   const sendTestPreviewEmail = async () => {
-    if (!testCaptureEnabled || !orderNeonRef.current || testEmailState.status === 'sending') return;
+    if (!testCaptureEnabled || !emailCaptureRef.current || testEmailState.status === 'sending') return;
     setTestEmailState({ status: 'sending', message: 'Menjana dan menghantar gambar test…' });
     try {
       await document.fonts.ready;
-      const previewDataUrl = await toJpeg(orderNeonRef.current, { quality: 0.88, pixelRatio: 2, cacheBust: true, backgroundColor: '#11131a' });
+      const previewDataUrl = await toJpeg(emailCaptureRef.current, { quality: 0.9, pixelRatio: 1, cacheBust: true, backgroundColor: '#11131a' });
       const response = await fetch('/api/test-design-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -224,6 +265,9 @@ export function CheckoutPage() {
             }) : checkoutText}
           </div>} />
         </div>
+        {testCaptureEnabled && <div className="email-design-capture" ref={emailCaptureRef} aria-hidden="true">
+          <EmailDesignCapture snapshot={order.designSnapshot} fallback={<div className="email-design-fallback" style={{ color: order.colorValue, fontFamily: order.fontFamily }}>{checkoutText}</div>} />
+        </div>}
         <dl>
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {fontSummary && <div><dt>Font</dt><dd>{fontSummary}</dd></div>}
