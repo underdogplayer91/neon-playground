@@ -31,9 +31,9 @@ const colors = [
   { id: 'orange', label: 'Orange', value: '#ff941f', glow: '255,148,31' },
 ];
 const DEFAULT_PREVIEW_LAYERS = [
-  { id: 'demo-tulis', text: 'Tulis', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-nama', text: 'Nama', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-anda', text: 'Anda', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
+  { id: 'demo-tulis', text: 'Tulis', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 10, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
+  { id: 'demo-nama', text: 'Nama', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 10, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
+  { id: 'demo-anda', text: 'Anda', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 10, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
 ];
 const cloneDefaultPreviewLayers = () => DEFAULT_PREVIEW_LAYERS.map((layer) => ({ ...layer }));
 const playgroundRealityPairs = [
@@ -99,9 +99,9 @@ function Header() {
 export function App() {
   const [text, setText] = useState('');
   const [fontId, setFontId] = useState('beachfront-cn');
-  const [targetTextHeightCm, setTargetTextHeightCm] = useState(15);
+  const [targetTextHeightCm, setTargetTextHeightCm] = useState(10);
   const [letterSpacingCm, setLetterSpacingCm] = useState(0);
-  const [sizePreset, setSizePreset] = useState('medium');
+  const [sizePreset, setSizePreset] = useState('small');
   const [backboardStyle, setBackboardStyle] = useState('black');
   const [colorId, setColorId] = useState('pink');
   const [colorMode, setColorMode] = useState('multi');
@@ -123,6 +123,7 @@ export function App() {
   const previewStageRef = useRef(null);
   const nameFieldRef = useRef(null);
   const namePromptTimerRef = useRef(null);
+  const autoRaisedForDoubleLineRef = useRef(false);
   const effectiveActiveLayerId = layers.some((layer) => layer.id === activeLayerId) ? activeLayerId : layers[0]?.id;
   const activeLayer = layers.find((layer) => layer.id === effectiveActiveLayerId) || layers[0];
   const positionedLayers = layoutAutomaticWords(layers);
@@ -162,6 +163,7 @@ export function App() {
     productionLine: designProductionLine,
     wordPricing: pricingWords,
     backboardStyle,
+    characterCount,
   }) : null;
   const estimatedOrderPrice = livePrice?.finalPriceRm ?? null;
   const acrylicAddonPrice = characterCount && layerDesign.complete ? calculateNeonPrice({
@@ -171,7 +173,16 @@ export function App() {
     productionLine: designProductionLine,
     wordPricing: pricingWords,
     backboardStyle: 'transparent',
-  }).acrylicPriceRm : null;
+    characterCount,
+  }).finalPriceRm - calculateNeonPrice({
+    visualTextWidthCm: layerDesign.designWidthCm,
+    backboardWidthCm: layerDesign.backboardWidthCm,
+    backboardHeightCm: layerDesign.backboardHeightCm,
+    productionLine: designProductionLine,
+    wordPricing: pricingWords,
+    backboardStyle: 'black',
+    characterCount,
+  }).finalPriceRm : null;
   const requiresDesignDeposit = estimatedOrderPrice !== null && estimatedOrderPrice >= 200;
   const amountDueNow = estimatedOrderPrice === null ? null : requiresDesignDeposit ? 100 : estimatedOrderPrice;
   useEffect(() => {
@@ -226,10 +237,19 @@ export function App() {
     if (activeWordIndex >= wordTokens.length) setActiveWordIndex(Math.max(0, wordTokens.length - 1));
   }, [activeWordIndex, wordTokens.length]);
   useEffect(() => {
-    if (!designUsesDoubleLineFont || targetTextHeightCm >= 15) return;
-    setTargetTextHeightCm(15);
-    setSizePreset('medium');
-    setLayers((current) => current.map((layer) => ({ ...layer, target_height_cm: 15 })));
+    if (designUsesDoubleLineFont && targetTextHeightCm < 15) {
+      autoRaisedForDoubleLineRef.current = true;
+      setTargetTextHeightCm(15);
+      setSizePreset('medium');
+      setLayers((current) => current.map((layer) => ({ ...layer, target_height_cm: 15 })));
+      return;
+    }
+    if (!designUsesDoubleLineFont && autoRaisedForDoubleLineRef.current && targetTextHeightCm === 15) {
+      autoRaisedForDoubleLineRef.current = false;
+      setTargetTextHeightCm(10);
+      setSizePreset('small');
+      setLayers((current) => current.map((layer) => ({ ...layer, target_height_cm: 10 })));
+    }
   }, [designUsesDoubleLineFont, targetTextHeightCm]);
   useEffect(() => () => window.clearTimeout(namePromptTimerRef.current), []);
   const updateActiveLayer = (patch) => setLayers((current) => current.map((layer) => layer.id === effectiveActiveLayerId ? { ...layer, ...patch } : layer));
@@ -246,18 +266,21 @@ export function App() {
     if (!words.length) {
       setLayers(cloneDefaultPreviewLayers());
       setActiveLayerId(null);
-      setFontId('beachfront-cn'); setColorId('pink'); setLetterSpacingCm(0); setTargetTextHeightCm(15); setSizePreset('medium');
+      autoRaisedForDoubleLineRef.current = false;
+      setFontId('beachfront-cn'); setColorId('pink'); setLetterSpacingCm(0); setTargetTextHeightCm(10); setSizePreset('small');
       return;
     }
     const replacingDefaultPreview = !text.trim();
     if (replacingDefaultPreview) {
       setActiveLayerId(null);
-      setFontId('beachfront-cn'); setColorId('pink'); setLetterSpacingCm(0); setTargetTextHeightCm(15); setSizePreset('medium');
+      autoRaisedForDoubleLineRef.current = false;
+      setFontId('beachfront-cn'); setColorId('pink'); setLetterSpacingCm(0); setTargetTextHeightCm(10); setSizePreset('small');
     }
     setLayers((current) => {
       const next = words.map(({ word, lineIndex }, index) => {
         const existing = replacingDefaultPreview ? null : current[index];
-        return existing ? { ...existing, text: word, line_index: lineIndex, detached: false, rotation_deg: 0, x_cm: 3, y_cm: 3 } : createTextLayer({ text: word, line_index: lineIndex, font_id: replacingDefaultPreview ? 'beachfront-cn' : fontId, colour: replacingDefaultPreview ? 'pink' : colorId, target_height_cm: 15, letter_spacing_cm: replacingDefaultPreview ? 0 : letterSpacingCm, production_mode: productionModeForFont(replacingDefaultPreview ? 'beachfront-cn' : fontId) });
+        const nextFontId = replacingDefaultPreview ? 'beachfront-cn' : fontId;
+        return existing ? { ...existing, text: word, line_index: lineIndex, detached: false, rotation_deg: 0, x_cm: 3, y_cm: 3 } : createTextLayer({ text: word, line_index: lineIndex, font_id: nextFontId, colour: replacingDefaultPreview ? 'pink' : colorId, target_height_cm: minimumHeightForFont(nextFontId), letter_spacing_cm: replacingDefaultPreview ? 0 : letterSpacingCm, production_mode: productionModeForFont(nextFontId) });
       });
       return next;
     });

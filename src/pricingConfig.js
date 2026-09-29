@@ -8,6 +8,7 @@ export const neonPricingConfig = Object.freeze({
     Object.freeze({ upToSqft: Infinity, rateRmPerSqft: 90 }),
   ]),
   areaPricingTiers: Object.freeze([
+    Object.freeze({ fromSqft: 2, upToSqft: 4.000001, rateRmPerSqft: 100, deductionRm: 0 }),
     Object.freeze({ upToSqft: 10, rateRmPerSqft: 100, deductionRm: 50 }),
     Object.freeze({ upToSqft: 20, rateRmPerSqft: 93, deductionRm: 80 }),
     Object.freeze({ upToSqft: Infinity, rateRmPerSqft: 88, deductionRm: 80 }),
@@ -17,6 +18,16 @@ export const neonPricingConfig = Object.freeze({
   blackPvcAddonRm: 0,
   transparentAcrylicAddonRm: 0,
   multicolourAddonRm: 0,
+  areaStepSqft: 0.1,
+  priceStepRm: 20,
+  priceStepRoundUpFromRm: 11,
+  characterPricingMaxAreaSqft: 2,
+  characterPricingBands: Object.freeze([
+    Object.freeze({ upToCharacters: 7, priceRm: 150 }),
+    Object.freeze({ upToCharacters: 10, priceRm: 170 }),
+    Object.freeze({ upToCharacters: 14, priceRm: 190 }),
+    Object.freeze({ upToCharacters: Infinity, priceRm: 200 }),
+  ]),
 });
 
 // These are the 18 fonts imported from the customer's "Double line font"
@@ -35,14 +46,23 @@ export const productionModeForFont = (fontId) => isDoubleLineFont(fontId) ? 'dou
 export const minimumHeightForFont = (fontId) => isDoubleLineFont(fontId) ? 15 : 10;
 
 const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+const roundAreaToStep = (value, step) => Math.round((value + Number.EPSILON) / step) * step;
+export const roundNeonPriceToStep = (value, anchor, step, roundUpFrom) => {
+  const safeValue = Math.max(anchor, Number(value) || 0);
+  const steps = Math.floor((safeValue - anchor) / step);
+  const lowerPrice = anchor + (steps * step);
+  const remainder = safeValue - lowerPrice;
+  return lowerPrice + (remainder >= roundUpFrom ? step : 0);
+};
 
 export function getAreaRateRmPerSqft(areaSqft, config = neonPricingConfig) {
   const area = Math.max(0, Number(areaSqft) || 0);
-  return config.areaPricingTiers.find((tier) => area < tier.upToSqft)?.rateRmPerSqft
-    ?? config.areaPricingTiers.at(-1).rateRmPerSqft;
+  return getTier(area, config.areaPricingTiers).rateRmPerSqft;
 }
 
-const getTier = (areaSqft, tiers) => tiers.find((tier) => areaSqft < tier.upToSqft) ?? tiers.at(-1);
+const getTier = (areaSqft, tiers) => tiers.find((tier) => (
+  areaSqft >= (tier.fromSqft ?? 0) && areaSqft < tier.upToSqft
+)) ?? tiers.at(-1);
 
 export function calculateNeonPrice({
   visualTextWidthCm,
@@ -51,20 +71,32 @@ export function calculateNeonPrice({
   productionLine = 'single',
   wordPricing = [],
   backboardStyle = 'transparent',
+  characterCount = 0,
 }, config = neonPricingConfig) {
   const textWidth = Math.max(0, Number(visualTextWidthCm) || 0);
   const backboardWidth = Math.max(0, Number(backboardWidthCm) || 0);
   const backboardHeight = Math.max(0, Number(backboardHeightCm) || 0);
-  const backboardAreaSqft = (backboardWidth * backboardHeight) / (30.48 ** 2);
+  const measuredBackboardAreaSqft = (backboardWidth * backboardHeight) / (30.48 ** 2);
+  const backboardAreaSqft = roundAreaToStep(measuredBackboardAreaSqft, config.areaStepSqft);
+  const safeCharacterCount = Math.max(0, Math.floor(Number(characterCount) || 0));
+  const usesCharacterBandPrice = backboardAreaSqft < config.characterPricingMaxAreaSqft;
+  const characterBandPriceRm = usesCharacterBandPrice
+    ? (config.characterPricingBands.find((band) => safeCharacterCount <= band.upToCharacters)?.priceRm
+      ?? config.characterPricingBands.at(-1).priceRm)
+    : null;
+  const priceAnchorRm = characterBandPriceRm ?? config.minimumPriceRm;
   const legacyTier = getTier(backboardAreaSqft, config.legacyAreaPricingTiers);
   const legacyTextPrice = Math.max(config.minimumPriceRm, backboardAreaSqft * legacyTier.rateRmPerSqft);
   const useLegacyPrice = legacyTextPrice < config.preserveLegacyPriceBelowRm;
   const currentTier = getTier(backboardAreaSqft, config.areaPricingTiers);
   const areaRateRmPerSqft = useLegacyPrice ? legacyTier.rateRmPerSqft : currentTier.rateRmPerSqft;
-  const pricingDeductionRm = useLegacyPrice ? 0 : currentTier.deductionRm;
-  const textPrice = useLegacyPrice
-    ? legacyTextPrice
-    : Math.max(config.minimumPriceRm, (backboardAreaSqft * currentTier.rateRmPerSqft) - pricingDeductionRm);
+  const pricingDeductionRm = usesCharacterBandPrice || useLegacyPrice ? 0 : currentTier.deductionRm;
+  const calculatedTextPrice = usesCharacterBandPrice
+    ? characterBandPriceRm
+    : useLegacyPrice
+      ? legacyTextPrice
+      : Math.max(config.minimumPriceRm, (backboardAreaSqft * currentTier.rateRmPerSqft) - pricingDeductionRm);
+  const textPrice = Math.max(priceAnchorRm, calculatedTextPrice);
   const acrylicPrice = backboardStyle === 'transparent'
     ? backboardAreaSqft * config.pricePerAcrylicSqftRm
     : 0;
@@ -90,11 +122,17 @@ export function calculateNeonPrice({
   const productionMultiplier = (singleLineShare * config.singleLineMultiplier)
     + (doubleLineShare * config.doubleLineMultiplier);
   const colourAddon = 0;
-  const finalPrice = singleLineTextPrice + doubleLineTextPrice + acrylicPrice + backboardAddon;
+  const calculatedFinalPrice = singleLineTextPrice + doubleLineTextPrice + acrylicPrice + backboardAddon;
+  const finalPrice = roundNeonPriceToStep(
+    calculatedFinalPrice,
+    priceAnchorRm,
+    config.priceStepRm,
+    config.priceStepRoundUpFromRm,
+  );
 
   return {
     textPriceRm: roundMoney(textPrice),
-    acrylicAreaSqft: Number(backboardAreaSqft.toFixed(3)),
+    acrylicAreaSqft: Number(backboardAreaSqft.toFixed(1)),
     areaRateRmPerSqft,
     pricingDeductionRm,
     acrylicPriceRm: roundMoney(acrylicPrice),
@@ -105,8 +143,9 @@ export function calculateNeonPrice({
     singleLineTextPriceRm: roundMoney(singleLineTextPrice),
     doubleLineTextPriceRm: roundMoney(doubleLineTextPrice),
     colourAddonRm: roundMoney(colourAddon),
-    finalPriceRm: roundMoney(finalPrice),
+    usesCharacterBandPrice,
+    finalPriceRm: finalPrice,
   };
 }
 
-export const formatRm = (value) => `RM${Number(value || 0).toFixed(2)}`;
+export const formatRm = (value) => `RM${Math.round(Number(value) || 0)}`;

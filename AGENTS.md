@@ -50,6 +50,8 @@ Do not offer a manual Single-line/Double-line production choice. Only the 18 fon
 
 Do not show a Production Check step in the customer configurator. Custom text height normally starts at 10 cm and ends at 50 cm. If any word uses a double-line font, automatically raise every word to at least 15 cm, disable the Small preset, show “Tulisan ini tiada untuk Small”, and make Custom start at 15 cm.
 
+Default single-line fonts to the Small 10 cm preset. Only double-line fonts default to Medium 15 cm; when a double-line selection automatically raised an otherwise default design, returning the design to single-line fonts returns it to Small unless the customer had chosen a larger size.
+
 Black PVC foamboard has no board surcharge. Transparent acrylic adds RM10 per square foot, calculated from the measured combined backboard width times height converted from square centimetres to square feet.
 
 Black PVC foamboard is the default Playground backboard choice. Keep the RM10/sqft acrylic rate internal; after the customer enters text, the Transparent acrylic card shows the calculated RM addition for that design instead of displaying the per-square-foot rate.
@@ -58,7 +60,9 @@ Every configured design starts at a minimum text price of RM150, even for one ch
 
 Apply the double-line multiplier only to the measured visual-area share of words using fonts from the imported Double line font collection. Single-line words remain at 1.00, even in a mixed-font design, and acrylic/backboard charges must never be multiplied by a font multiplier.
 
-Preserve the former calculated base price whenever it is below RM200. At RM200 and above, calculate the base from the overall combined backboard area: below 10 sqft is `(area × RM100) − RM50`, 10 to below 20 sqft is `(area × RM93) − RM80`, and 20 sqft or more is `(area × RM88) − RM80`. Keep the RM150 minimum floor. Apply the existing measured double-line share multiplier after the base calculation, and add acrylic charges afterward without multiplying them.
+Preserve the former calculated base price whenever it is below RM200. At RM200 and above, calculate the base from the overall combined backboard area: exactly 2.0 through 4.0 sqft is `area × RM100` with no deduction; above 4.0 and below 10 sqft is `(area × RM100) − RM50`; 10 to below 20 sqft is `(area × RM93) − RM80`; and 20 sqft or more is `(area × RM88) − RM80`. Keep the existing below-2.0-sqft behavior and RM150 minimum floor. Apply the existing measured double-line share multiplier after the base calculation, and add acrylic charges afterward without multiplying them.
+
+Price the measured backboard area in nearest 0.1 sqft steps. Below 2.0 sqft, ignore area for the base price and use counted characters only: 1–7 characters RM150, 8–10 RM170, 11–14 RM190, and 15 or more RM200. Spaces and line breaks are not counted. At 2.0 sqft and above, use the area tiers. Display whole-ringgit prices only and round additions in RM20 steps anchored from the applicable base: a remainder of RM0–RM10 stays at the lower step, while RM11 or more advances to the next RM20 step.
 
 Keep the square-foot area and tier rate internal to the pricing engine; do not show a “Keluasan & kadar” row to customers in the estimated-price panel.
 

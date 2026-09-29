@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateNeonPrice, doubleLineFontIds, getAreaRateRmPerSqft, isDoubleLineFont, minimumHeightForFont, neonPricingConfig, productionModeForFont } from '../src/pricingConfig.js';
+import { calculateNeonPrice, doubleLineFontIds, getAreaRateRmPerSqft, isDoubleLineFont, minimumHeightForFont, neonPricingConfig, productionModeForFont, roundNeonPriceToStep } from '../src/pricingConfig.js';
 
 test('only imported double-line folder fonts receive double-line pricing', () => {
   assert.equal(doubleLineFontIds.length, 18);
@@ -16,7 +16,7 @@ test('minimum price applies to a small text design', () => {
   const result = calculateNeonPrice({ visualTextWidthCm: 10, backboardWidthCm: 16, backboardHeightCm: 16 });
   assert.equal(neonPricingConfig.minimumPriceRm, 150);
   assert.equal(result.textPriceRm, 150);
-  assert.ok(result.finalPriceRm > neonPricingConfig.minimumPriceRm);
+  assert.equal(result.finalPriceRm, 150);
 });
 
 test('one character still starts from RM150 before selected add-ons', () => {
@@ -50,6 +50,31 @@ test('prices below RM200 stay unchanged and larger boards use the new rates and 
   assert.equal(twentySqft.textPriceRm, 1680);
 });
 
+test('2.0 through 4.0 sqft uses RM100 per sqft without the RM50 deduction', () => {
+  const priceAtArea = (areaSqft) => calculateNeonPrice({
+    backboardWidthCm: areaSqft * 30.48,
+    backboardHeightCm: 30.48,
+    backboardStyle: 'black',
+  });
+  const belowRange = priceAtArea(1.9);
+  const twoSqft = priceAtArea(2);
+  const threeSqft = priceAtArea(3);
+  const fourSqft = priceAtArea(4);
+  const aboveRange = priceAtArea(4.1);
+
+  assert.equal(belowRange.acrylicAreaSqft, 1.9);
+  assert.equal(belowRange.pricingDeductionRm, 0);
+  assert.equal(belowRange.textPriceRm, 150);
+  assert.equal(twoSqft.pricingDeductionRm, 0);
+  assert.equal(twoSqft.textPriceRm, 200);
+  assert.equal(threeSqft.pricingDeductionRm, 0);
+  assert.equal(threeSqft.textPriceRm, 300);
+  assert.equal(fourSqft.pricingDeductionRm, 0);
+  assert.equal(fourSqft.textPriceRm, 400);
+  assert.equal(aboveRange.pricingDeductionRm, 50);
+  assert.equal(aboveRange.textPriceRm, 360);
+});
+
 test('only the measured double-line word share receives the double-line multiplier', () => {
   const base = calculateNeonPrice({ visualTextWidthCm: 40, backboardWidthCm: 46, backboardHeightCm: 22 });
   const upgraded = calculateNeonPrice({
@@ -62,12 +87,12 @@ test('only the measured double-line word share receives the double-line multipli
     ],
     backboardStyle: 'black',
   });
-  assert.ok(upgraded.finalPriceRm > base.finalPriceRm);
+  assert.equal(base.finalPriceRm, 170);
   assert.equal(upgraded.singleLineShare, 0.75);
   assert.equal(upgraded.doubleLineShare, 0.25);
   assert.equal(upgraded.productionMultiplier, 1.0875);
-  assert.equal(upgraded.textPriceRm, 150);
-  assert.equal(upgraded.finalPriceRm, 163.13);
+  assert.equal(upgraded.textPriceRm, 200);
+  assert.equal(upgraded.finalPriceRm, 210);
   assert.equal(upgraded.backboardAddonRm, 0);
   assert.equal(upgraded.acrylicPriceRm, 0);
   assert.equal(upgraded.colourAddonRm, 0);
@@ -90,4 +115,38 @@ test('transparent acrylic adds RM10 per square foot while black PVC adds nothing
   assert.equal(black.acrylicPriceRm, 0);
   assert.equal(black.backboardAddonRm, 0);
   assert.equal(transparent.finalPriceRm - black.finalPriceRm, 20);
+});
+
+test('customer price uses RM20 steps with the RM11 round-up threshold and no cents', () => {
+  assert.equal(roundNeonPriceToStep(150, 150, 20, 11), 150);
+  assert.equal(roundNeonPriceToStep(160, 150, 20, 11), 150);
+  assert.equal(roundNeonPriceToStep(161, 150, 20, 11), 170);
+  assert.equal(roundNeonPriceToStep(180, 150, 20, 11), 170);
+  assert.equal(roundNeonPriceToStep(181, 150, 20, 11), 190);
+});
+
+test('board area is priced in nearest 0.1 sqft increments', () => {
+  const roundsDown = calculateNeonPrice({ backboardWidthCm: 2.04 * 30.48, backboardHeightCm: 30.48, backboardStyle: 'black' });
+  const roundsUp = calculateNeonPrice({ backboardWidthCm: 2.06 * 30.48, backboardHeightCm: 30.48, backboardStyle: 'black' });
+  assert.equal(roundsDown.acrylicAreaSqft, 2);
+  assert.equal(roundsUp.acrylicAreaSqft, 2.1);
+});
+
+test('below 2 sqft uses character bands instead of area', () => {
+  const priceFor = (characterCount, areaSqft = 1) => calculateNeonPrice({
+    backboardWidthCm: areaSqft * 30.48,
+    backboardHeightCm: 30.48,
+    backboardStyle: 'black',
+    characterCount,
+  });
+  assert.equal(priceFor(7).finalPriceRm, 150);
+  assert.equal(priceFor(8).finalPriceRm, 170);
+  assert.equal(priceFor(10).finalPriceRm, 170);
+  assert.equal(priceFor(11).finalPriceRm, 190);
+  assert.equal(priceFor(14).finalPriceRm, 190);
+  assert.equal(priceFor(15).finalPriceRm, 200);
+  assert.equal(priceFor(25).finalPriceRm, 200);
+  assert.equal(priceFor(15, 0.5).finalPriceRm, 200);
+  assert.equal(priceFor(15, 1.9).finalPriceRm, 200);
+  assert.equal(priceFor(15).usesCharacterBandPrice, true);
 });

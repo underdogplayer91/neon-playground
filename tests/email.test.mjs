@@ -63,7 +63,7 @@ test('owner pending notification includes a prefilled WhatsApp follow-up', () =>
 test('customer confirmation explains payment and the WhatsApp design confirmation', () => {
   const email = buildCustomerOrderEmail(order);
   assert.match(email.subject, /YH_TEST_123/);
-  assert.match(email.html, /RM150\.00/);
+  assert.match(email.html, /RM150/);
   assert.match(email.html, /WhatsApp/);
   assert.match(email.html, /https:\/\/www\.wasap\.my\/601169530763/);
   assert.match(email.html, /WhatsApp Team pakarneonled\.store/);

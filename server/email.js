@@ -8,7 +8,7 @@ const escapeHtml = (value) => String(value ?? '')
   .replaceAll("'", '&#039;');
 
 const displayValue = (value, fallback = '—') => escapeHtml(String(value ?? '').trim() || fallback).replaceAll('\n', '<br>');
-const displayMoney = (value) => `RM${Number(value || 0).toFixed(2)}`;
+const displayMoney = (value) => `RM${Math.round(Number(value) || 0)}`;
 
 const displayMalaysiaTime = (value) => {
   const date = new Date(value || Date.now());
