@@ -90,7 +90,7 @@ Use the configurator's measured live price as the single displayed estimated pri
 
 The checkout order-summary preview must reproduce the exact configurator design snapshot rather than rebuilding a single line from plain text. Preserve every word's line, position, font, colour, target height, letter spacing and rotation when moving from the Playground to checkout.
 
-Show the approved “Warung / Pak / Atan / Kedai / Runcit / Aman / Cafe / Retro / Restoran / Mamak” multicolour composition as the initial Playground preview, preserving its per-word font, colour, size, position and rotation, while keeping the customer textarea empty and ordering disabled. As soon as the customer types, replace the demo with a clean Beachfront pink design built from their text; clearing the textarea restores the demo.
+Show “Tulis Nama Anda” as the initial Playground preview in a clean Beachfront pink automatic row while keeping the customer textarea empty and ordering disabled. As soon as the customer types, replace the demo with a clean Beachfront pink design built from their text; clearing the textarea restores “Tulis Nama Anda”. The main Playground heading is “Reka Neon Anda”. Inside the control panel, keep “Custom Neon Studio” and show the white instruction “Tekan setiap huruf untuk gerakkan, besarkan, tukar warna dan pusingkan” as a small uppercase control label matching the “Enter Your Text” typography, not as a large condensed heading.
 
 Keep design-capture testing isolated from production. The test flow is enabled only by Preview environment flags, uploads to the configured Cloudinary test folder, sends an email clearly prefixed `[TEST]`, and must never create a ToyyibPay bill or write an order to the live Supabase project.
 
@@ -100,7 +100,7 @@ In the Playground preview, do not render transparent acrylic or black PVC as a v
 
 The Playground automatically treats every typed word as a draggable object in the preview, without exposing a Layers panel or add, duplicate, delete, lock, visibility, or ordering controls. Tapping a word selects it for per-word font and colour changes. Size, letter spacing, and production mode remain global controls applied to every word. Preserve the original neon tube and glow effect while adding selection and dragging. Auto-size the acrylic from the combined word bounds plus 3 cm padding on every side and do not add any new purchase CTA.
 
-Do not present the old ready-made 8-character or 15-character packages, or a choice between ready-made and custom packages. The separate package section contains only Design Custom RM100 for customers who already have a logo or require a custom size, symbol or special shape; this payment is deducted from the final price.
+Do not present the old ready-made 8-character or 15-character packages, or a choice between ready-made and custom packages. The separate package section contains only a Design Custom contact action for customers who already have a logo or require a custom size, symbol or special shape; do not show a price or deposit for it because all details and pricing are discussed through WhatsApp.
 
 Do not show an “Apa yang anda dapat bila dah beli” package-includes section or its product-kit image anywhere on the landing page.
 
@@ -121,3 +121,5 @@ Do not show the font with id `milford-hollow` in the Playground font choices. Ke
 Inside the Playground preview, show one compact real-customer result card using an approved matched comparison asset. It must stay clear of the neon artwork, dimensions and word-editing controls; activating it smooth-scrolls to the existing Playground-to-real comparison slider below.
 
 Provide a clear Playground tutorial button near the configurator introduction. It opens the approved tutorial video in an in-page modal with native playback controls and a visible X close button; customers must remain on the Playground page while watching and be able to dismiss the modal by X, backdrop click, or Escape.
+
+The Design Custom card is a lead-capture entry point, not a payment link. Do not show RM100 or any deposit for it. Open an in-page modal asking only for the customer's name and Malaysian phone number; submit it to the owner notification email for manual WhatsApp discussion of the design and price without creating a Supabase order, ToyyibPay bill, or customer email.

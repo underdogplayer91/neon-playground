@@ -10,6 +10,16 @@ const escapeHtml = (value) => String(value ?? '')
 const displayValue = (value, fallback = '—') => escapeHtml(String(value ?? '').trim() || fallback).replaceAll('\n', '<br>');
 const displayMoney = (value) => `RM${Number(value || 0).toFixed(2)}`;
 
+const displayMalaysiaTime = (value) => {
+  const date = new Date(value || Date.now());
+  if (Number.isNaN(date.getTime())) return '—';
+  return new Intl.DateTimeFormat('ms-MY', {
+    timeZone: 'Asia/Kuala_Lumpur',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+};
+
 const getColorSummary = (order) => {
   if (Array.isArray(order.word_colors) && order.word_colors.length) {
     return order.word_colors
@@ -291,6 +301,29 @@ export function buildCustomerPendingEmail(order) {
   };
 }
 
+export function buildCustomLogoLeadEmail(lead) {
+  const whatsappPhone = getWhatsAppPhone(lead.phone);
+  const whatsappLink = whatsappPhone ? `https://wa.me/${whatsappPhone}` : '';
+  return {
+    subject: `Lead Custom Logo Baru · ${lead.name}`,
+    html: emailShell({
+      eyebrow: 'Lead website baru',
+      title: 'Permintaan Custom Logo',
+      intro: 'Customer meminta untuk dihubungi bagi design logo, simbol, bentuk atau ukuran khas.',
+      content: `
+        <table role="presentation" style="width:100%;border-collapse:collapse">
+          ${detailRow('Nama customer', lead.name)}
+          ${detailRow('Telefon', lead.phone)}
+          ${detailRow('Masa permintaan', displayMalaysiaTime(lead.createdAt))}
+          ${detailRow('Sumber', lead.source || 'Kad Design Custom website')}
+        </table>
+        ${whatsappButton(whatsappLink, 'WhatsApp Customer')}
+      `,
+      footer: `Rujukan lead: ${lead.reference || '—'}. Lead ini belum membuat pembayaran dan tidak direkodkan sebagai order ToyyibPay.`,
+    }),
+  };
+}
+
 async function sendResendEmail({ to, replyTo, subject, html, idempotencyKey }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM_EMAIL;
@@ -348,6 +381,17 @@ export function sendTestDesignEmail(design) {
     to: ownerEmail,
     ...email,
     idempotencyKey: `test-design/${design.reference}`,
+  });
+}
+
+export function sendCustomLogoLeadEmail(lead) {
+  const ownerEmail = process.env.ORDER_NOTIFICATION_EMAIL;
+  if (!ownerEmail) throw new Error('Email penerima notifikasi belum ditetapkan.');
+  const email = buildCustomLogoLeadEmail(lead);
+  return sendResendEmail({
+    to: ownerEmail,
+    ...email,
+    idempotencyKey: `custom-logo-lead/${lead.reference}`,
   });
 }
 

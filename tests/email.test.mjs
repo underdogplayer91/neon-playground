@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildCustomerOrderEmail, buildCustomerPendingEmail, buildOwnerOrderEmail, buildOwnerPendingEmail } from '../server/email.js';
+import { buildCustomerOrderEmail, buildCustomerPendingEmail, buildCustomLogoLeadEmail, buildOwnerOrderEmail, buildOwnerPendingEmail } from '../server/email.js';
 
 const order = {
   reference: 'YH_TEST_123',
@@ -93,4 +93,20 @@ test('custom orders without preview layers keep their font and colour fallback r
   const email = buildOwnerPendingEmail({ ...order, order_snapshot: {}, created_at: '2026-08-25T10:00:00.000Z' });
   assert.match(email.html, /<td[^>]*>Font<\/td>/);
   assert.match(email.html, /<td[^>]*>Warna<\/td>/);
+});
+
+test('custom logo lead email escapes customer input and links to WhatsApp', () => {
+  const email = buildCustomLogoLeadEmail({
+    reference: 'LOGO_TEST_123',
+    name: 'Ali <script>alert(1)</script>',
+    phone: '0123456789',
+    createdAt: '2026-09-29T04:00:00.000Z',
+    source: 'Kad Design Custom website',
+  });
+  assert.match(email.subject, /Lead Custom Logo Baru/);
+  assert.match(email.html, /Ali &lt;script&gt;alert/);
+  assert.doesNotMatch(email.html, /<script>alert/);
+  assert.match(email.html, /wa\.me\/60123456789/);
+  assert.match(email.html, /Kad Design Custom website/);
+  assert.match(email.html, /belum membuat pembayaran/i);
 });

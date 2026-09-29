@@ -31,16 +31,9 @@ const colors = [
   { id: 'orange', label: 'Orange', value: '#ff941f', glow: '255,148,31' },
 ];
 const DEFAULT_PREVIEW_LAYERS = [
-  { id: 'demo-warung', text: 'Warung', font_id: 'bouncy-personal-use-only', colour: 'green', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 14.61, y_cm: 3, locked: false, visible: true, production_mode: 'double', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-pak', text: 'Pak', font_id: 'beachfront-cn', colour: 'yellow', target_height_cm: 14, letter_spacing_cm: 0, x_cm: 27.7, y_cm: 15.35, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-atan', text: 'Atan', font_id: 'beachfront-cn', colour: 'yellow', target_height_cm: 14, letter_spacing_cm: 0, x_cm: 50.44, y_cm: 16.06, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-kedai', text: 'Kedai', font_id: 'milan', colour: 'green', target_height_cm: 20, letter_spacing_cm: 0, x_cm: 100.21, y_cm: 0.95, locked: false, visible: true, production_mode: 'double', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: -31.5 },
-  { id: 'demo-runcit', text: 'Runcit', font_id: 'beachfront-cn', colour: 'blue', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 137.7, y_cm: 8.27, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-aman', text: 'Aman', font_id: 'beachfront-cn', colour: 'blue', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 127.28, y_cm: 21.86, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-cafe', text: 'Cafe', font_id: 'royalty-cn', colour: 'pink', target_height_cm: 24, letter_spacing_cm: 0, x_cm: 180.9, y_cm: 35.51, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-retro', text: 'Retro', font_id: 'milan', colour: 'ice-blue', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 193.35, y_cm: 54, locked: false, visible: true, production_mode: 'double', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-restoran', text: 'Restoran', font_id: 'sci-fied-x-outline', colour: 'red', target_height_cm: 15, letter_spacing_cm: 0, x_cm: -0.36, y_cm: 47.76, locked: false, visible: true, production_mode: 'double', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
-  { id: 'demo-mamak', text: 'Mamak', font_id: 'beachfront-cn', colour: 'blue', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 61.93, y_cm: 62.89, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: true, line_index: 0, rotation_deg: 0 },
+  { id: 'demo-tulis', text: 'Tulis', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
+  { id: 'demo-nama', text: 'Nama', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
+  { id: 'demo-anda', text: 'Anda', font_id: 'beachfront-cn', colour: 'pink', target_height_cm: 15, letter_spacing_cm: 0, x_cm: 3, y_cm: 3, locked: false, visible: true, production_mode: 'single', word_mode: 'continuous', detached: false, line_index: 0, rotation_deg: 0 },
 ];
 const cloneDefaultPreviewLayers = () => DEFAULT_PREVIEW_LAYERS.map((layer) => ({ ...layer }));
 const playgroundRealityPairs = [
@@ -105,14 +98,14 @@ function Header() {
 
 export function App() {
   const [text, setText] = useState('');
-  const [fontId, setFontId] = useState('melbourne-cn');
+  const [fontId, setFontId] = useState('beachfront-cn');
   const [targetTextHeightCm, setTargetTextHeightCm] = useState(15);
-  const [letterSpacingCm, setLetterSpacingCm] = useState(3);
-  const [sizePreset, setSizePreset] = useState('custom');
+  const [letterSpacingCm, setLetterSpacingCm] = useState(0);
+  const [sizePreset, setSizePreset] = useState('medium');
   const [backboardStyle, setBackboardStyle] = useState('black');
-  const [colorId, setColorId] = useState('green');
+  const [colorId, setColorId] = useState('pink');
   const [colorMode, setColorMode] = useState('multi');
-  const [wordColorIds, setWordColorIds] = useState({ 0: 'pink', 1: 'yellow', 2: 'pink' });
+  const [wordColorIds, setWordColorIds] = useState({ 0: 'pink', 1: 'pink', 2: 'pink' });
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [colorMessage, setColorMessage] = useState('');
   const [isOtherFontsOpen, setIsOtherFontsOpen] = useState(false);
@@ -121,6 +114,9 @@ export function App() {
   const [activePosterSlide, setActivePosterSlide] = useState(0);
   const [realityReveal, setRealityReveal] = useState(50);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isCustomLeadOpen, setIsCustomLeadOpen] = useState(false);
+  const [customLead, setCustomLead] = useState({ name: '', phone: '', companyWebsite: '' });
+  const [customLeadState, setCustomLeadState] = useState({ status: 'idle', message: '' });
   const [, setFontLoadRevision] = useState(0);
   const [layers, setLayers] = useState(cloneDefaultPreviewLayers);
   const [activeLayerId, setActiveLayerId] = useState(null);
@@ -186,16 +182,20 @@ export function App() {
     window.requestAnimationFrame(() => playground.scrollIntoView({ block: 'start' }));
   }, []);
   useEffect(() => {
-    if (!isTutorialOpen) return undefined;
+    if (!isTutorialOpen && !isCustomLeadOpen) return undefined;
     const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event) => { if (event.key === 'Escape') setIsTutorialOpen(false); };
+    const closeOnEscape = (event) => {
+      if (event.key !== 'Escape') return;
+      setIsTutorialOpen(false);
+      if (customLeadState.status !== 'sending') setIsCustomLeadOpen(false);
+    };
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', closeOnEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', closeOnEscape);
     };
-  }, [isTutorialOpen]);
+  }, [isTutorialOpen, isCustomLeadOpen, customLeadState.status]);
   useEffect(() => {
     trackMetaEventOnce('view-content:landing', 'ViewContent', {
       content_name: 'Custom Neon LED',
@@ -246,7 +246,7 @@ export function App() {
     if (!words.length) {
       setLayers(cloneDefaultPreviewLayers());
       setActiveLayerId(null);
-      setFontId('melbourne-cn'); setColorId('green'); setLetterSpacingCm(3); setTargetTextHeightCm(15); setSizePreset('custom');
+      setFontId('beachfront-cn'); setColorId('pink'); setLetterSpacingCm(0); setTargetTextHeightCm(15); setSizePreset('medium');
       return;
     }
     const replacingDefaultPreview = !text.trim();
@@ -354,23 +354,32 @@ export function App() {
       backboardSizeNote: `${Math.round(layerDesign.backboardWidthCm)} × ${Math.round(layerDesign.backboardHeightCm)} cm`,
     }));
   };
-  const prepareCustomCheckout = () => window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({
-    reference: `YH-${Date.now().toString(36).toUpperCase()}`,
-    displayReference: createDisplayReference(),
-    tier: 'custom',
-    packageName: 'Design Custom',
-    price: 100,
-    text: '',
-    characterCount: 0,
-    fontName: '',
-    fontFamily: 'Manrope Variable',
-    colorLabel: '',
-    colorValue: '#31d7ff',
-    colorGlow: '49,215,255',
-    backgroundMode: 'night',
-    tracking: getMetaAttribution(),
-    sizeNote: 'Custom size & design',
-  }));
+  const openCustomLead = () => {
+    setCustomLeadState({ status: 'idle', message: '' });
+    setIsCustomLeadOpen(true);
+  };
+  const closeCustomLead = () => {
+    if (customLeadState.status !== 'sending') setIsCustomLeadOpen(false);
+  };
+  const updateCustomLead = (event) => setCustomLead((current) => ({ ...current, [event.target.name]: event.target.value }));
+  const submitCustomLead = async (event) => {
+    event.preventDefault();
+    if (customLeadState.status === 'sending') return;
+    setCustomLeadState({ status: 'sending', message: '' });
+    try {
+      const response = await fetch('/api/custom-logo-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customLead),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Permintaan tidak dapat dihantar.');
+      setCustomLeadState({ status: 'sent', message: 'Permintaan sudah dihantar. Kami akan hubungi anda melalui WhatsApp.' });
+      setCustomLead({ name: '', phone: '', companyWebsite: '' });
+    } catch (error) {
+      setCustomLeadState({ status: 'error', message: error.message || 'Permintaan tidak dapat dihantar. Sila cuba semula.' });
+    }
+  };
   const interact = () => {
     trackMetaEventOnce('customize-product', 'CustomizeProduct', {
       content_name: 'Neon Playground',
@@ -420,11 +429,10 @@ export function App() {
     </section>
 
     <section className="playground-section" id="playground">
-      <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Tulis perkataan anda.<br /><em>Biar ia menyala.</em></h2><p className="playground-prompt">Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p><button type="button" className="tutorial-button" onClick={() => setIsTutorialOpen(true)}><span aria-hidden="true">▶</span> Tengok tutorial Playground</button></div>
+      <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Reka Neon Anda</h2><p className="playground-prompt">Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p><button type="button" className="tutorial-button" onClick={() => setIsTutorialOpen(true)}><span aria-hidden="true">▶</span> Tengok tutorial Playground</button></div>
       <div className="configurator">
         <div className="customizer-panel">
-          <div className="customizer-heading"><div><span>Custom neon studio</span><h3>Reka neon anda</h3></div><small>Ukuran sebenar daripada data font</small></div>
-
+          <div className="customizer-heading"><div><span>Custom neon studio</span><h3>Tekan setiap huruf untuk gerakkan, besarkan, tukar warna dan pusingkan</h3></div></div>
           <section className="config-step">
             <div className="config-step-title"><span>01</span><label htmlFor="custom-neon-text">Enter Your Text</label></div>
             <textarea ref={nameFieldRef} id="custom-neon-text" className={showNamePrompt ? 'name-attention' : ''} value={text} maxLength={240} rows={3} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(event) => { const value = limitNeonInput(event.target.value); setText(value); updateWordsFromText(value); interact(); }} placeholder="Contoh: pakar neon" />
@@ -604,8 +612,8 @@ export function App() {
     <section className="pricing" id="harga">
       <div className="section-intro"><p className="eyebrow"><Palette weight="fill" /> Perlukan rekaan khas?</p><h2>Ada logo sendiri<br /><em>atau custom size?</em></h2><p>Jika rekaan anda bukan sekadar tulisan dalam configurator, pilih pakej ini untuk logo, simbol, bentuk atau ukuran khas.</p></div>
       <div className="price-list">
-        <article className="custom-package"><span className="package-number">01</span><div><p>Untuk logo sendiri, simbol, bentuk atau ukuran khas</p><h3>Design Custom</h3></div><strong>RM100</strong><a href="/checkout" onClick={prepareCustomCheckout}>Pilih pakej ini <ArrowRight /></a></article>
-      </div><div className="pricing-clarity"><p><strong>Bayaran RM100:</strong> sebagai tanda komitmen untuk memulakan rekaan custom. Selepas bayaran, kami akan menghubungi anda untuk mendapatkan fail logo atau maklumat saiz dan mengesahkan harga akhir. Bayaran ini akan ditolak daripada harga akhir.</p></div>
+        <article className="custom-package"><span className="package-number">01</span><div><p>Untuk logo sendiri, simbol, bentuk atau ukuran khas</p><h3>Design Custom</h3></div><button type="button" className="custom-lead-trigger" onClick={openCustomLead}>Minta kami hubungi <ArrowRight /></button></article>
+      </div><div className="pricing-clarity"><p><strong>Semua melalui WhatsApp:</strong> kami akan hubungi anda untuk mendapatkan fail logo, bincang saiz, bahan dan mengesahkan harga.</p></div>
     </section>
 
     <section className="inspiration" id="inspirasi">
@@ -638,12 +646,29 @@ export function App() {
       </figure>
     </section>
 
-    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Bagaimana harga tulisan dalam configurator dikira?</summary><p>Harga anggaran berubah mengikut saiz keseluruhan rekaan, font, warna, bahan backboard dan pilihan lain yang dibuat dalam configurator.</p></details><details><summary>Bilakah saya perlu pilih Design Custom RM100?</summary><p>Pilih Design Custom jika anda mempunyai logo sendiri atau memerlukan simbol, bentuk dan ukuran khas yang tidak boleh dibina terus dalam configurator. Bayaran RM100 akan ditolak daripada harga akhir.</p></details><details><summary>Apa berlaku selepas saya pilih Design Custom?</summary><p>Selepas bayaran dibuat, kami akan menghubungi anda untuk mendapatkan fail logo atau maklumat rekaan, kemudian mengesahkan ukuran dan harga akhir sebelum pengeluaran.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details></div></section>
+    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Bagaimana harga tulisan dalam configurator dikira?</summary><p>Harga anggaran berubah mengikut saiz keseluruhan rekaan, font, warna, bahan backboard dan pilihan lain yang dibuat dalam configurator.</p></details><details><summary>Bilakah saya perlu pilih Design Custom?</summary><p>Pilih Design Custom jika anda mempunyai logo sendiri atau memerlukan simbol, bentuk dan ukuran khas yang tidak boleh dibina terus dalam configurator.</p></details><details><summary>Apa berlaku selepas saya pilih Design Custom?</summary><p>Isi nama dan nombor telefon dahulu. Kami akan WhatsApp anda untuk mendapatkan fail logo dan membincangkan saiz, bahan serta harga.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>
     {isTutorialOpen && <div className="tutorial-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsTutorialOpen(false); }}>
       <section className="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-modal-title">
         <div className="tutorial-modal-head"><div><span>NEON PLAYGROUND</span><h2 id="tutorial-modal-title">Cara guna Playground</h2></div><button type="button" className="tutorial-close" onClick={() => setIsTutorialOpen(false)} aria-label="Tutup tutorial">×</button></div>
         <video controls autoPlay playsInline preload="metadata"><source src="/assets/playground-tutorial.mp4" type="video/mp4" />Browser anda tidak menyokong video HTML5.</video>
+      </section>
+    </div>}
+    {isCustomLeadOpen && <div className="custom-lead-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCustomLead(); }}>
+      <section className="custom-lead-modal" role="dialog" aria-modal="true" aria-labelledby="custom-lead-title">
+        <button type="button" className="custom-lead-close" onClick={closeCustomLead} aria-label="Tutup borang Custom Logo">×</button>
+        {customLeadState.status === 'sent' ? <div className="custom-lead-success" role="status"><span>✓</span><p className="eyebrow">Permintaan diterima</p><h2 id="custom-lead-title">Kami akan WhatsApp anda.</h2><p>{customLeadState.message}</p><button type="button" onClick={closeCustomLead}>Tutup</button></div> : <>
+          <p className="eyebrow">Design Custom</p>
+          <h2 id="custom-lead-title">Ada logo sendiri?</h2>
+          <p className="custom-lead-intro">Tinggalkan nama dan nombor telefon. Kami akan WhatsApp anda untuk dapatkan logo serta bincang saiz, bahan dan harga.</p>
+          <form onSubmit={submitCustomLead}>
+            <label>Nama penuh<input name="name" value={customLead.name} onChange={updateCustomLead} autoComplete="name" minLength="2" maxLength="100" required autoFocus /></label>
+            <label>Nombor telefon<input name="phone" value={customLead.phone} onChange={updateCustomLead} inputMode="tel" autoComplete="tel" placeholder="Contoh: 0123456789" pattern="(?:01[0-9]{8,9}|601[0-9]{8,9})" required /></label>
+            <label className="custom-lead-honeypot" aria-hidden="true">Laman syarikat<input name="companyWebsite" value={customLead.companyWebsite} onChange={updateCustomLead} tabIndex="-1" autoComplete="off" /></label>
+            {customLeadState.message && <p className="custom-lead-error" role="alert">{customLeadState.message}</p>}
+            <button type="submit" className="custom-lead-submit" disabled={customLeadState.status === 'sending'}>{customLeadState.status === 'sending' ? 'Sedang menghantar…' : 'Hantar Permintaan'}</button>
+          </form>
+        </>}
       </section>
     </div>}
     <div className={`mobile-sticky ${characterCount ? 'has-design' : ''}`}><div><small>{estimatedOrderPrice !== null ? `Harga anggaran ${formatRm(estimatedOrderPrice)}` : 'Mulakan tempahan'}</small><strong>{characterCount ? (requiresDesignDeposit ? 'Deposit RM100' : `Bayar ${formatRm(amountDueNow)}`) : 'Masukkan nama anda'}</strong></div><a className={!characterCount ? 'needs-name' : ''} href={characterCount ? checkoutUrl : '#custom-neon-text'} onClick={handleMobileOrderClick}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>
