@@ -76,7 +76,7 @@ Do not show the customer-facing character-count label such as “0 aksara dikira
 
 Keep the mobile floating “Tempah Sekarang” button visible even before a name is entered. When the name field is empty, tapping it must scroll to and focus the name field, briefly highlight that field, and must not open checkout. Checkout is enabled only after the visitor enters at least one counted character.
 
-After the customer enters text, show the existing floating order panel on desktop and tablet too. It must display the live estimated price and either the payable full amount below RM200 or `Deposit RM100` for estimates of RM200 and above.
+After the customer enters text, show the existing floating order panel on desktop and tablet too. It must display the live estimated price and either the payable full amount through RM250 or `Deposit RM100` only for estimates above RM250.
 
 Keep the overall purchase flow simple: Step 1 is the Playground Configurator, Step 2 is the checkout confirmation page containing both customer fields and the order summary, and Step 3 is ToyyibPay payment. Do not add a separate customer-information step before confirmation. The checkout submit button must create the bill and go directly to ToyyibPay.
 
@@ -90,7 +90,7 @@ The checkout order-summary preview must provide enough vertical space and safe p
 
 The Neon Playground configurator uses an original Pakar LED & NEON two-column flow: live acrylic preview with physical dimensions on the left, and numbered text, font, colour, size, spacing, backboard, production check and live-price controls on the right. Size presets map to 10 cm, 15 cm and 20 cm target text heights, with Custom allowing 5–50 cm. Pricing must use measured glyph geometry rather than character count. The live price is informational only. Do not add a WhatsApp, checkout, payment or order-submission flow, and preserve every existing CTA, navigation item and purchase-flow button.
 
-Use the configurator's measured live price as the single displayed estimated price everywhere, including the summary below the preview and checkout. For estimates below RM200, charge the displayed amount. For estimates of RM200 or more, charge only a RM100 design deposit during checkout and state that the team will contact the customer to confirm the design and final price; the deposit is deducted from the final total.
+Use the configurator's measured live price as the single displayed estimated price everywhere, including the summary below the preview and checkout. For estimates up to and including RM250, charge the displayed amount in full. For estimates above RM250, charge only a RM100 design deposit during checkout and state that the team will contact the customer to confirm the design and final price; the deposit is deducted from the final total.
 
 The checkout order-summary preview must reproduce the exact configurator design snapshot rather than rebuilding a single line from plain text. Preserve every word's line, position, font, colour, target height, letter spacing and rotation when moving from the Playground to checkout.
 

@@ -183,7 +183,7 @@ export function App() {
     backboardStyle: 'black',
     characterCount,
   }).finalPriceRm : null;
-  const requiresDesignDeposit = estimatedOrderPrice !== null && estimatedOrderPrice >= 200;
+  const requiresDesignDeposit = estimatedOrderPrice !== null && estimatedOrderPrice > 250;
   const amountDueNow = estimatedOrderPrice === null ? null : requiresDesignDeposit ? 100 : estimatedOrderPrice;
   useEffect(() => {
     if (window.location.hash) return;

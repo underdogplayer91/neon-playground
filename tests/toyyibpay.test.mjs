@@ -10,10 +10,12 @@ import {
 import { buildOrderRecord, mapToyyibPayStatus } from '../server/supabase.js';
 import { validatePaidOrder } from '../server/paidOrder.js';
 
-test('server charges the live estimate below RM200 and a RM100 deposit from RM200', () => {
+test('server charges the full live estimate through RM250 and a RM100 deposit above RM250', () => {
   assert.deepEqual(resolvePayment({ text: 'ABCDEFGH', estimatedPrice: 150 }).amount, 150);
   assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 199.99 }).amount, 199.99);
-  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 200 }).amount, 100);
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 200 }).amount, 200);
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 250 }).amount, 250);
+  assert.deepEqual(resolvePayment({ text: 'ABCDEFGHI', estimatedPrice: 250.01 }).amount, 100);
   assert.deepEqual(resolvePayment({ text: 'ABCDEFGHIJKLMNOP', estimatedPrice: 845.27 }).amount, 100);
   assert.deepEqual(resolvePayment({ tier: 'custom', text: '' }).amount, 100);
 });

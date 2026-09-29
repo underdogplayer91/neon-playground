@@ -345,7 +345,7 @@ export function CheckoutPage() {
           <div className="warranty-summary"><dt>Warranty</dt><dd>3 bulan<small>Warranty standard</small></dd></div>
         </dl>
         <div className="order-total"><span>{isDepositOrder ? 'Harga deposit' : 'Jumlah dibayar sekarang'}</span><div className="order-total-price"><strong>RM{Math.round(Number(order.price) || 0)}</strong><small>{isDepositOrder ? 'Dibayar sekarang · Ditolak daripada harga penuh' : 'QR PAY disediakan di halaman sebelah'}</small></div></div>
-        <p className="estimate-note">{isDepositOrder ? 'Harga RM200 ke atas memerlukan deposit RM100. Kami akan menghubungi anda untuk mengesahkan design dan harga akhir; deposit ditolak daripada jumlah akhir.' : 'Jumlah bayaran ini mengikut harga anggaran live dalam configurator.'}</p>
+        <p className="estimate-note">{isDepositOrder ? 'Harga melebihi RM250 memerlukan deposit RM100. Kami akan menghubungi anda untuk mengesahkan design dan harga akhir; deposit ditolak daripada jumlah akhir.' : 'Jumlah bayaran ini mengikut harga anggaran live dalam configurator.'}</p>
         {testCaptureEnabled && <div className="test-capture-panel"><strong>Mod ujian gambar</strong><p>Upload ke folder Cloudinary test dan hantar email [TEST]. ToyyibPay serta order live tidak digunakan.</p><button type="button" onClick={sendTestPreviewEmail} disabled={testEmailState.status === 'sending'}>{testEmailState.status === 'sending' ? 'Sedang menghantar…' : 'Hantar Email Test Preview'}</button>{testEmailState.message && <small className={testEmailState.status}>{testEmailState.message}</small>}</div>}
       </aside>
     </div>

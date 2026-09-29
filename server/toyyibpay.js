@@ -21,7 +21,7 @@ export function resolvePayment(order = {}) {
   if (!text && order.tier === 'custom') return { ...PAYMENT_TIERS.custom, tier: 'custom', characterCount, text };
   if (!Number.isFinite(estimatedPrice) || estimatedPrice < 150) throw new Error('Harga anggaran configurator tidak sah.');
   const roundedEstimate = Math.round(estimatedPrice * 100) / 100;
-  const requiresDeposit = roundedEstimate >= 200;
+  const requiresDeposit = roundedEstimate > 250;
   return {
     amount: requiresDeposit ? 100 : roundedEstimate,
     packageName: requiresDeposit ? 'Deposit Custom Neon' : 'Custom Neon',
