@@ -342,7 +342,6 @@ export function CheckoutPage() {
           <div><dt>Saiz tulisan</dt><dd>{order.sizeNote || 'Akan disahkan selepas design dibincangkan'}</dd></div>
           {order.backboardSizeNote && <div><dt>Saiz backboard</dt><dd>{order.backboardSizeNote}</dd></div>}
           {fullPrice > 0 && <div className="full-price-summary"><dt>Harga penuh</dt><dd>RM{Math.round(fullPrice)}</dd></div>}
-          <div className="warranty-summary"><dt>Warranty</dt><dd>3 bulan<small>Warranty standard</small></dd></div>
         </dl>
         <div className="order-total"><span>{isDepositOrder ? 'Harga deposit' : 'Jumlah dibayar sekarang'}</span><div className="order-total-price"><strong>RM{Math.round(Number(order.price) || 0)}</strong><small>{isDepositOrder ? 'Dibayar sekarang · Ditolak daripada harga penuh' : 'QR PAY disediakan di halaman sebelah'}</small></div></div>
         <p className="estimate-note">{isDepositOrder ? 'Harga melebihi RM250 memerlukan deposit RM100. Kami akan menghubungi anda untuk mengesahkan design dan harga akhir; deposit ditolak daripada jumlah akhir.' : 'Jumlah bayaran ini mengikut harga anggaran live dalam configurator.'}</p>

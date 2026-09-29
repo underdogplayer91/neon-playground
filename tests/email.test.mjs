@@ -43,6 +43,8 @@ test('owner notification contains the complete order without unsafe customer HTM
   assert.match(email.html, /res\.cloudinary\.com\/demo\/image\/upload\/orders/);
   assert.match(email.html, /Detail setiap perkataan/);
   assert.match(email.html, /32 × 15 cm/);
+  assert.match(email.html, /Saiz keseluruhan board/);
+  assert.match(email.html, /70 × 54 cm/);
   assert.doesNotMatch(email.html, /<td[^>]*>Font<\/td>/);
   assert.doesNotMatch(email.html, /<td[^>]*>Warna<\/td>/);
 });
@@ -93,6 +95,11 @@ test('custom orders without preview layers keep their font and colour fallback r
   const email = buildOwnerPendingEmail({ ...order, order_snapshot: {}, created_at: '2026-08-25T10:00:00.000Z' });
   assert.match(email.html, /<td[^>]*>Font<\/td>/);
   assert.match(email.html, /<td[^>]*>Warna<\/td>/);
+});
+
+test('paid owner email omits the overall board row when an old order has no saved board size', () => {
+  const email = buildOwnerOrderEmail({ ...order, order_snapshot: {} });
+  assert.doesNotMatch(email.html, /Saiz keseluruhan board/);
 });
 
 test('custom logo lead email escapes customer input and links to WhatsApp', () => {

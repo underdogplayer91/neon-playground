@@ -134,6 +134,7 @@ export function buildOwnerOrderEmail(order) {
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
       ${getOrderDesign(order).layers.length ? '' : detailRow('Font', order.font_name)}
       ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
+      ${getOrderDesign(order).backboardSize ? detailRow('Saiz keseluruhan board', getOrderDesign(order).backboardSize) : ''}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Bayaran diterima', displayMoney(order.amount))}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}

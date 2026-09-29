@@ -82,7 +82,7 @@ Keep the overall purchase flow simple: Step 1 is the Playground Configurator, St
 
 At the top of checkout, keep the honest running urgency message that orders are processed according to payment order and payment locks the customer's design slot. The checkout CTA should read “Tempah Untuk Slot Sekarang!” and continue directly to ToyyibPay.
 
-Do not show or apply any checkout discount popup, countdown voucher, ten-percent discount, or extended-warranty offer. Checkout uses the normal full-price/deposit rules and the standard three-month warranty. Do not show shipping in the custom-size order summary because it will be discussed through WhatsApp.
+Do not show or apply any checkout discount popup, countdown voucher, ten-percent discount, or extended-warranty offer. Do not display any warranty row or warranty copy on the checkout page. Keep any existing standard warranty metadata internal. Do not show shipping in the custom-size order summary because it will be discussed through WhatsApp.
 
 The checkout order summary does not show the reference or package rows. Its Font row lists every unique font actually used by the stored preview layers, and its Harga Penuh row appears above the Harga Deposit total.
 
@@ -99,6 +99,8 @@ Show “Tulis Nama Anda” as the initial Playground preview in a clean Beachfro
 Keep design-capture testing isolated from production. The test flow is enabled only by Preview environment flags, uploads to the configured Cloudinary test folder, sends an email clearly prefixed `[TEST]`, and must never create a ToyyibPay bill or write an order to the live Supabase project.
 
 Only show the order-processing progress modal after the customer submits the final checkout CTA, never when entering checkout from the Playground. Its status must follow real work: generate the snapshot, upload it to Cloudinary, save the pending order and create its ToyyibPay bill, then redirect. Preserve entered customer data on failure and offer retry. Store the Cloudinary image and per-word font, colour, size and rotation details in the Supabase order snapshot so both unpaid follow-up and paid-confirmation emails can display the same design.
+
+The paid owner-notification email must show the saved overall backboard dimensions as “Saiz keseluruhan board”. Omit that row gracefully for legacy orders that do not have `backboardSizeNote`.
 
 In the Playground preview, do not render transparent acrylic or black PVC as a visual board. Keep those as pricing/material choices only, and place the W × H dimension guides directly around the visible neon lettering using its visual glyph bounds.
 
