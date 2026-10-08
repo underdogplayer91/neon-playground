@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:sites": "node --test tests/sites-worker.test.mjs",
     "test:payment": "node --test tests/toyyibpay.test.mjs tests/email.test.mjs tests/meta-conversions.test.mjs tests/meta-pixel.test.mjs tests/cloudinary.test.mjs tests/order-summary.test.mjs tests/custom-logo-lead.test.mjs",
-    "test:sizing": "node --test tests/neon-sizing.test.mjs tests/neon-pricing.test.mjs tests/neon-layers.test.mjs"
+    "test:sizing": "node --test tests/neon-sizing.test.mjs tests/neon-pricing.test.mjs tests/neon-layers.test.mjs",
+    "test:landing": "node --test tests/landing-pages.test.mjs tests/landing-render.test.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

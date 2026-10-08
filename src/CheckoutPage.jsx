@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import './styles.css';
+import './checkout.css';
+import { LANDING_PATHS } from './landingRoutes.js';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEventOnce } from './metaPixel';
 import { sizingFonts } from './neonSizing';
@@ -130,6 +133,7 @@ export function CheckoutPage() {
     state: '',
   });
   const checkoutText = order?.text || 'Design Custom';
+  const backToConfigurator = LANDING_PATHS[order?.landingSource] === '/neon-classic' ? '/neon-classic#playground' : '/playground#playground';
   const isDepositOrder = order?.tier === 'custom';
   const checkoutTokens = tokenizeNeonText(checkoutText);
   const isMultiColor = order?.colorMode === 'multi' && order?.wordColors?.length;
@@ -160,6 +164,7 @@ export function CheckoutPage() {
   useEffect(() => {
     if (!order) return;
     trackMetaEventOnce(`initiate-checkout:${order.reference}`, 'InitiateCheckout', {
+      landing_source: order.landingSource || 'playground',
       content_name: order.packageName,
       content_ids: [order.tier],
       content_type: 'product',
@@ -178,7 +183,7 @@ export function CheckoutPage() {
   if (!order) {
     return <main className="checkout-page checkout-empty">
       <a className="checkout-brand" href="/">PAKAR LED &amp; NEON <i>BY YH</i></a>
-      <section><span>Tempahan tidak dijumpai</span><h1>Reka neon anda dahulu.</h1><p>Pilihan configurator diperlukan sebelum checkout boleh diteruskan.</p><a className="checkout-back" href="/#playground">← Kembali ke configurator</a></section>
+      <section><span>Tempahan tidak dijumpai</span><h1>Reka neon anda dahulu.</h1><p>Pilihan configurator diperlukan sebelum checkout boleh diteruskan.</p><a className="checkout-back" href={backToConfigurator}>← Kembali ke configurator</a></section>
     </main>;
   }
 
@@ -230,6 +235,7 @@ export function CheckoutPage() {
         amount: result.amount,
       }));
       trackMetaEventOnce(`add-payment-info:${result.reference}`, 'AddPaymentInfo', {
+        landing_source: order.landingSource || 'playground',
         content_name: order.packageName,
         content_ids: [result.tier || order.tier],
         content_type: 'product',
@@ -291,13 +297,13 @@ export function CheckoutPage() {
       </div>
     </div>
     <nav className="checkout-progress" aria-label="Kemajuan checkout">
-      <a className="checkout-progress-step complete" href="/#playground"><span>✓</span><strong>Configurator</strong></a>
+      <a className="checkout-progress-step complete" href={backToConfigurator}><span>✓</span><strong>Configurator</strong></a>
       <div className="checkout-progress-step active" aria-current="step"><span>2</span><strong>Pengesahan</strong></div>
       <div className="checkout-progress-step"><span>3</span><strong>Bayaran</strong></div>
     </nav>
     <div className="checkout-layout">
       <form ref={checkoutFormRef} className="checkout-form checkout-card" onSubmit={submitOrder}>
-        <a className="checkout-back checkout-back-prominent" href="/#playground">← Kembali ke configurator</a>
+        <a className="checkout-back checkout-back-prominent" href={backToConfigurator}>← Kembali ke configurator</a>
         <p className="checkout-kicker">Langkah 2 daripada 3</p>
         <h1>Sahkan tempahan</h1>
         <p className="checkout-lead">Lengkapkan maklumat di bawah dan semak ringkasan pesanan sebelum membuat bayaran.</p>

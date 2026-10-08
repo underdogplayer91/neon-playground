@@ -18,6 +18,11 @@ export function resolvePayment(order = {}) {
   const text = String(order.text || '').trim();
   const characterCount = countBillableCharacters(text);
   const estimatedPrice = Number(order.estimatedPrice);
+  if (order.pricingModel === 'classic-package') {
+    const tier = characterCount ? (characterCount <= 8 ? 'basic' : characterCount <= 15 ? 'plus' : 'custom') : 'custom';
+    if (!characterCount && order.tier !== 'custom') throw new Error('Teks neon diperlukan.');
+    return { ...PAYMENT_TIERS[tier], tier, characterCount, text };
+  }
   if (!text && order.tier === 'custom') return { ...PAYMENT_TIERS.custom, tier: 'custom', characterCount, text };
   if (!Number.isFinite(estimatedPrice) || estimatedPrice < 150) throw new Error('Harga anggaran configurator tidak sah.');
   const roundedEstimate = Math.round(estimatedPrice * 100) / 100;

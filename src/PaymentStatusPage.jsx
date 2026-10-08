@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import './styles.css';
+import './checkout.css';
+import { trackMetaEventOnce } from './metaPixel.js';
 
 const STATUS_CONTENT = {
   checking: { eyebrow: 'Menyemak pembayaran', title: 'Tunggu sebentar', copy: 'Kami sedang mendapatkan pengesahan transaksi terus daripada ToyyibPay.' },
@@ -29,6 +32,11 @@ export function PaymentStatusPage() {
         if (!response.ok) throw new Error(result.error);
         setDetails(result);
         setStatus(result.status || 'unknown');
+        if (result.status === 'success' && result.purchaseVerified) {
+          trackMetaEventOnce(`purchase:${result.reference}`, 'Purchase', {
+            currency: 'MYR', value: Number(result.amount), landing_source: result.landingSource || '',
+          }, { eventId: `purchase_${result.reference}` });
+        }
       } catch {
         if (active) setStatus('unknown');
       }

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { parseRequestBody } from '../server/toyyibpay.js';
 import { sendCustomLogoLeadEmail } from '../server/email.js';
 import { normaliseCustomLogoLead } from '../server/customLogoLead.js';
+import { normaliseLandingSource } from '../src/landingRoutes.js';
 
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
@@ -10,7 +11,8 @@ export default async function handler(request, response) {
   }
 
   try {
-    const lead = normaliseCustomLogoLead(parseRequestBody(request.body));
+    const payload = parseRequestBody(request.body);
+    const lead = normaliseCustomLogoLead(payload);
     if (lead.isBot) return response.status(200).json({ ok: true });
 
     const reference = `LOGO_${Date.now().toString(36).toUpperCase()}_${randomUUID().slice(0, 6).toUpperCase()}`;
@@ -19,6 +21,8 @@ export default async function handler(request, response) {
       reference,
       createdAt: new Date().toISOString(),
       source: 'Kad Design Custom website',
+      landingSource: normaliseLandingSource(payload.landingSource),
+      tracking: Object.fromEntries(['utmSource', 'utmMedium', 'utmCampaign', 'utmContent', 'utmTerm', 'fbclid', 'landingPage'].map((key) => [key, String(payload.tracking?.[key] || '').slice(0, 1000)])),
     });
 
     response.setHeader('Cache-Control', 'no-store');

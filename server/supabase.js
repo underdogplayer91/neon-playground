@@ -1,3 +1,5 @@
+import { normaliseLandingSource } from '../src/landingRoutes.js';
+
 const limitText = (value, maxLength = 500) => String(value ?? '').trim().slice(0, maxLength);
 
 const cleanWordColors = (items) => Array.isArray(items)
@@ -32,6 +34,7 @@ const cleanTracking = (tracking = {}) => ({
   utmContent: limitText(tracking.utmContent, 200),
   utmTerm: limitText(tracking.utmTerm, 200),
   landingPage: limitText(tracking.landingPage, 1000),
+  landingSource: normaliseLandingSource(tracking.landingSource),
   clientIpAddress: limitText(tracking.clientIpAddress, 100),
   clientUserAgent: limitText(tracking.clientUserAgent, 1000),
 });
@@ -70,6 +73,8 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
     amount: payment.amount,
     estimated_price: Number.isFinite(Number(order.estimatedPrice)) ? Number(order.estimatedPrice) : null,
     order_snapshot: {
+      landingSource: normaliseLandingSource(order.landingSource || order.tracking?.landingSource),
+      pricingModel: order.pricingModel === 'classic-package' ? 'classic-package' : 'measured',
       text: limitText(payment.text, 1000),
       fontName: limitText(order.fontName, 150),
       fontFamily: limitText(order.fontFamily, 150),

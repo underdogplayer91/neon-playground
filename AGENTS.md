@@ -1,5 +1,7 @@
 # Prototype Instructions
 
+Serve one domain with route-separated landing pages: `/` is the general neon homepage without a configurator, `/playground` is the measured v2 configurator, and `/neon-classic` preserves the UI and purchase flow from tag `pre-neon-playground-v2-2026-09-28` (fed34bd). Both landing pages share current checkout/payment/email services. Classic alone retains its original 8/15-character packages and Custom Design deposit entry; those historical UI choices are intentional route-specific exceptions to the v2 rules below. The server must validate classic package amounts by counted characters. The homepage offers “Reka Tulisan Sendiri” and the existing Custom Logo lead modal. Persist landing source and campaign attribution through checkout and owner emails, and lazy-load route components so homepage never imports the configurator/font assets. Keep these changes local until explicitly approved for publication.
+
 Run the local server yourself and open the preview in the browser available to this environment. Do not give the user server-start instructions when you can run it.
 
 Before making substantial visual changes, use the Product Design plugin's `get-context` skill when the visual source is unclear or no longer matches the current goal. When the user gives durable prototype-specific design feedback, preferences, or decisions, record them in `AGENTS.md`.

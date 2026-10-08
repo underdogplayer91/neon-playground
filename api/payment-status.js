@@ -22,10 +22,11 @@ export default async function handler(request, response) {
     if (!matching) return response.status(200).json({ status: 'pending', reference: orderId, billCode });
     const reference = matching.billExternalReferenceNo || orderId;
     const status = STATUS_LABELS[String(matching.billpaymentStatus)] || 'pending';
+    let verifiedOrder = null;
 
     if (status === 'success' && reference) {
       try {
-        await fulfillPaidOrder({
+        const fulfillment = await fulfillPaidOrder({
           reference,
           billCode,
           toyyibpayReference: matching.billpaymentInvoiceNo,
@@ -38,6 +39,7 @@ export default async function handler(request, response) {
           },
           source: 'status-check',
         });
+        verifiedOrder = fulfillment.order;
       } catch (error) {
         console.error('Paid status reconciliation failed', { reference, billCode, message: error.message });
       }
@@ -50,6 +52,8 @@ export default async function handler(request, response) {
       amount: matching.billpaymentAmount || null,
       invoice: matching.billpaymentInvoiceNo || null,
       paymentChannel: matching.billpaymentChannel || null,
+      purchaseVerified: Boolean(verifiedOrder),
+      landingSource: verifiedOrder?.order_snapshot?.landingSource || '',
     });
   } catch (error) {
     console.error('ToyyibPay status check failed', error);

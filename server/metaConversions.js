@@ -70,6 +70,7 @@ export function buildMetaPurchaseEvent(order, eventTime = Math.floor(Date.now() 
     action_source: 'website',
     user_data: userData,
     custom_data: {
+      landing_source: order?.order_snapshot?.landingSource || tracking.landingSource || '',
       currency: 'MYR',
       value: amount,
       order_id: reference,

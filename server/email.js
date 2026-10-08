@@ -63,6 +63,18 @@ const detailRow = (label, value) => `<tr>
   <td style="padding:9px 12px;border-bottom:1px solid #ece8e2;color:#171411;font-size:13px;font-weight:700;vertical-align:top">${displayValue(value)}</td>
 </tr>`;
 
+const landingDetails = (data) => {
+  const source = data?.landingSource || data?.tracking?.landingSource;
+  const tracking = data?.tracking || {};
+  return [
+    source ? detailRow('Landing page asal', source) : '',
+    tracking.landingPage ? detailRow('URL landing page', tracking.landingPage) : '',
+    tracking.utmCampaign ? detailRow('Kempen iklan', tracking.utmCampaign) : '',
+    tracking.utmContent ? detailRow('Kandungan iklan', tracking.utmContent) : '',
+    tracking.utmSource ? detailRow('Sumber iklan', tracking.utmSource) : '',
+  ].join('');
+};
+
 const emailShell = ({ eyebrow, title, intro, content, footer }) => `<!doctype html>
 <html lang="ms"><body style="margin:0;padding:0;background:#f5f0e8;font-family:Arial,sans-serif;color:#171411">
   <div style="padding:28px 14px">
@@ -128,6 +140,7 @@ export function buildOwnerOrderEmail(order) {
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan', order.reference)}
       ${detailRow('Nama pelanggan', order.customer_name)}
+      ${landingDetails(order.order_snapshot)}
       ${detailRow('Telefon', order.customer_phone)}
       ${detailRow('Email', order.customer_email)}
       ${detailRow('Alamat', getAddress(order))}
@@ -164,6 +177,7 @@ export function buildOwnerPendingEmail(order) {
     <table role="presentation" style="width:100%;border-collapse:collapse">
       ${detailRow('Rujukan', order.reference)}
       ${detailRow('Nama customer', order.customer_name)}
+      ${landingDetails(order.order_snapshot)}
       ${detailRow('Telefon', order.customer_phone)}
       ${detailRow('Email', order.customer_email)}
       ${detailRow('Teks neon', order.neon_text || 'Design Custom')}
@@ -317,6 +331,7 @@ export function buildCustomLogoLeadEmail(lead) {
           ${detailRow('Telefon', lead.phone)}
           ${detailRow('Masa permintaan', displayMalaysiaTime(lead.createdAt))}
           ${detailRow('Sumber', lead.source || 'Kad Design Custom website')}
+          ${landingDetails(lead)}
         </table>
         ${whatsappButton(whatsappLink, 'WhatsApp Customer')}
       `,

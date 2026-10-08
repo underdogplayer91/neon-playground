@@ -1,3 +1,5 @@
+import { normaliseLandingSource, resolvePage } from './landingRoutes.js';
+
 const META_PIXEL_ID = '510580329408580';
 const TRACKED_EVENTS_KEY = 'yh-meta-pixel-events';
 const EVENT_SESSION_KEY = 'yh-meta-pixel-session-id';
@@ -102,17 +104,28 @@ const readCookie = (name) => {
 
 export function getMetaAttribution() {
   if (typeof window === 'undefined') return {};
-  const query = new URLSearchParams(window.location.search);
-  const fbclid = query.get('fbclid') || '';
-  return {
+  const key = 'yh-landing-attribution-v1';
+  let saved = {};
+  try { saved = JSON.parse(window.sessionStorage.getItem(key) || '{}'); } catch { /* Optional storage. */ }
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {};
+  const query = new URLSearchParams(window.location?.search || '');
+  const campaignKeys = ['fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  const isNewCampaign = campaignKeys.some((name) => query.has(name));
+  const campaign = isNewCampaign ? {} : saved;
+  const fbclid = query.get('fbclid') || campaign.fbclid || '';
+  const landingSource = window.location ? normaliseLandingSource(resolvePage(window.location)) : '';
+  const attribution = {
     fbp: readCookie('_fbp'),
-    fbc: readCookie('_fbc') || (fbclid ? `fb.1.${Date.now()}.${fbclid}` : ''),
+    fbc: readCookie('_fbc') || (fbclid && fbclid === saved.fbclid ? saved.fbc : '') || (fbclid ? `fb.1.${Date.now()}.${fbclid}` : ''),
     fbclid,
-    utmSource: query.get('utm_source') || '',
-    utmMedium: query.get('utm_medium') || '',
-    utmCampaign: query.get('utm_campaign') || '',
-    utmContent: query.get('utm_content') || '',
-    utmTerm: query.get('utm_term') || '',
-    landingPage: window.location.href,
+    utmSource: query.get('utm_source') || campaign.utmSource || '',
+    utmMedium: query.get('utm_medium') || campaign.utmMedium || '',
+    utmCampaign: query.get('utm_campaign') || campaign.utmCampaign || '',
+    utmContent: query.get('utm_content') || campaign.utmContent || '',
+    utmTerm: query.get('utm_term') || campaign.utmTerm || '',
+    landingSource: landingSource || saved.landingSource || '',
+    landingPage: landingSource ? window.location.href : saved.landingPage || window.location?.href || '',
   };
+  try { window.sessionStorage.setItem(key, JSON.stringify(attribution)); } catch { /* Attribution must not block navigation. */ }
+  return attribution;
 }

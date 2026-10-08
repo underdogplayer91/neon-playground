@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import './styles.css';
 import { limitNeonInput, tokenizeNeonText, useFittedNeonText } from './neonText';
 import { calculateNeonSize, getPreviewLetterSpacingEm, measurementSource, sizingFonts } from './neonSizing';
 import { calculateNeonPrice, formatRm, isDoubleLineFont, minimumHeightForFont, productionModeForFont } from './pricingConfig';
@@ -208,7 +209,8 @@ export function App() {
     };
   }, [isTutorialOpen, isCustomLeadOpen, customLeadState.status]);
   useEffect(() => {
-    trackMetaEventOnce('view-content:landing', 'ViewContent', {
+    trackMetaEventOnce('view-content:playground', 'ViewContent', {
+      landing_source: 'playground',
       content_name: 'Custom Neon LED',
       content_category: 'Indoor Custom Neon LED',
       content_type: 'product',
@@ -330,6 +332,7 @@ export function App() {
       reference: `YH-${Date.now().toString(36).toUpperCase()}`,
       displayReference: createDisplayReference(),
       tier,
+      landingSource: 'playground',
       packageName: requiresDesignDeposit ? 'Deposit Custom Neon' : 'Custom Neon',
       price: amountDueNow,
       estimatedPrice: estimatedOrderPrice,
@@ -393,10 +396,11 @@ export function App() {
       const response = await fetch('/api/custom-logo-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customLead),
+        body: JSON.stringify({ ...customLead, landingSource: 'playground', tracking: getMetaAttribution() }),
       });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.error || 'Permintaan tidak dapat dihantar.');
+      trackMetaEventOnce(`lead:playground:${Date.now()}`, 'Lead', { content_name: 'Design Custom', landing_source: 'playground' });
       setCustomLeadState({ status: 'sent', message: 'Permintaan sudah dihantar. Kami akan hubungi anda melalui WhatsApp.' });
       setCustomLead({ name: '', phone: '', companyWebsite: '' });
     } catch (error) {
@@ -404,7 +408,8 @@ export function App() {
     }
   };
   const interact = () => {
-    trackMetaEventOnce('customize-product', 'CustomizeProduct', {
+    trackMetaEventOnce('customize-product:playground', 'CustomizeProduct', {
+      landing_source: 'playground',
       content_name: 'Neon Playground',
       interaction_type: 'configurator',
     }, { custom: true });
