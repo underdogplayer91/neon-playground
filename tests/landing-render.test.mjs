@@ -17,13 +17,25 @@ test('all landing pages render, preserve their distinct UI and refer to existing
         assert.match(html, /Reka Tulisan Sendiri/);
         assert.match(html, /Ada Logo \/ Design Custom/);
         assert.match(html, /href="\/playground"/);
+        assert.match(html, /rotating-customer-poster/);
+        assert.match(html, /class="hero"/);
+        assert.match(html, /class="benefit-strip"/);
+        assert.match(html, /class="home-playground-float" href="\/playground">Neon Playground/);
       } else if (file === 'ClassicPage') {
+        assert.doesNotMatch(html, /home-playground-float/);
         assert.match(html, /Sehingga 8 huruf/);
         assert.match(html, /Sehingga 15 huruf/);
+        assert.match(html, /class="hero"/);
         assert.doesNotMatch(html, /Editor susunan perkataan/);
       } else {
+        assert.doesNotMatch(html, /home-playground-float/);
         assert.match(html, /Editor susunan perkataan neon/);
         assert.match(html, /REKA NEON ANDA|Reka Neon Anda/);
+        assert.doesNotMatch(html, /class="hero"|class="benefit-strip"|hero-storefront-v2|Untuk bisnes, ruang|Tak lagi tenggelam|Nampak &amp; dikenali|Jadi photo spot/);
+        assert.match(html, /<\/header><section class="playground-section" id="playground">/);
+        assert.doesNotMatch(html, /Perlukan rekaan khas|Minta kami hubungi|rotating-customer-poster|customer-poster|Ada logo sendiri|Semua melalui WhatsApp/);
+        assert.match(html, /id="playground-results"/);
+        assert.match(html, /href="#playground-results"/);
       }
       const source = readFileSync(`src/${file}.jsx`, 'utf8');
       const media = [...source.matchAll(/['"](\/assets\/[^'"\n]+)['"]/g)].map((match) => match[1]);

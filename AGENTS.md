@@ -4,6 +4,14 @@ Serve one domain with route-separated landing pages: `/` is the general neon hom
 
 Run the local server yourself and open the preview in the browser available to this environment. Do not give the user server-start instructions when you can run it.
 
+The current `/playground` route is intended for sharing through WhatsApp. Do not include the Design Custom contact/package section, its lead modal, or the rotating “Hasil customer yang Custom Logo” poster on that route; keep those customer-logo features on the homepage. Keep `/neon-classic` unchanged as its own direct-ad landing page. Preserve the Playground-to-real comparison slider on `/playground`, and point its results navigation there instead of the removed Inspiration section.
+
+Do not show the “Soalan biasa” FAQ section or an FAQ header link on `/playground`. Retain the FAQs on the homepage and `/neon-classic`.
+
+The current `/playground` opens directly into the configurator introduction after its site header. Do not render the storefront hero, its marketing copy and CTA, or the three-card benefit strip on that route. Keep those landing-page sections on the homepage and leave `/neon-classic` unchanged.
+
+On the homepage only, keep a floating “Neon Playground” link visible while scrolling on desktop and mobile. It opens the current `/playground` route directly. Respect the mobile safe area, keep footer content reachable, and hide the floating link while the Custom Logo lead modal is open.
+
 Before making substantial visual changes, use the Product Design plugin's `get-context` skill when the visual source is unclear or no longer matches the current goal. When the user gives durable prototype-specific design feedback, preferences, or decisions, record them in `AGENTS.md`.
 
 When implementing from a selected generated mock, treat that image as the source of truth for layout, component anatomy, density, spacing, color, typography, visible content, and hierarchy.

@@ -8,8 +8,7 @@ import { NeonLayerCanvas } from './NeonLayerCanvas';
 import { getMetaAttribution, trackMetaEventOnce } from './metaPixel';
 import { createDisplayReference } from './orderReference';
 const EmptyIcon = () => null;
-const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
-const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
+const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Lightning = EmptyIcon;
 const Moon = EmptyIcon, Palette = EmptyIcon, PencilSimple = EmptyIcon, ShieldCheck = EmptyIcon;
 const ShoppingBagOpen = EmptyIcon, Sun = EmptyIcon, Truck = EmptyIcon;
 const fonts = sizingFonts.filter((font) => font.id !== 'milford-hollow').map((font) => ({
@@ -46,10 +45,6 @@ const playgroundRealityPairs = [
   { slug: 'moo', title: 'Enjoy the Moooment', preview: '/assets/playground-real/moo-preview.png', real: '/assets/playground-real/moo-real.jpg', className: '' },
   { slug: 'nasi', title: 'Nasi Lemak Utara', preview: '/assets/playground-real/nasi-preview.png', real: '/assets/playground-real/nasi-real.jpg', className: '' },
 ];
-const posterSlides = Array.from({ length: 36 }, (_, index) => ({
-  src: `/assets/customer-poster/poster-${String(index + 1).padStart(2, '0')}.jpg`,
-  alt: `Hasil neon sebenar pelanggan ${index + 1}`,
-}));
 const testimonials = [
   {
     business: 'Daisy Coffee',
@@ -82,17 +77,13 @@ const testimonials = [
     alt: 'Screenshot testimoni sebenar pelanggan Mek Biha Lokcing semasa pemasangan neon',
   },
 ];
-const heroImage = {
-  src: '/assets/hero-storefront-v2.png',
-  alt: 'Kedai Kopi Jiwa dengan neon pada cermin dalam paparan siang dan malam',
-};
 const countCharacters = (value) => [...value.replace(/\s/g, '')].length;
 const ORDER_KEY = 'yh-neon-checkout-order';
 
 function Header() {
   return <header className="site-header">
     <a className="brand" href="#top"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></a>
-    <nav><a href="#playground">Reka Neon</a><a href="#inspirasi">Inspirasi</a><a href="#faq">FAQ</a></nav>
+    <nav><a href="#playground">Reka Neon</a><a href="#playground-results">Hasil sebenar</a></nav>
     <a className="header-cta" href="#playground"><PencilSimple weight="bold" /> Cuba Sekarang</a>
   </header>;
 }
@@ -112,12 +103,8 @@ export function App() {
   const [isOtherFontsOpen, setIsOtherFontsOpen] = useState(false);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(3);
-  const [activePosterSlide, setActivePosterSlide] = useState(0);
   const [realityReveal, setRealityReveal] = useState(50);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
-  const [isCustomLeadOpen, setIsCustomLeadOpen] = useState(false);
-  const [customLead, setCustomLead] = useState({ name: '', phone: '', companyWebsite: '' });
-  const [customLeadState, setCustomLeadState] = useState({ status: 'idle', message: '' });
   const [, setFontLoadRevision] = useState(0);
   const [layers, setLayers] = useState(cloneDefaultPreviewLayers);
   const [activeLayerId, setActiveLayerId] = useState(null);
@@ -194,12 +181,11 @@ export function App() {
     window.requestAnimationFrame(() => playground.scrollIntoView({ block: 'start' }));
   }, []);
   useEffect(() => {
-    if (!isTutorialOpen && !isCustomLeadOpen) return undefined;
+    if (!isTutorialOpen) return undefined;
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event) => {
       if (event.key !== 'Escape') return;
       setIsTutorialOpen(false);
-      if (customLeadState.status !== 'sending') setIsCustomLeadOpen(false);
     };
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', closeOnEscape);
@@ -207,7 +193,7 @@ export function App() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', closeOnEscape);
     };
-  }, [isTutorialOpen, isCustomLeadOpen, customLeadState.status]);
+  }, [isTutorialOpen]);
   useEffect(() => {
     trackMetaEventOnce('view-content:playground', 'ViewContent', {
       landing_source: 'playground',
@@ -225,15 +211,6 @@ export function App() {
       return face.load().then((loaded) => document.fonts.add(loaded));
     })).then(() => { if (!cancelled) setFontLoadRevision((revision) => revision + 1); });
     return () => { cancelled = true; };
-  }, []);
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
-    const timer = window.setInterval(() => {
-      setActivePosterSlide((current) => {
-        return (current + 1) % posterSlides.length;
-      });
-    }, 3600);
-    return () => window.clearInterval(timer);
   }, []);
   useEffect(() => {
     if (activeWordIndex >= wordTokens.length) setActiveWordIndex(Math.max(0, wordTokens.length - 1));
@@ -380,33 +357,6 @@ export function App() {
       backboardSizeNote: `${Math.round(layerDesign.backboardWidthCm)} × ${Math.round(layerDesign.backboardHeightCm)} cm`,
     }));
   };
-  const openCustomLead = () => {
-    setCustomLeadState({ status: 'idle', message: '' });
-    setIsCustomLeadOpen(true);
-  };
-  const closeCustomLead = () => {
-    if (customLeadState.status !== 'sending') setIsCustomLeadOpen(false);
-  };
-  const updateCustomLead = (event) => setCustomLead((current) => ({ ...current, [event.target.name]: event.target.value }));
-  const submitCustomLead = async (event) => {
-    event.preventDefault();
-    if (customLeadState.status === 'sending') return;
-    setCustomLeadState({ status: 'sending', message: '' });
-    try {
-      const response = await fetch('/api/custom-logo-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...customLead, landingSource: 'playground', tracking: getMetaAttribution() }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.ok) throw new Error(result.error || 'Permintaan tidak dapat dihantar.');
-      trackMetaEventOnce(`lead:playground:${Date.now()}`, 'Lead', { content_name: 'Design Custom', landing_source: 'playground' });
-      setCustomLeadState({ status: 'sent', message: 'Permintaan sudah dihantar. Kami akan hubungi anda melalui WhatsApp.' });
-      setCustomLead({ name: '', phone: '', companyWebsite: '' });
-    } catch (error) {
-      setCustomLeadState({ status: 'error', message: error.message || 'Permintaan tidak dapat dihantar. Sila cuba semula.' });
-    }
-  };
   const interact = () => {
     trackMetaEventOnce('customize-product:playground', 'CustomizeProduct', {
       landing_source: 'playground',
@@ -437,25 +387,6 @@ export function App() {
 
   return <main id="top">
     <Header />
-    <section className="hero">
-      <div className="hero-slides"><img className="active" src={heroImage.src} alt={heroImage.alt} fetchPriority="high" /></div>
-      <div className="hero-shade" />
-      <div className="hero-content">
-        <p className="eyebrow"><MapPin weight="fill" /> Untuk bisnes, ruang &amp; momen anda</p>
-        <h1>Dari ruang yang suram<br />kepada suasana yang<br /><em>hidup menyala.</em></h1>
-        <p className="hero-copy">Meriahkan kedai, bilik, acara atau studio dengan Custom Neon LED daripada nama dan kata-kata pilihan anda.</p>
-        <a className="primary-button" href="#playground">Tulis Nama Anda Disini <ArrowDown weight="bold" /></a>
-        <div className="hero-note"><Check weight="bold" /> Reka · Sahkan · Baru kami hasilkan</div>
-      </div>
-      <div className="day-label">Siang biasa-biasa.</div><div className="night-label">Malam semua nampak kedai anda.</div>
-    </section>
-
-    <section className="benefit-strip">
-      <article><span>01</span><Eye /><div><h3>Tak lagi tenggelam</h3><p>Nama kedai lebih jelas bila malam.</p></div></article>
-      <article><span>02</span><Heart /><div><h3>Nampak & dikenali</h3><p>Bina identiti yang orang mudah ingat.</p></div></article>
-      <article><span>03</span><InstagramLogo /><div><h3>Jadi photo spot</h3><p>Buat pelanggan mahu rakam dan kongsi.</p></div></article>
-    </section>
-
     <section className="playground-section" id="playground">
       <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Reka Neon Anda</h2><p className="playground-prompt">Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p><button type="button" className="tutorial-button" onClick={() => setIsTutorialOpen(true)}><span aria-hidden="true">▶</span> Tengok tutorial Playground</button></div>
       <div className="configurator">
@@ -637,23 +568,6 @@ export function App() {
       <p className="comparison-hint">Sentuh dan tarik garis untuk lihat perubahan.</p>
     </section>
 
-    <section className="pricing" id="harga">
-      <div className="section-intro"><p className="eyebrow"><Palette weight="fill" /> Perlukan rekaan khas?</p><h2>Ada logo sendiri<br /><em>atau custom size?</em></h2><p>Jika rekaan anda bukan sekadar tulisan dalam configurator, pilih pakej ini untuk logo, simbol, bentuk atau ukuran khas.</p></div>
-      <div className="price-list">
-        <article className="custom-package"><span className="package-number">01</span><div><p>Untuk logo sendiri, simbol, bentuk atau ukuran khas</p><h3>Design Custom</h3></div><button type="button" className="custom-lead-trigger" onClick={openCustomLead}>Minta kami hubungi <ArrowRight /></button></article>
-      </div><div className="pricing-clarity"><p><strong>Semua melalui WhatsApp:</strong> kami akan hubungi anda untuk mendapatkan fail logo, bincang saiz, bahan dan mengesahkan harga.</p></div>
-    </section>
-
-    <section className="inspiration" id="inspirasi">
-      <div className="section-intro light"><h2>Hasil customer yang<br /><em>Custom Logo.</em></h2></div>
-      <div className="customer-poster-shell">
-        <figure className="poster-slideshow rotating-customer-poster" aria-label="Poster berpusing hasil neon sebenar" aria-live="polite">
-          {posterSlides.map((slide, index) => <img key={slide.src} className={activePosterSlide === index ? 'active' : ''} src={slide.src} alt={slide.alt} aria-hidden={activePosterSlide !== index} loading="lazy" />)}
-          <figcaption><span>Hasil sebenar</span><strong>{String(activePosterSlide + 1).padStart(2, '0')} / {String(posterSlides.length).padStart(2, '0')}</strong><div><button type="button" onClick={() => setActivePosterSlide((activePosterSlide - 1 + posterSlides.length) % posterSlides.length)} aria-label="Poster sebelumnya">←</button><button type="button" onClick={() => setActivePosterSlide((activePosterSlide + 1) % posterSlides.length)} aria-label="Poster seterusnya">→</button></div></figcaption>
-        </figure>
-      </div>
-    </section>
-
     <section className="transformation-section">
       <div className="section-intro"><p className="eyebrow">Sebelum dan selepas</p><h2>Dari lampu atas meja<br /><em>ke tarikan dalam kedai.</em></h2><p>Dua pemasangan sebenar yang menunjukkan bagaimana neon berubah apabila masuk ke ruang pelanggan.</p></div>
       <div className="transformation-grid"><figure><img src="/assets/media/before-after-pizza.webp" alt="Sebelum dan selepas neon 480 Pizza dipasang" loading="lazy" /><figcaption><span>480 Pizza</span><strong>Nampak dari luar premis</strong></figcaption></figure><figure><img src="/assets/media/before-after-amir.webp" alt="Sebelum dan selepas neon Amir Tomyam dipasang" loading="lazy" /><figcaption><span>Amir Tomyam</span><strong>Jadi titik fokus ruang makan</strong></figcaption></figure></div>
@@ -674,29 +588,11 @@ export function App() {
       </figure>
     </section>
 
-    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Bagaimana harga tulisan dalam configurator dikira?</summary><p>Harga anggaran berubah mengikut saiz keseluruhan rekaan, font, warna, bahan backboard dan pilihan lain yang dibuat dalam configurator.</p></details><details><summary>Bilakah saya perlu pilih Design Custom?</summary><p>Pilih Design Custom jika anda mempunyai logo sendiri atau memerlukan simbol, bentuk dan ukuran khas yang tidak boleh dibina terus dalam configurator.</p></details><details><summary>Apa berlaku selepas saya pilih Design Custom?</summary><p>Isi nama dan nombor telefon dahulu. Kami akan WhatsApp anda untuk mendapatkan fail logo dan membincangkan saiz, bahan serta harga.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>
     {isTutorialOpen && <div className="tutorial-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsTutorialOpen(false); }}>
       <section className="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-modal-title">
         <div className="tutorial-modal-head"><div><span>NEON PLAYGROUND</span><h2 id="tutorial-modal-title">Cara guna Playground</h2></div><button type="button" className="tutorial-close" onClick={() => setIsTutorialOpen(false)} aria-label="Tutup tutorial">×</button></div>
         <video controls autoPlay playsInline preload="metadata"><source src="/assets/playground-tutorial.mp4" type="video/mp4" />Browser anda tidak menyokong video HTML5.</video>
-      </section>
-    </div>}
-    {isCustomLeadOpen && <div className="custom-lead-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCustomLead(); }}>
-      <section className="custom-lead-modal" role="dialog" aria-modal="true" aria-labelledby="custom-lead-title">
-        <button type="button" className="custom-lead-close" onClick={closeCustomLead} aria-label="Tutup borang Custom Logo">×</button>
-        {customLeadState.status === 'sent' ? <div className="custom-lead-success" role="status"><span>✓</span><p className="eyebrow">Permintaan diterima</p><h2 id="custom-lead-title">Kami akan WhatsApp anda.</h2><p>{customLeadState.message}</p><button type="button" onClick={closeCustomLead}>Tutup</button></div> : <>
-          <p className="eyebrow">Design Custom</p>
-          <h2 id="custom-lead-title">Ada logo sendiri?</h2>
-          <p className="custom-lead-intro">Tinggalkan nama dan nombor telefon. Kami akan WhatsApp anda untuk dapatkan logo serta bincang saiz, bahan dan harga.</p>
-          <form onSubmit={submitCustomLead}>
-            <label>Nama penuh<input name="name" value={customLead.name} onChange={updateCustomLead} autoComplete="name" minLength="2" maxLength="100" required autoFocus /></label>
-            <label>Nombor telefon<input name="phone" value={customLead.phone} onChange={updateCustomLead} inputMode="tel" autoComplete="tel" placeholder="Contoh: 0123456789" pattern="(?:01[0-9]{8,9}|601[0-9]{8,9})" required /></label>
-            <label className="custom-lead-honeypot" aria-hidden="true">Laman syarikat<input name="companyWebsite" value={customLead.companyWebsite} onChange={updateCustomLead} tabIndex="-1" autoComplete="off" /></label>
-            {customLeadState.message && <p className="custom-lead-error" role="alert">{customLeadState.message}</p>}
-            <button type="submit" className="custom-lead-submit" disabled={customLeadState.status === 'sending'}>{customLeadState.status === 'sending' ? 'Sedang menghantar…' : 'Hantar Permintaan'}</button>
-          </form>
-        </>}
       </section>
     </div>}
     <div className={`mobile-sticky ${characterCount ? 'has-design' : ''}`}><div><small>{estimatedOrderPrice !== null ? `Harga anggaran ${formatRm(estimatedOrderPrice)}` : 'Mulakan tempahan'}</small><strong>{characterCount ? (requiresDesignDeposit ? 'Deposit RM100' : `Bayar ${formatRm(amountDueNow)}`) : 'Masukkan nama anda'}</strong></div><a className={!characterCount ? 'needs-name' : ''} href={characterCount ? checkoutUrl : '#custom-neon-text'} onClick={handleMobileOrderClick}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>
