@@ -8,6 +8,7 @@ import { ClassicComparison } from './ClassicComparison';
 import { getClassicPackage } from './classicPricing';
 import { getClassicSizeGuide } from './classicSizing';
 import { ClassicSizeGuides } from './ClassicSizeGuides';
+import { ClassicBusinessHero } from './ClassicBusinessHero';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -67,10 +68,6 @@ const testimonials = [
     alt: 'Screenshot testimoni sebenar pelanggan Mek Biha Lokcing semasa pemasangan neon',
   },
 ];
-const heroImage = {
-  src: '/assets/hero-storefront-v2.png',
-  alt: 'Kedai Kopi Jiwa dengan neon pada cermin dalam paparan siang dan malam',
-};
 const countCharacters = (value) => [...value.replace(/\s/g, '')].length;
 const ORDER_KEY = 'yh-neon-checkout-order';
 
@@ -230,24 +227,7 @@ export function ClassicPage() {
 
   return <main id="top">
     <Header />
-    <section className="hero">
-      <div className="hero-slides"><img className="active" src={heroImage.src} alt={heroImage.alt} fetchPriority="high" /></div>
-      <div className="hero-shade" />
-      <div className="hero-content">
-        <p className="eyebrow"><MapPin weight="fill" /> Untuk bisnes, ruang &amp; momen anda</p>
-        <h1>Dari ruang yang suram<br />kepada suasana yang<br /><em>hidup menyala.</em></h1>
-        <p className="hero-copy">Meriahkan kedai, bilik, acara atau studio dengan Custom Neon LED daripada nama dan kata-kata pilihan anda.</p>
-        <a className="primary-button" href="#playground">Tulis Nama Anda Disini <ArrowDown weight="bold" /></a>
-        <div className="hero-note"><Check weight="bold" /> Reka · Sahkan · Baru kami hasilkan</div>
-      </div>
-      <div className="day-label">Siang biasa-biasa.</div><div className="night-label">Malam semua nampak kedai anda.</div>
-    </section>
-
-    <section className="benefit-strip">
-      <article><span>01</span><Eye /><div><h3>Tak lagi tenggelam</h3><p>Nama kedai lebih jelas bila malam.</p></div></article>
-      <article><span>02</span><Heart /><div><h3>Nampak & dikenali</h3><p>Bina identiti yang orang mudah ingat.</p></div></article>
-      <article><span>03</span><InstagramLogo /><div><h3>Jadi photo spot</h3><p>Buat pelanggan mahu rakam dan kongsi.</p></div></article>
-    </section>
+    <ClassicBusinessHero />
 
     <section className="playground-section" id="playground">
       <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Tulis perkataan anda.<br /><em>Biar ia menyala.</em></h2><p className="playground-prompt">Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p></div>

@@ -1,0 +1,69 @@
+.classic-business-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 820px;
+  height: min(880px, calc(100svh - 170px));
+  overflow: hidden;
+  background: #130e0c;
+}
+.classic-business-photos { position: absolute; inset: 0; z-index: -3; }
+.classic-business-collection { position: absolute; left: 31%; top: 0; width: 45%; height: 57%; object-fit: cover; object-position: center; }
+.classic-business-bbq { position: absolute; left: 37%; top: 44%; width: 39%; height: 56%; overflow: hidden; }
+.classic-business-bbq img { position: absolute; inset: -25% 0 auto; width: 100%; height: 145%; object-fit: contain; }
+.classic-business-gradient { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(112deg, #fffdfa 0%, #fffdfa 24%, rgba(255,253,250,.94) 29%, rgba(255,253,250,.67) 35%, rgba(255,253,250,.08) 48%, transparent 59%); }
+.classic-business-copy { width: 35%; padding: 72px 0 60px; margin-left: clamp(24px,4.8vw,76px); }
+.classic-business-copy .eyebrow { margin-bottom: 20px; font-size: 13px; letter-spacing: .07em; }
+.classic-business-copy h1 { margin: 0; font: 400 clamp(74px,7.1vw,110px)/.94 'Bebas Neue',Impact,'Arial Narrow',sans-serif; text-transform: uppercase; letter-spacing: -.01em; }
+.classic-business-copy h1 em { font-style: normal; color: var(--coral); }
+.classic-business-description { max-width: 465px; margin: 24px 0 30px; font-size: clamp(17px,1.45vw,23px); line-height: 1.5; color: #303139; }
+.classic-business-copy .primary-button { min-height: 72px; padding: 18px 26px; gap: 24px; font-size: 21px; }
+.classic-business-note { margin: 19px 0 0; font-size: 16px; color: #303139; }
+.classic-business-proof { position: absolute; z-index: 2; right: 2.4%; top: 34px; margin: 0; width: min(24%,350px); }
+.classic-business-proof figcaption { margin: 0 0 16px; color: #fff; text-align: center; font-size: 20px; font-weight: 800; }
+.classic-business-proof a { display: block; border: 2px solid #a1a7a8; border-radius: 16px; overflow: hidden; background: #202e36; box-shadow: 0 12px 32px #0006; }
+.classic-business-proof img { display: block; width: 100%; height: auto; }
+.classic-business-proof a:focus-visible,.classic-business-copy .primary-button:focus-visible { outline: 3px solid var(--blue); outline-offset: 5px; }
+.classic-business-benefits { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 24px clamp(24px,5vw,76px); background: #fffdfa; }
+.classic-business-benefits>div { display: flex; justify-content: center; align-items: center; gap: 22px; padding: 0 16px; border-right: 1px solid #d8d1c8; font-size: 16px; font-weight: 800; }
+.classic-business-benefits>div:last-child { border: 0; }
+.classic-business-benefits svg { flex-shrink: 0; color: var(--coral); }
+@media (min-width: 1700px) {
+  .classic-business-hero { height: 920px; }
+  .classic-business-copy { padding-top: 98px; }
+  .classic-business-proof { right: 5%; }
+}
+@media (max-width: 1100px) {
+  .classic-business-hero { min-height: 790px; height: 790px; }
+  .classic-business-copy { padding-top: 24px; width: 38%; }
+  .classic-business-copy h1 { font-size: 80px; }
+  .classic-business-proof { top: 28px; width: 27%; right: 2%; }
+  .classic-business-proof figcaption { font-size: 17px; }
+  .classic-business-copy .primary-button { font-size: 15px; padding: 16px; gap: 10px; }
+  .classic-business-gradient { background: linear-gradient(90deg,rgba(255,253,250,.98) 0%,rgba(255,253,250,.9) 24%,rgba(255,253,250,.65) 36%,transparent 60%),linear-gradient(112deg,#fffdfa 0%,#fffdfa 19%,rgba(255,253,250,.95) 26%,rgba(255,253,250,.64) 35%,rgba(255,253,250,.07) 48%,transparent 59%); }
+}
+@media (max-width: 760px) {
+  .classic-business-hero { height: clamp(630px,110vw,790px); min-height: 0; }
+  .classic-business-copy { width: 42%; margin-left: 18px; padding: 30px 0 36px; }
+  .classic-business-copy .eyebrow { font-size: 9px; margin-bottom: 18px; letter-spacing: .04em; width: 150%; }
+  .classic-business-copy h1 { font-size: clamp(42px,8.7vw,66px); line-height: 1; }
+  .classic-business-description { font-size: clamp(12px,2.1vw,16px); max-width: none; margin: 26px 0 24px; line-height: 1.65; }
+  .classic-business-copy .primary-button { min-height: 50px; font-size: 11px; padding: 13px 12px; gap: 9px; white-space: nowrap; }
+  .classic-business-copy .primary-button svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .classic-business-note { font-size: 9px; margin-top: 16px; width: 130%; }
+  .classic-business-collection { left: 27%; top: 0; width: 49%; height: 55%; }
+  .classic-business-bbq { left: 35%; top: 45%; width: 43%; height: 55%; }
+  .classic-business-bbq img { height: 135%; top: -22%; }
+  .classic-business-gradient { background: linear-gradient(90deg,rgba(255,253,250,.98) 0%,rgba(255,253,250,.9) 24%,rgba(255,253,250,.65) 36%,transparent 60%),linear-gradient(112deg,#fffdfa 0%,#fffdfa 19%,rgba(255,253,250,.95) 26%,rgba(255,253,250,.64) 35%,rgba(255,253,250,.07) 48%,transparent 59%); }
+  .classic-business-proof { right: 12px; top: 28px; width: 30%; }
+  .classic-business-proof figcaption { font-size: clamp(10px,2.5vw,16px); margin-bottom: 14px; }
+  .classic-business-proof a { border-radius: 12px; box-shadow: none; }
+  .classic-business-benefits { padding: 20px 12px; }
+  .classic-business-benefits>div { padding: 0 10px; gap: 8px; font-size: 11px; justify-content: flex-start; }
+  .classic-business-benefits svg { width: 22px; height: 22px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .classic-business-copy .primary-button { transition: none; }
+}
+@media (max-width:360px) {
+  .classic-business-copy h1 { font-size: 36px; }
+}

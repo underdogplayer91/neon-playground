@@ -13,6 +13,7 @@
     "test:landing": "node --test tests/landing-pages.test.mjs tests/landing-render.test.mjs"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@vitejs/plugin-react": "5.0.4",

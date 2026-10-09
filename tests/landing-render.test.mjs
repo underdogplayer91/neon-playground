@@ -6,6 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { createElement } from 'react';
 import classicMedia from '../src/classicCustomerMedia.json' with { type: 'json' };
 import comparisonMedia from '../src/classicComparisonMedia.json' with { type: 'json' };
+import heroMedia from '../src/classicHeroMedia.json' with { type: 'json' };
 import { getClassicSizeGuide } from '../src/classicSizing.js';
 
 test('all landing pages render, preserve their distinct UI and refer to existing media', async () => {
@@ -37,7 +38,15 @@ test('all landing pages render, preserve their distinct UI and refer to existing
         assert.match(html, /9 huruf RM157/);
         assert.match(html, /10 huruf RM164/);
         assert.doesNotMatch(html, /Adakah RM150 dan RM200 ikut rekaan configurator/);
-        assert.match(html, /class="hero"/);
+        assert.match(html, /class="classic-business-hero"/);
+        assert.match(html, /Bisnes anda<br\/>ada nama\.<br\/>Biar orang<br\/><em>nampak\.<\/em>/);
+        assert.match(html, /Cuba Nama Kedai Anda/);
+        assert.match(html, /Apa pelanggan kami cakap/);
+        assert.doesNotMatch(html, /hero-storefront-v2|Dari ruang yang suram/);
+        for (const image of [heroMedia.collection, heroMedia.testimonial, heroMedia.bbq]) {
+          assert.ok(html.includes(`src="${image.src}"`));
+          assert.equal(readFileSync(`public${image.src}`).length, image.bytes);
+        }
         assert.doesNotMatch(html, /Editor susunan perkataan/);
         assert.match(html, /class="classic-customer-track"/);
         assert.match(html, /Bukan gambar AI/);
