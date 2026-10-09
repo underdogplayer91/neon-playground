@@ -1,0 +1,201 @@
+{
+  "folderId": "1rT_pD9DKKSz3vkTzp5ecjMfyHBhSMyk7",
+  "pairs": [
+    {
+      "slug": "adys",
+      "title": "Adys Resort",
+      "folderId": "1CfD5asLNhVeijn6KyfQKv8aqzJ1xNZoD",
+      "className": "",
+      "preview": {
+        "slug": "adys",
+        "title": "Adys Resort",
+        "folderId": "1CfD5asLNhVeijn6KyfQKv8aqzJ1xNZoD",
+        "side": "preview",
+        "id": "1OwVftYMFO4XABzgKb-vDLPxYOZwAQpeU",
+        "name": "WhatsApp Image 2026-09-09 at 13.56.41.jpeg",
+        "src": "/assets/classic-comparison/adys-preview.jpg",
+        "bytes": 40285,
+        "mimeType": "image/jpeg"
+      },
+      "real": {
+        "slug": "adys",
+        "title": "Adys Resort",
+        "folderId": "1CfD5asLNhVeijn6KyfQKv8aqzJ1xNZoD",
+        "side": "real",
+        "id": "1gNPJNGDihGrqNFyAXSXxIkbQblgKSmAj",
+        "name": "IMG-20260924-WA0018.jpg",
+        "src": "/assets/classic-comparison/adys-real.jpg",
+        "bytes": 115339,
+        "mimeType": "image/jpeg"
+      }
+    },
+    {
+      "slug": "burger-kakza",
+      "title": "Burger Kakza",
+      "folderId": "1pvEwokiAIrLgqaHfedur3XzwchelPhPA",
+      "className": "",
+      "preview": {
+        "slug": "burger-kakza",
+        "title": "Burger Kakza",
+        "folderId": "1pvEwokiAIrLgqaHfedur3XzwchelPhPA",
+        "side": "preview",
+        "id": "1uvMn1QWBff6Kmk_GFYRdZG_9qyMasH6G",
+        "name": "Screenshot 2026-09-27 164900.png",
+        "src": "/assets/classic-comparison/burger-kakza-preview.png",
+        "bytes": 513064,
+        "mimeType": "image/png"
+      },
+      "real": {
+        "slug": "burger-kakza",
+        "title": "Burger Kakza",
+        "folderId": "1pvEwokiAIrLgqaHfedur3XzwchelPhPA",
+        "side": "real",
+        "id": "11d_LtT8aG4-PBHv-jl2ID_UnQRX3OKH4",
+        "name": "IMG_20260921_130620.jpg",
+        "src": "/assets/classic-comparison/burger-kakza-real.jpg",
+        "bytes": 1959714,
+        "mimeType": "image/jpeg"
+      }
+    },
+    {
+      "slug": "mj",
+      "title": "Michael Jackson",
+      "folderId": "1kZogMPT-tEwMWgc5X8kXFVu93Uvkdi0H",
+      "className": "tall",
+      "preview": {
+        "slug": "mj",
+        "title": "Michael Jackson",
+        "folderId": "1kZogMPT-tEwMWgc5X8kXFVu93Uvkdi0H",
+        "side": "preview",
+        "id": "1JSfmuXbLN3fbROnWwUbYI_QHuAPD8Ya9",
+        "name": "Screenshot 2026-09-16 161233.png",
+        "src": "/assets/classic-comparison/mj-preview.png",
+        "bytes": 805755,
+        "mimeType": "image/png"
+      },
+      "real": {
+        "slug": "mj",
+        "title": "Michael Jackson",
+        "folderId": "1kZogMPT-tEwMWgc5X8kXFVu93Uvkdi0H",
+        "side": "real",
+        "id": "169bU0ZJdAoBXquP3SJDj-qk_BPiDoG5u",
+        "name": "IMG_20260828_113637.jpg",
+        "src": "/assets/classic-comparison/mj-real.jpg",
+        "bytes": 2593526,
+        "mimeType": "image/jpeg"
+      }
+    },
+    {
+      "slug": "minty",
+      "title": "Minty Cofftea",
+      "folderId": "1E0Mq2JtDItxk4bP_QUo1gC6R-01TuxE9",
+      "className": "",
+      "preview": {
+        "slug": "minty",
+        "title": "Minty Cofftea",
+        "folderId": "1E0Mq2JtDItxk4bP_QUo1gC6R-01TuxE9",
+        "side": "preview",
+        "id": "1yIvAgO7YawwG4v1dKZ7hHcm1-ajF3oRa",
+        "name": "Screenshot 2026-09-27 164037.png",
+        "src": "/assets/classic-comparison/minty-preview.png",
+        "bytes": 609435,
+        "mimeType": "image/png"
+      },
+      "real": {
+        "slug": "minty",
+        "title": "Minty Cofftea",
+        "folderId": "1E0Mq2JtDItxk4bP_QUo1gC6R-01TuxE9",
+        "side": "real",
+        "id": "150gTNHvmFSWR-iX9XyJrItzIwM8b6tAm",
+        "name": "IMG_20260911_131353.jpg",
+        "src": "/assets/classic-comparison/minty-real.jpg",
+        "bytes": 1678275,
+        "mimeType": "image/jpeg"
+      }
+    },
+    {
+      "slug": "feel",
+      "title": "Feel the difference",
+      "folderId": "15ruyYB7peSvWpB6CzIRPXxGwbZkCM1H3",
+      "className": "wide",
+      "preview": {
+        "slug": "feel",
+        "title": "Feel the difference",
+        "folderId": "15ruyYB7peSvWpB6CzIRPXxGwbZkCM1H3",
+        "side": "preview",
+        "id": "1RhARH2i8lbmMzUE8mxvVMkPDJREzhhp6",
+        "name": "Screenshot 2026-09-16 161025.png",
+        "src": "/assets/classic-comparison/feel-preview.png",
+        "bytes": 882527,
+        "mimeType": "image/png"
+      },
+      "real": {
+        "slug": "feel",
+        "title": "Feel the difference",
+        "folderId": "15ruyYB7peSvWpB6CzIRPXxGwbZkCM1H3",
+        "side": "real",
+        "id": "1bEq1pcO70yv5SPZEdyBttIKKtF0q8xp7",
+        "name": "IMG_20231114_151623.jpg",
+        "src": "/assets/classic-comparison/feel-real.jpg",
+        "bytes": 3806431,
+        "mimeType": "image/jpeg"
+      }
+    },
+    {
+      "slug": "nasi",
+      "title": "Nasi Lemak Utara",
+      "folderId": "1r2LJzncLH9Kcn2Io_GHq0SKnDDu_C16l",
+      "className": "",
+      "preview": {
+        "slug": "nasi",
+        "title": "Nasi Lemak Utara",
+        "folderId": "1r2LJzncLH9Kcn2Io_GHq0SKnDDu_C16l",
+        "side": "preview",
+        "id": "1OGjAd1g9frSAgKvH88IEMLT0LB_22xLO",
+        "name": "Nasi Lemak Utara.png",
+        "src": "/assets/classic-comparison/nasi-preview.png",
+        "bytes": 791983,
+        "mimeType": "image/png"
+      },
+      "real": {
+        "slug": "nasi",
+        "title": "Nasi Lemak Utara",
+        "folderId": "1r2LJzncLH9Kcn2Io_GHq0SKnDDu_C16l",
+        "side": "real",
+        "id": "1qGGkLrwejYRKRRvxLkYqbNkSc5FZjlxr",
+        "name": "IMG_20231104_120230.jpg",
+        "src": "/assets/classic-comparison/nasi-real.jpg",
+        "bytes": 1253805,
+        "mimeType": "image/jpeg"
+      }
+    },
+    {
+      "slug": "haikal",
+      "title": "Haikal Feroz",
+      "folderId": "1e8sSMQa57-FJV0DnBJ0wJIuUW-s4VkeA",
+      "className": "",
+      "preview": {
+        "slug": "haikal",
+        "title": "Haikal Feroz",
+        "folderId": "1e8sSMQa57-FJV0DnBJ0wJIuUW-s4VkeA",
+        "side": "preview",
+        "id": "18gQEnBVkOc3BVnLOKnMLiq-t6b7Y-uKt",
+        "name": "Screenshot 2026-09-16 161315.png",
+        "src": "/assets/classic-comparison/haikal-preview.png",
+        "bytes": 719263,
+        "mimeType": "image/png"
+      },
+      "real": {
+        "slug": "haikal",
+        "title": "Haikal Feroz",
+        "folderId": "1e8sSMQa57-FJV0DnBJ0wJIuUW-s4VkeA",
+        "side": "real",
+        "id": "1NsISnpKODlMl4wRhygCDr7gbR6lbtvFC",
+        "name": "IMG_20260828_113440.jpg",
+        "src": "/assets/classic-comparison/haikal-real.jpg",
+        "bytes": 2281571,
+        "mimeType": "image/jpeg"
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
+import { getClassicPackage } from '../src/classicPricing.js';
 
 export const PAYMENT_TIERS = Object.freeze({
   basic: { amount: 150, packageName: 'Pakej 8 Huruf', min: 1, max: 8 },
@@ -19,9 +20,10 @@ export function resolvePayment(order = {}) {
   const characterCount = countBillableCharacters(text);
   const estimatedPrice = Number(order.estimatedPrice);
   if (order.pricingModel === 'classic-package') {
-    const tier = characterCount ? (characterCount <= 8 ? 'basic' : characterCount <= 15 ? 'plus' : 'custom') : 'custom';
     if (!characterCount && order.tier !== 'custom') throw new Error('Teks neon diperlukan.');
-    return { ...PAYMENT_TIERS[tier], tier, characterCount, text };
+    const classicPackage = getClassicPackage(characterCount);
+    const tier = characterCount ? classicPackage.tier : 'custom';
+    return { ...PAYMENT_TIERS[tier], amount: classicPackage.price ?? 100, tier, characterCount, text };
   }
   if (!text && order.tier === 'custom') return { ...PAYMENT_TIERS.custom, tier: 'custom', characterCount, text };
   if (!Number.isFinite(estimatedPrice) || estimatedPrice < 150) throw new Error('Harga anggaran configurator tidak sah.');

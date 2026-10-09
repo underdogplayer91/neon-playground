@@ -3,6 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { limitNeonInput, tokenizeNeonText, useFittedNeonText } from './neonText';
 import { getMetaAttribution, trackMetaEventOnce } from './metaPixel';
 import { createDisplayReference } from './orderReference';
+import { ClassicCustomerSlider } from './ClassicCustomerSlider';
+import { ClassicComparison } from './ClassicComparison';
+import { getClassicPackage } from './classicPricing';
+import { getClassicSizeGuide } from './classicSizing';
+import { ClassicSizeGuides } from './ClassicSizeGuides';
 const EmptyIcon = () => null;
 const ArrowDown = EmptyIcon, ArrowRight = EmptyIcon, Check = EmptyIcon, Eye = EmptyIcon;
 const Heart = EmptyIcon, InstagramLogo = EmptyIcon, Lightning = EmptyIcon, MapPin = EmptyIcon;
@@ -29,33 +34,6 @@ const colors = [
   { id: 'purple', label: 'Purple', value: '#9b45ff', glow: '155,69,255' },
   { id: 'yellow', label: 'Yellow', value: '#ffe13b', glow: '255,225,59' },
   { id: 'orange', label: 'Orange', value: '#ff941f', glow: '255,148,31' },
-];
-const portfolioItems = [
-  { src: '/assets/media/gallery-storefront.webp', title: 'Signage pintu kedai', type: 'Kedai fizikal' },
-  { src: '/assets/contoh-hasil/1.jpeg', title: 'Event', type: 'Tulisan custom' },
-  { src: '/assets/media/IMG_20260625_143521.jpg', title: 'AL-ARJANS', type: 'Logo & tulisan' },
-  { src: '/assets/media/gallery-jiwa-yogulp.webp', title: 'Jiwa Yogulp', type: 'Depan cermin' },
-  { src: '/assets/media/WhatsApp Image 2024-03-12 at 3.30.06 PM.jpeg', title: 'MEK BIHA LOKCING', type: 'Signage gerai' },
-  { src: '/assets/media/gallery-happy-birthday.webp', title: 'Happy Birthday', type: 'Majlis & dekorasi' },
-];
-const posterSlides = [
-  { src: '/assets/contoh-hasil/1.jpeg', alt: 'Contoh hasil neon LED 1' },
-  { src: '/assets/contoh-hasil/2.png', alt: 'Contoh hasil neon LED 2' },
-  { src: '/assets/contoh-hasil/3.jpg', alt: 'Contoh hasil neon LED 3' },
-  { src: '/assets/contoh-hasil/4.jpg', alt: 'Contoh hasil neon LED 4' },
-  { src: '/assets/contoh-hasil/AYAM GORENG RM1.jpg', alt: 'Neon Ayam Goreng RM1' },
-  { src: '/assets/contoh-hasil/AYAM GUNTING.jpg', alt: 'Neon Ayam Gunting' },
-  { src: '/assets/contoh-hasil/EZZATI CATERING.jpg', alt: 'Neon Ezzati Catering' },
-  { src: '/assets/contoh-hasil/KAK ZAN NASI AYAM TUMPAT.jpg', alt: 'Neon Kak Zan Nasi Ayam Tumpat' },
-  { src: '/assets/contoh-hasil/open rehat close.png', alt: 'Neon Open Rehat Close' },
-  { src: '/assets/contoh-hasil/TERATAK POKOK RHU.jpg', alt: 'Neon Teratak Pokok Rhu' },
-  { src: '/assets/contoh-hasil/WAK IKHSAN KEBAB.jpg', alt: 'Neon Wak Ikhsan Kebab' },
-  { src: '/assets/contoh-hasil/WhatsApp Image 2024-02-04 at 4.25.46 PM.jpeg', alt: 'Contoh hasil neon LED pelanggan' },
-  { src: '/assets/contoh-hasil/WhatsApp Image 2024-03-28 at 1.57.21 PM.jpeg', alt: 'Contoh hasil neon LED pelanggan' },
-  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-16 at 13.06.07_074a8094.jpg', alt: 'Contoh hasil neon LED pelanggan' },
-  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-16 at 13.23.55_18c51137.jpg', alt: 'Contoh hasil neon LED pelanggan' },
-  { src: '/assets/contoh-hasil/WhatsApp Image 2024-09-26 at 15.33.26_a38948c2.jpg', alt: 'Contoh hasil neon LED pelanggan' },
-  { src: '/assets/contoh-hasil/WhatsApp Image 2024-11-13 at 15.01.07_f2881413.jpg', alt: 'Contoh hasil neon LED pelanggan' },
 ];
 const testimonials = [
   {
@@ -93,32 +71,7 @@ const heroImage = {
   src: '/assets/hero-storefront-v2.png',
   alt: 'Kedai Kopi Jiwa dengan neon pada cermin dalam paparan siang dan malam',
 };
-const realResultSlides = [
-  {
-    src: '/assets/contoh-hasil/haikal-feroz-neon.jpg',
-    title: 'Haikal Feroz',
-    font: 'Avante',
-    alt: 'Hasil sebenar neon Haikal Feroz yang telah siap',
-  },
-  {
-    src: '/assets/contoh-hasil/michael-jackson-neon.jpg',
-    title: 'Michael Jackson',
-    font: 'Barcelona',
-    alt: 'Hasil sebenar neon Michael Jackson yang telah siap',
-  },
-];
 const countCharacters = (value) => [...value.replace(/\s/g, '')].length;
-const getEstimatedCustomPrice = (count) => {
-  if (count <= 15) return null;
-  const extraCharacters = count - 15;
-  return 200 + (Math.floor(extraCharacters / 10) * 100) + ((extraCharacters % 10) * 12);
-};
-const getPackage = (count) => {
-  if (!count) return { name: 'Belum dipilih', price: null, tier: 'none' };
-  if (count <= 8) return { name: 'Pakej 8 Huruf', price: 150, tier: 'basic' };
-  if (count <= 15) return { name: 'Pakej 15 Huruf', price: 200, tier: 'plus' };
-  return { name: 'Design Custom', price: null, tier: 'custom', estimatedPrice: getEstimatedCustomPrice(count) };
-};
 const ORDER_KEY = 'yh-neon-checkout-order';
 
 function Header() {
@@ -137,17 +90,15 @@ export function ClassicPage() {
   const [wordColorIds, setWordColorIds] = useState({ 0: 'pink', 1: 'yellow', 2: 'pink' });
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [colorMessage, setColorMessage] = useState('');
-  const [previewMode, setPreviewMode] = useState('preview');
-  const [activeRealResult, setActiveRealResult] = useState(0);
   const [isOtherFontsOpen, setIsOtherFontsOpen] = useState(false);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(3);
-  const [activePosterSlide, setActivePosterSlide] = useState(0);
   const previewStageRef = useRef(null);
   const nameFieldRef = useRef(null);
   const namePromptTimerRef = useRef(null);
   const characterCount = countCharacters(text);
-  const selectedPackage = getPackage(characterCount);
+  const selectedPackage = getClassicPackage(characterCount);
+  const sizeGuide = getClassicSizeGuide(text);
   const displayText = text.trim() || 'tulis nama anda';
   const selectedFont = fonts.find((font) => font.id === fontId);
   const selectedColor = colors.find((color) => color.id === colorId);
@@ -155,7 +106,7 @@ export function ClassicPage() {
   const wordTokens = previewTokens.filter((token) => token.type === 'word');
   const activeColorId = colorMode === 'multi' ? (wordColorIds[activeWordIndex] || colorId) : colorId;
   const getWordColor = (wordIndex) => colors.find((color) => color.id === (wordColorIds[wordIndex] || colorId)) || selectedColor;
-  const previewFontSize = useFittedNeonText(previewStageRef, displayText, selectedFont.family);
+  const previewFontSize = useFittedNeonText(previewStageRef, displayText, selectedFont.family, { widthRatio: 0.84, singleLineHeightRatio: 0.45, multiLineHeightRatio: 0.65 });
   useEffect(() => {
     if (window.location.hash) return;
     const playground = document.getElementById('playground');
@@ -179,24 +130,6 @@ export function ClassicPage() {
       face.load().then((loaded) => document.fonts.add(loaded)).catch(() => {});
     });
   }, []);
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
-    const timer = window.setInterval(() => {
-      setActivePosterSlide((current) => {
-        let next = current;
-        while (next === current) next = Math.floor(Math.random() * posterSlides.length);
-        return next;
-      });
-    }, 3800);
-    return () => window.clearInterval(timer);
-  }, []);
-  useEffect(() => {
-    if (previewMode !== 'real' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
-    const timer = window.setInterval(() => {
-      setActiveRealResult((current) => (current + 1) % realResultSlides.length);
-    }, 3800);
-    return () => window.clearInterval(timer);
-  }, [previewMode]);
   useEffect(() => {
     if (activeWordIndex >= wordTokens.length) setActiveWordIndex(Math.max(0, wordTokens.length - 1));
   }, [activeWordIndex, wordTokens.length]);
@@ -318,7 +251,7 @@ export function ClassicPage() {
 
     <section className="playground-section" id="playground">
       <div className="section-intro light"><p className="eyebrow"><Lightning weight="fill" /> Neon Playground</p><h2>Tulis perkataan anda.<br /><em>Biar ia menyala.</em></h2><p className="playground-prompt">Tak tahu nak tulis apa? Cuba nama anda, nama kedai, barang yang dijual, tajuk podcast, hiasan bilik, kata-kata hikmah atau quote untuk kafe.</p></div>
-      <div className={`configurator ${previewMode}`}>
+      <div className="configurator preview">
         <div className="controls-panel">
           <div className="field-head"><span>01</span><label htmlFor="shop-name">Taip nama kedai anda</label></div>
           <textarea ref={nameFieldRef} id="shop-name" className={showNamePrompt ? 'name-attention' : ''} value={text} maxLength={240} rows={4} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => { setText(limitNeonInput(e.target.value)); interact(); }} placeholder="Masukkan nama anda" />
@@ -376,13 +309,16 @@ export function ClassicPage() {
           <div className="color-options" role="radiogroup">{colors.map((color) => <button key={color.id} className={activeColorId === color.id ? 'selected' : ''} style={{ '--swatch': color.value }} onClick={() => chooseColor(color.id)} aria-label={colorMode === 'multi' ? `${color.label} untuk ${wordTokens[activeWordIndex]?.value || 'perkataan'}` : color.label} role="radio" aria-checked={activeColorId === color.id} />)}</div>
           {colorMessage && <p className="color-message" role="status">{colorMessage}</p>}
         </div>
-        <div className="preview-stage" ref={previewStageRef}>
-          <div className="mode-toggle" aria-label="Jenis paparan">
-            <button type="button" className={previewMode === 'preview' ? 'active' : ''} aria-pressed={previewMode === 'preview'} onClick={() => { setPreviewMode('preview'); interact(); }}>Preview</button>
-            <button type="button" className={previewMode === 'real' ? 'active' : ''} aria-pressed={previewMode === 'real'} onClick={() => { setPreviewMode('real'); setActiveRealResult(0); interact(); }}>Gambar Sebenar</button>
-          </div>
-          {previewMode === 'preview' ? <>
+        <div className={`preview-stage classic-preview-stage ${sizeGuide ? 'classic-sized-preview' : ''}`}>
+          <a className="classic-preview-results-link" href="#classic-playground-results" onClick={(event) => {
+            const target = document.getElementById('classic-playground-results');
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+            window.history.replaceState(null, '', '#classic-playground-results');
+          }}>Lihat gambar sebenar <span aria-hidden="true">↓</span></a>
             <img className="preview-wall" src="/assets/configurator-wall-branded.png" alt="Preview neon pada dinding sebelum ditempah" />
+            <div className="classic-preview-artwork" ref={previewStageRef}>
             {colorMode === 'single'
               ? <div className="neon-text" data-text={displayText} style={{ '--neon': selectedColor.value, '--glow': selectedColor.glow, fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{displayText}</div>
               : <div className="neon-text multi-color" style={{ fontFamily: selectedFont.family, fontSize: `${previewFontSize}px`, lineHeight: 1 }}>{previewTokens.map((token, index) => {
@@ -390,33 +326,9 @@ export function ClassicPage() {
                 const wordColor = getWordColor(token.wordIndex);
                 return <span className="neon-word" key={`${token.value}-${index}`} data-text={token.value} style={{ '--neon': wordColor.value, '--glow': wordColor.glow }}>{token.value}</span>;
               })}</div>}
+            </div>
+            <ClassicSizeGuides guide={sizeGuide} />
             {!text.trim() && <span className="preview-hint">Taip untuk mula lihat hasil</span>}
-          </> : <>
-            <div className="real-result-slides" aria-live="polite">
-              {realResultSlides.map((slide, index) => <div
-                key={slide.src}
-                className={`real-result-slide ${activeRealResult === index ? 'active' : ''}`}
-                aria-hidden={activeRealResult !== index}
-              >
-                <img className="real-result-backdrop" src={slide.src} alt="" aria-hidden="true" />
-                <img className="real-result-image" src={slide.src} alt={slide.alt} />
-              </div>)}
-            </div>
-            <div className="real-result-caption">
-              <div><span>Hasil sebenar</span><strong>{realResultSlides[activeRealResult].title} - Tulisan {realResultSlides[activeRealResult].font}</strong></div>
-              <div className="real-result-pagination" aria-label="Pilih gambar hasil sebenar">
-                {realResultSlides.map((slide, index) => <button
-                  type="button"
-                  key={slide.src}
-                  className={activeRealResult === index ? 'active' : ''}
-                  aria-label={`Lihat hasil ${slide.title}`}
-                  aria-current={activeRealResult === index ? 'true' : undefined}
-                  onClick={() => setActiveRealResult(index)}
-                />)}
-              </div>
-              <small>{String(activeRealResult + 1).padStart(2, '0')} / {String(realResultSlides.length).padStart(2, '0')}</small>
-            </div>
-          </>}
         </div>
       </div>
       <div className="live-summary" aria-live="polite">
@@ -427,13 +339,15 @@ export function ClassicPage() {
       <a className="testimonial-jump" href="#testimoni">Lihat Apa Kata Pelanggan Kami <ArrowDown weight="bold" /></a>
     </section>
 
+    <ClassicComparison />
+
     <section className="pricing" id="harga">
-      <div className="section-intro"><p className="eyebrow"><Palette weight="fill" /> Tiga cara untuk mula</p><h2>Pilih pakej siap<br /><em>atau design custom.</em></h2><p>RM150 dan RM200 menghasilkan neon berdasarkan teks, font dan warna dalam configurator. Lebih banyak huruf menghasilkan rekaan lebih panjang, tertakluk pada had saiz pakej.</p></div>
+      <div className="section-intro"><p className="eyebrow"><Palette weight="fill" /> Tiga cara untuk mula</p><h2>Pilih pakej siap<br /><em>atau design custom.</em></h2><p>Sehingga 8 huruf RM150. Untuk 9–15 huruf, harga meningkat secara beransur mengikut bilangan huruf sehingga RM200. Teks, font dan warna ikut pilihan anda dalam configurator.</p></div>
       <div className="price-list">
         <article className={selectedPackage.tier === 'basic' ? 'active' : ''}><span className="package-number">01</span><div><p>Ikut configurator · panjang bawah 60 cm</p><h3>Sehingga 8 huruf</h3></div><strong>RM150</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
-        <article className={selectedPackage.tier === 'plus' ? 'active' : ''}><span className="package-number">02</span><div><p>Ikut configurator · panjang bawah 85 cm</p><h3>Sehingga 15 huruf</h3></div><strong>RM200</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
+        <article className={selectedPackage.tier === 'plus' ? 'active' : ''}><span className="package-number">02</span><div><p>9–15 huruf · panjang bawah 85 cm</p><h3>Sehingga 15 huruf</h3><p>Harga ikut bilangan huruf: RM157–RM200</p></div><strong className={selectedPackage.tier === 'plus' ? undefined : 'classic-price-range'}>{selectedPackage.tier === 'plus' ? `RM${selectedPackage.price}` : 'RM157–200'}</strong><a href="#playground">Cuba pakej ini <ArrowRight /></a></article>
         <article className="custom-package"><span className="package-number">03</span><div><p>Deposit design sahaja</p><h3>Custom size & design</h3></div><strong>RM100</strong><a href="/checkout" onClick={prepareCustomCheckout}>Tempah design custom <ArrowRight /></a></article>
-      </div><div className="pricing-clarity"><p><strong>RM150 / RM200:</strong> panjang rekaan bertambah mengikut jumlah huruf—di bawah 60 cm untuk RM150 dan di bawah 85 cm untuk RM200.</p><p><strong>Lebih 15 huruf:</strong> harga yang dinyatakan ialah anggaran dan hampir 90% tepat. Kami akan menghubungi anda melalui WhatsApp untuk mengesahkan harga yang tepat.</p><p><strong>Deposit RM100:</strong> sebagai tanda komitmen tempahan bagi teks melebihi 15 huruf atau rekaan custom. Selepas bayaran, kami akan menghubungi anda melalui WhatsApp. Deposit ditolak daripada harga akhir.</p><p><strong>Penghantaran:</strong> caj standard RM20 dan dibayar oleh penerima apabila barang dihantar, kecuali jika voucher Free Shipping aktif.</p></div>
+      </div><div className="pricing-clarity"><p><strong>Harga ikut bilangan huruf:</strong> 1–8 huruf RM150. Harga 9–15 huruf naik beransur hingga RM200, dibundarkan ke ringgit terdekat. Contoh: 9 huruf RM157 dan 10 huruf RM164. Panjang rekaan di bawah 60 cm untuk 1–8 huruf dan di bawah 85 cm untuk 9–15 huruf.</p><p><strong>Lebih 15 huruf:</strong> harga yang dinyatakan ialah anggaran dan hampir 90% tepat. Kami akan menghubungi anda melalui WhatsApp untuk mengesahkan harga yang tepat.</p><p><strong>Deposit RM100:</strong> sebagai tanda komitmen tempahan bagi teks melebihi 15 huruf atau rekaan custom. Selepas bayaran, kami akan menghubungi anda melalui WhatsApp. Deposit ditolak daripada harga akhir.</p><p><strong>Penghantaran:</strong> caj standard RM20 dan dibayar oleh penerima apabila barang dihantar, kecuali jika voucher Free Shipping aktif.</p></div>
     </section>
 
     <section className="package-includes" id="dalam-pakej" aria-labelledby="package-includes-title">
@@ -447,14 +361,7 @@ export function ClassicPage() {
 
     <section className="inspiration" id="inspirasi">
       <div className="section-intro light"><p className="eyebrow">Hasil sebenar pelanggan</p><h2>Bukan gambar AI.<br /><em>Ini neon yang dah siap.</em></h2><p>Contoh sebenar daripada tempahan pelanggan—diambil dalam keadaan dan lokasi sebenar.</p></div>
-      <div className="real-gallery">{portfolioItems.map((item, index) => <figure key={item.src} className={index === 0 ? 'wide' : ''}><img src={item.src} alt={`${item.title}, hasil neon LED sebenar`} loading="lazy" /><figcaption><span>{item.type}</span><strong>{item.title}</strong></figcaption></figure>)}</div>
-      <div className="type-poster">
-        <div className="poster-copy"><span>01 / CONTOH HASIL</span><h3>Contoh hasil sebenar<br /><em>daripada Neon Playground</em><br />di atas.</h3><p>Gunakan configurator untuk cuba teks, font dan warna sebelum membuat tempahan.</p></div>
-        <figure className="poster-slideshow" aria-label="Slideshow hasil neon sebenar">
-          {posterSlides.map((slide, index) => <img key={slide.src} className={activePosterSlide === index ? 'active' : ''} src={slide.src} alt={slide.alt} aria-hidden={activePosterSlide !== index} loading="lazy" />)}
-          <figcaption><span>Hasil sebenar</span><strong>{String(activePosterSlide + 1).padStart(2, '0')} / {String(posterSlides.length).padStart(2, '0')}</strong></figcaption>
-        </figure>
-      </div>
+      <ClassicCustomerSlider />
     </section>
 
     <section className="transformation-section">
@@ -477,7 +384,7 @@ export function ClassicPage() {
       </figure>
     </section>
 
-    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Adakah RM150 dan RM200 ikut rekaan configurator?</summary><p>Ya. Teks, font dan warna pilihan anda menjadi rujukan tempahan. Pakej RM150 mempunyai panjang bawah 60 cm dan pakej RM200 bawah 85 cm. Semakin banyak huruf, semakin panjang hasilnya sehingga had maksimum pakej.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau teks lebih 15 huruf?</summary><p>Configurator akan memaparkan harga anggaran yang hampir 90% tepat. Anda hanya membayar deposit RM100 semasa checkout; kami akan menghubungi anda melalui WhatsApp untuk mengesahkan harga dan ukuran yang tepat.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah tanda komitmen tempahan bagi teks melebihi 15 huruf, custom size, logo, simbol atau bentuk khas. Selepas bayaran dibuat, kami akan menghubungi anda melalui WhatsApp untuk perbincangan bersama designer. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Caj penghantaran standard ialah RM20 dan dibayar oleh penerima apabila barang dihantar, kecuali jika voucher Free Shipping aktif.</p></details></div></section>
+    <section className="faq" id="faq"><div className="section-intro light"><p className="eyebrow">Soalan biasa</p><h2>Sebelum neon anda<br /><em>mula menyala.</em></h2></div><div className="faq-list"><details><summary>Bagaimana harga 8 hingga 15 huruf dikira?</summary><p>Sehingga 8 huruf ialah RM150. Bagi 9–15 huruf, beza RM50 dibahagikan sama rata kepada 7 huruf tambahan dan jumlah dibundarkan ke ringgit terdekat. Contoh: 9 huruf RM157, 10 huruf RM164 dan 15 huruf RM200. Teks, font dan warna ikut configurator; panjang bawah 60 cm untuk 1–8 huruf dan bawah 85 cm untuk 9–15 huruf.</p></details><details><summary>Bagaimana huruf dikira?</summary><p>Huruf, nombor, tanda baca dan simbol dikira. Ruang serta line break tidak dikira.</p></details><details><summary>Kalau teks lebih 15 huruf?</summary><p>Configurator akan memaparkan harga anggaran yang hampir 90% tepat. Anda hanya membayar deposit RM100 semasa checkout; kami akan menghubungi anda melalui WhatsApp untuk mengesahkan harga dan ukuran yang tepat.</p></details><details><summary>Apakah maksud deposit Design Custom RM100?</summary><p>RM100 ialah tanda komitmen tempahan bagi teks melebihi 15 huruf, custom size, logo, simbol atau bentuk khas. Selepas bayaran dibuat, kami akan menghubungi anda melalui WhatsApp untuk perbincangan bersama designer. Deposit RM100 akan ditolak daripada harga akhir neon custom.</p></details><details><summary>Boleh digunakan di luar kedai?</summary><p>Tawaran standard ialah untuk indoor. Permintaan outdoor memerlukan semakan bahan dan quotation manual melalui WhatsApp.</p></details><details><summary>Adakah pemasangan dan penghantaran termasuk?</summary><p>Pemasangan tidak termasuk. Caj penghantaran standard ialah RM20 dan dibayar oleh penerima apabila barang dihantar, kecuali jika voucher Free Shipping aktif.</p></details></div></section>
     <footer><div className="brand footer-brand"><span>PAKAR LED &amp; NEON</span><i>BY YH</i></div><p>Jangan biar kedai anda tenggelam bila malam.</p><a href="#playground">Cuba nama kedai anda <ArrowRight /></a></footer>
     <div className="mobile-sticky"><div><small>{characterCount ? (selectedPackage.estimatedPrice ? `Anggaran RM${selectedPackage.estimatedPrice}` : selectedPackage.name) : 'Mulakan tempahan'}</small><strong>{characterCount ? (selectedPackage.price ? `RM${selectedPackage.price}` : 'Deposit RM100') : 'Masukkan nama anda'}</strong></div><a className={!characterCount ? 'needs-name' : ''} href={characterCount ? checkoutUrl : '#shop-name'} onClick={handleMobileOrderClick}><ShoppingBagOpen weight="fill" /> Tempah Sekarang</a></div>
   </main>;

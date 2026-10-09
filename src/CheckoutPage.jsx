@@ -6,6 +6,7 @@ import { tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEventOnce } from './metaPixel';
 import { sizingFonts } from './neonSizing';
 import { getCheckoutColourSummary } from './orderSummary';
+import { normalizeClassicCheckoutOrder } from './classicPricing';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -30,7 +31,7 @@ const checkoutSlides = [
 
 const readStoredOrder = () => {
   try {
-    return JSON.parse(window.sessionStorage.getItem(ORDER_KEY));
+    return normalizeClassicCheckoutOrder(JSON.parse(window.sessionStorage.getItem(ORDER_KEY)));
   } catch {
     return null;
   }

@@ -9,6 +9,8 @@ import {
 } from '../server/toyyibpay.js';
 import { buildOrderRecord, mapToyyibPayStatus } from '../server/supabase.js';
 import { validatePaidOrder } from '../server/paidOrder.js';
+import { getClassicPackage } from '../src/classicPricing.js';
+import { buildOwnerOrderEmail, buildOwnerPendingEmail } from '../server/email.js';
 
 test('server charges the full live estimate through RM250 and a RM100 deposit above RM250', () => {
   assert.deepEqual(resolvePayment({ text: 'ABCDEFGH', estimatedPrice: 150 }).amount, 150);
@@ -49,6 +51,23 @@ test('checkout requires a valid customer email', () => {
   assert.throws(() => validateCheckout(order, { ...customer, email: '' }), /Alamat email diperlukan/);
   assert.throws(() => validateCheckout(order, { ...customer, email: 'ali@invalid' }), /Alamat email tidak sah/);
   assert.equal(validateCheckout(order, customer).customer.email, 'ali@example.com');
+});
+
+test('a ten-character Classic design produces an RM164 bill, record and emails with verified payment', () => {
+  const text = 'ABCDEFGHIJ';
+  const configured = getClassicPackage(10);
+  const order = { reference: 'YH_CLASSIC_10', text, pricingModel: 'classic-package', landingSource: 'neon-classic', tier: configured.tier, price: configured.price, estimatedPrice: configured.price };
+  const customer = { name: 'Ali Ahmad', phone: '0123456789', email: 'ali@example.com', address1: 'Jalan Satu', postcode: '43000', city: 'Kajang', state: 'Selangor' };
+  const result = buildBillFields({ order: { ...order, estimatedPrice: 1, price: 1, tier: 'custom', characterCount: 1 }, customer, secretKey: 'test-secret', categoryCode: 'test-category', siteUrl: 'https://example.test' });
+  assert.equal(result.payment.amount, 164);
+  assert.equal(result.payment.tier, 'plus');
+  assert.equal(result.fields.billAmount, '16400');
+  const record = { ...buildOrderRecord({ order, customer, payment: result.payment, reference: order.reference }), bill_code: 'classic10' };
+  assert.equal(record.amount, 164);
+  assert.equal(record.estimated_price, 164);
+  for (const email of [buildOwnerOrderEmail(record), buildOwnerPendingEmail(record)]) assert.match(email.html, /RM\s?164/);
+  assert.doesNotThrow(() => validatePaidOrder(record, { billCode: 'classic10', amount: '164.00' }));
+  assert.throws(() => validatePaidOrder(record, { billCode: 'classic10', amount: '200.00' }), /Jumlah/);
 });
 
 test('callback hash must match ToyyibPay verification formula', () => {

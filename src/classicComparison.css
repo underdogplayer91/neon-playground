@@ -1,0 +1,29 @@
+.classic-comparison{padding:100px clamp(24px,5vw,76px);background:#111318;color:#fff;scroll-margin-top:18px}
+.classic-comparison .section-intro{margin-bottom:34px}
+.classic-comparison .comparison-stage{position:relative;isolation:isolate;overflow:hidden;max-width:1280px;margin:0 auto;background:#080a0e;border:1px solid #30343d;border-radius:18px;box-shadow:0 28px 70px rgba(0,0,0,.32);touch-action:pan-y}
+.classic-comparison .comparison-stage:focus-within{outline:3px solid #548cff;outline-offset:4px}
+.classic-comparison .comparison-collage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));grid-auto-flow:dense;aspect-ratio:1;gap:12px;padding:12px}
+.classic-comparison .comparison-collage figure{position:relative;overflow:hidden;margin:0;min-width:0;min-height:0;background:#050609}
+.classic-comparison .comparison-collage figure.wide{grid-column:span 2}
+.classic-comparison .comparison-collage figure.tall{grid-row:span 2}
+.classic-comparison .comparison-collage img{width:100%;height:100%;display:block;object-fit:contain}
+.classic-comparison .comparison-collage figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;font-size:11px;font-weight:800;text-shadow:0 2px 8px #000}
+.classic-comparison .real-collage{position:absolute;inset:0;clip-path:inset(0 0 0 var(--reality-reveal));z-index:2}
+.classic-comparison .comparison-divider{position:absolute;z-index:3;top:0;bottom:0;left:var(--reality-reveal);width:3px;transform:translateX(-50%);background:#548cff;box-shadow:0 0 0 1px rgba(255,255,255,.35),0 0 18px rgba(84,140,255,.7);pointer-events:none}
+.classic-comparison .comparison-divider span{position:absolute;top:50%;left:50%;width:42px;height:42px;display:grid;place-items:center;transform:translate(-50%,-50%);border:3px solid #548cff;border-radius:50%;background:#fff;color:#315cff;font-size:23px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.classic-comparison .comparison-range{position:absolute;z-index:4;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;touch-action:pan-y}
+.classic-comparison .comparison-side-label{position:absolute;z-index:5;top:22px;padding:8px 10px;border-radius:999px;background:rgba(5,7,11,.78);font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
+.classic-comparison .preview-label{left:22px}
+.classic-comparison .real-label{right:22px}
+.classic-comparison .comparison-hint{text-align:center;margin:16px 0 0;color:#b6b9c2;font-size:12px}
+@media(max-width:760px){
+  .classic-comparison{padding:72px 18px}
+  .classic-comparison .comparison-stage{border-radius:13px}
+  .classic-comparison .comparison-collage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,150px);aspect-ratio:auto;gap:7px;padding:7px}
+  .classic-comparison .comparison-collage figure.tall{grid-row:span 1}
+  .classic-comparison .comparison-collage figcaption{padding:18px 8px 7px;font-size:9px}
+  .classic-comparison .comparison-side-label{top:14px;font-size:8px}
+  .classic-comparison .preview-label{left:14px}
+  .classic-comparison .real-label{right:14px}
+  .classic-comparison .comparison-divider span{width:36px;height:36px;font-size:19px}
+}
