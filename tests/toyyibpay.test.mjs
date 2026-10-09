@@ -95,7 +95,7 @@ test('validated checkout becomes a complete Supabase order record with its Cloud
   assert.deepEqual(record.order_snapshot.designLayers[0], { word: 'KOPI', font: 'Amanda', colour: 'Pink', widthCm: 32.4, heightCm: 15, rotationDeg: -5 });
 });
 
-test('legacy voucher input cannot apply a discount or extended warranty', () => {
+test('legacy voucher input cannot apply a discount or the new warranty claim', () => {
   const record = buildOrderRecord({
     order: { fontName: 'Amanda', colorLabel: 'Pink', wordColors: [], estimatedPrice: 500 },
     customer: { name: 'Ali Ahmad', phone: '0123456789', email: '', address1: 'Jalan Satu', address2: '', postcode: '43000', city: 'Kajang', state: 'Selangor' },
@@ -110,6 +110,22 @@ test('legacy voucher input cannot apply a discount or extended warranty', () => 
   assert.equal(record.order_snapshot.discountedFullPrice, 500);
   assert.equal(record.order_snapshot.warrantyMonthsOriginal, 3);
   assert.equal(record.order_snapshot.warrantyMonths, 3);
+});
+
+test('free warranty claim stores exactly six total months without changing payment or discount', () => {
+  const input = { order: { warrantyVoucherClaimed: true, warrantyMonths: 99, estimatedPrice: 164 }, payment: { amount: 164, text: 'ABCDEFGHIJ', tier: 'plus', characterCount: 10 }, reference: 'YH_WARRANTY' };
+  const claimed = buildOrderRecord(input);
+  assert.equal(claimed.amount, 164);
+  assert.equal(claimed.order_snapshot.warrantyMonthsOriginal, 3);
+  assert.equal(claimed.order_snapshot.warrantyMonths, 6);
+  assert.deepEqual(claimed.order_snapshot.warrantyVoucher, { id: 'warranty-six-month-v1', claimed: true, months: 6 });
+  assert.equal(claimed.order_snapshot.discountPercent, 0);
+  assert.equal(claimed.order_snapshot.discountedFullPrice, 164);
+  for (const value of [false, undefined, 'true', 1]) {
+    const unclaimed = buildOrderRecord({ ...input, order: { ...input.order, warrantyVoucherClaimed: value } });
+    assert.equal(unclaimed.order_snapshot.warrantyMonths, 3);
+    assert.equal(unclaimed.order_snapshot.warrantyVoucher, null);
+  }
 });
 
 test('ToyyibPay callback statuses map to stored payment states', () => {

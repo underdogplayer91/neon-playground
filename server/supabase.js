@@ -94,7 +94,8 @@ export function buildOrderRecord({ order = {}, customer = {}, payment, reference
       discountPercent: 0,
       discountedFullPrice: fullPrice,
       warrantyMonthsOriginal: 3,
-      warrantyMonths: 3,
+      warrantyMonths: order.warrantyVoucherClaimed === true ? 6 : 3,
+      warrantyVoucher: order.warrantyVoucherClaimed === true ? { id: 'warranty-six-month-v1', claimed: true, months: 6 } : null,
       tracking: cleanTracking(order.tracking),
     },
   };

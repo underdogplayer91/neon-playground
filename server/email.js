@@ -100,6 +100,11 @@ const getOrderDesign = (order) => {
   };
 };
 
+const warrantyVoucherRow = (order) => order?.order_snapshot?.warrantyVoucher?.id === 'warranty-six-month-v1'
+  && order.order_snapshot.warrantyVoucher.claimed === true
+  && order.order_snapshot.warrantyMonths === 6
+  ? detailRow('Voucher warranty', 'Diclaim · Jumlah warranty 6 bulan') : '';
+
 const designPreviewBlock = (order) => {
   const design = getOrderDesign(order);
   if (!design.previewUrl) return '';
@@ -150,6 +155,7 @@ export function buildOwnerOrderEmail(order) {
       ${getOrderDesign(order).backboardSize ? detailRow('Saiz keseluruhan board', getOrderDesign(order).backboardSize) : ''}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Bayaran diterima', displayMoney(order.amount))}
+      ${warrantyVoucherRow(order)}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
     ${designLayerTable(order)}
@@ -185,6 +191,7 @@ export function buildOwnerPendingEmail(order) {
       ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
+      ${warrantyVoucherRow(order)}
       ${detailRow('Masa tempahan', order.created_at)}
     </table>
     ${designLayerTable(order)}
@@ -260,6 +267,7 @@ export function buildCustomerOrderEmail(order) {
       ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow(isDeposit ? 'Deposit dibayar' : 'Jumlah dibayar', displayMoney(order.amount))}
+      ${warrantyVoucherRow(order)}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
     ${designLayerTable(order)}
@@ -295,6 +303,7 @@ export function buildCustomerPendingEmail(order) {
       ${getOrderDesign(order).layers.length ? '' : detailRow('Warna', getColorSummary(order))}
       ${detailRow('Pakej', order.package_name)}
       ${detailRow('Jumlah bayaran', displayMoney(order.amount))}
+      ${warrantyVoucherRow(order)}
       ${order.estimated_price ? detailRow('Anggaran harga penuh', displayMoney(order.estimated_price)) : ''}
     </table>
     ${designLayerTable(order)}

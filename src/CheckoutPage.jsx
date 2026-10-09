@@ -5,8 +5,9 @@ import { LANDING_PATHS } from './landingRoutes.js';
 import { tokenizeNeonText, useFittedNeonText } from './neonText';
 import { trackMetaEventOnce } from './metaPixel';
 import { sizingFonts } from './neonSizing';
-import { getCheckoutColourSummary } from './orderSummary';
+import { getCheckoutColourSummary, getCheckoutSizeSummary } from './orderSummary';
 import { normalizeClassicCheckoutOrder } from './classicPricing';
+import { CheckoutWarrantyVoucher } from './CheckoutWarrantyVoucher';
 
 const ORDER_KEY = 'yh-neon-checkout-order';
 const CUSTOMER_KEY = 'yh-neon-checkout-customer';
@@ -116,6 +117,7 @@ async function renderEmailDesignCapture(snapshot) {
 
 export function CheckoutPage() {
   const [order] = useState(readStoredOrder);
+  const [warrantyVoucherClaimed, setWarrantyVoucherClaimed] = useState(() => readStoredOrder()?.warrantyVoucherClaimed === true);
   const orderNeonRef = useRef(null);
   const checkoutFormRef = useRef(null);
   const [error, setError] = useState('');
@@ -189,6 +191,10 @@ export function CheckoutPage() {
   }
 
   const updateField = (event) => setCustomer((current) => ({ ...current, [event.target.name]: event.target.value }));
+  const claimWarrantyVoucher = () => {
+    setWarrantyVoucherClaimed(true);
+    try { window.sessionStorage.setItem(ORDER_KEY, JSON.stringify({ ...order, warrantyVoucherClaimed: true })); } catch { /* Keep this claim for the current checkout even when storage is unavailable. */ }
+  };
   const submitOrder = async (event) => {
     event.preventDefault();
     if (isSubmitting) return;
@@ -226,7 +232,7 @@ export function CheckoutPage() {
       const paymentResponse = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: { ...order, previewUrl: uploadResult.previewUrl, previewPublicId: uploadResult.previewPublicId, designLayers }, customer }),
+        body: JSON.stringify({ order: { ...order, warrantyVoucherClaimed, previewUrl: uploadResult.previewUrl, previewPublicId: uploadResult.previewPublicId, designLayers }, customer }),
       });
       const result = await paymentResponse.json();
       if (!paymentResponse.ok || !result.paymentUrl) throw new Error(result.error || 'Bil pembayaran tidak dapat dicipta.');
@@ -346,11 +352,12 @@ export function CheckoutPage() {
           {order.text && <div><dt>Teks neon</dt><dd>{order.text}</dd></div>}
           {fontSummary && <div><dt>Font</dt><dd>{fontSummary}</dd></div>}
           {colourSummary && <div><dt>Warna</dt><dd>{colourSummary}</dd></div>}
-          <div><dt>Saiz tulisan</dt><dd>{order.sizeNote || 'Akan disahkan selepas design dibincangkan'}</dd></div>
+          <div><dt>Saiz tulisan</dt><dd>{getCheckoutSizeSummary(order)}</dd></div>
           {order.backboardSizeNote && <div><dt>Saiz backboard</dt><dd>{order.backboardSizeNote}</dd></div>}
           {fullPrice > 0 && <div className="full-price-summary"><dt>Harga penuh</dt><dd>RM{Math.round(fullPrice)}</dd></div>}
         </dl>
-        <div className="order-total"><span>{isDepositOrder ? 'Harga deposit' : 'Jumlah dibayar sekarang'}</span><div className="order-total-price"><strong>RM{Math.round(Number(order.price) || 0)}</strong><small>{isDepositOrder ? 'Dibayar sekarang · Ditolak daripada harga penuh' : 'QR PAY disediakan di halaman sebelah'}</small></div></div>
+        <div className="order-total"><span>{isDepositOrder ? 'Harga deposit' : 'Total Harga'}</span><div className="order-total-price"><strong>RM{Math.round(Number(order.price) || 0)}</strong><small>{isDepositOrder ? 'Dibayar sekarang · Ditolak daripada harga penuh' : 'QR PAY disediakan di halaman sebelah'}</small></div></div>
+        <p className="checkout-package-included">Pakej Included Neon + Power Supply + Bracket</p>
         <p className="estimate-note">{isDepositOrder ? 'Harga melebihi RM250 memerlukan deposit RM100. Kami akan menghubungi anda untuk mengesahkan design dan harga akhir; deposit ditolak daripada jumlah akhir.' : 'Jumlah bayaran ini mengikut harga anggaran live dalam configurator.'}</p>
         {testCaptureEnabled && <div className="test-capture-panel"><strong>Mod ujian gambar</strong><p>Upload ke folder Cloudinary test dan hantar email [TEST]. ToyyibPay serta order live tidak digunakan.</p><button type="button" onClick={sendTestPreviewEmail} disabled={testEmailState.status === 'sending'}>{testEmailState.status === 'sending' ? 'Sedang menghantar…' : 'Hantar Email Test Preview'}</button>{testEmailState.message && <small className={testEmailState.status}>{testEmailState.message}</small>}</div>}
       </aside>
@@ -362,6 +369,7 @@ export function CheckoutPage() {
         <div className="checkout-slide-label"><span>Hasil sebenar pelanggan</span><strong>{String(activeCheckoutSlide + 1).padStart(2, '0')} / {String(checkoutSlides.length).padStart(2, '0')}</strong></div>
       </div>
     </section>
+    {!checkoutProgress.open && <CheckoutWarrantyVoucher claimed={warrantyVoucherClaimed} onClaim={claimWarrantyVoucher} />}
     {checkoutProgress.open && <div className="checkout-progress-overlay" role="dialog" aria-modal="true" aria-labelledby="checkout-progress-title">
       <div className="checkout-progress-modal">
         <div className="checkout-progress-modal-head">

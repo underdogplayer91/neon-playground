@@ -28,6 +28,15 @@ const order = {
   },
 };
 
+test('claimed six-month warranty appears in owner/customer pending and paid emails only when claimed', () => {
+  const claimed = { ...order, order_snapshot: { ...order.order_snapshot, warrantyMonths: 6, warrantyVoucher: { id: 'warranty-six-month-v1', claimed: true, months: 6 } } };
+  for (const buildEmail of [buildOwnerOrderEmail, buildOwnerPendingEmail, buildCustomerOrderEmail, buildCustomerPendingEmail]) {
+    assert.match(buildEmail(claimed).html, /Voucher warranty/);
+    assert.match(buildEmail(claimed).html, /Jumlah warranty 6 bulan/);
+    assert.doesNotMatch(buildEmail(order).html, /Voucher warranty/);
+  }
+});
+
 test('owner notification contains the complete order without unsafe customer HTML', () => {
   const email = buildOwnerOrderEmail(order);
   assert.match(email.subject, /YH_TEST_123/);

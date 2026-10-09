@@ -27,10 +27,15 @@ test('all landing pages render, preserve their distinct UI and refer to existing
       } else if (file === 'ClassicPage') {
         assert.doesNotMatch(html, /home-playground-float/);
         assert.match(html, /Sehingga 8 huruf/);
-        assert.match(html, /Sehingga 15 huruf/);
+        const plusCard = html.match(/<article[^>]*><span class="package-number">02<\/span>[\s\S]*?<\/article>/)?.[0];
+        assert.ok(plusCard);
+        assert.match(plusCard, /<h3>9–15 huruf<\/h3>/);
+        assert.match(plusCard, /Saiz 60–85 cm/);
+        assert.match(plusCard, /RM150–RM200/);
+        assert.doesNotMatch(plusCard, /Sehingga 15 huruf|Harga ikut bilangan huruf|RM157/);
+        assert.doesNotMatch(html, /class="pricing-clarity"/);
         assert.match(html, /9 huruf RM157/);
         assert.match(html, /10 huruf RM164/);
-        assert.match(html, /Harga ikut bilangan huruf: RM157–RM200/);
         assert.doesNotMatch(html, /Adakah RM150 dan RM200 ikut rekaan configurator/);
         assert.match(html, /class="hero"/);
         assert.doesNotMatch(html, /Editor susunan perkataan/);
@@ -73,11 +78,12 @@ test('Classic size guide renders both dimension lines as package ranges and noth
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom', ssr: { external: ['react', 'react-dom'] } });
   try {
     const { ClassicSizeGuides } = await vite.ssrLoadModule('/src/ClassicSizeGuides.jsx');
-    for (const [text, width, height] of [['ABCDEFGH', 60, '15–20'], ['ABCDEFGHIJKLMNO', 85, '15–20'], ['ABCD\nEFGH', 60, '20–25'], ['ABCDEFGH\nIJKLMNO', 85, '20–25']]) {
+    for (const [text, width, height] of [['ABCDEFGH', 'Hingga 60 cm', '15–20'], ['ABCDEFGHI', '60–85 cm', '15–20'], ['ABCDEFGHIJKLMNO', '60–85 cm', '15–20'], ['ABCD\nEFGH', 'Hingga 60 cm', '20–25'], ['ABCDEFGH\nIJKLMNO', '60–85 cm', '20–25']]) {
       const html = renderToString(createElement(ClassicSizeGuides, { guide: getClassicSizeGuide(text) }));
       assert.match(html, /classic-height-guide/);
       assert.match(html, /classic-width-guide/);
-      assert.ok(html.includes(`Hingga ${width}`));
+      assert.ok(html.includes(width));
+      assert.ok(!html.includes('Hingga 85 cm'));
       assert.ok(html.includes(height));
       assert.match(html, /bukan ukuran design sebenar/);
     }
@@ -87,6 +93,33 @@ test('Classic size guide renders both dimension lines as package ranges and noth
     const css = readFileSync('src/classic.css', 'utf8');
     assert.match(css, /\.classic-sized-preview \.classic-preview-artwork\{inset:74px 24px 90px 64px\}/);
   } finally { await vite.close(); }
+});
+
+test('checkout labels, package contents and voucher preserve the deposit and measured-size meanings', async () => {
+  const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom', ssr: { external: ['react', 'react-dom'] } });
+  const previousWindow = globalThis.window;
+  try {
+    const { CheckoutPage } = await vite.ssrLoadModule('/src/CheckoutPage.jsx');
+    for (const [order, size, total] of [
+      [{ pricingModel: 'classic-package', text: 'ABCDEFGHIJ', price: 164, tier: 'plus' }, '≤ 85cm', 'Total Harga'],
+      [{ pricingModel: 'classic-package', text: 'ABCDEFGH', price: 150, tier: 'basic', warrantyVoucherClaimed: true }, '≤ 60cm', 'Total Harga'],
+      [{ pricingModel: 'measured', text: 'Kopi', price: 100, estimatedPrice: 400, tier: 'custom', sizeNote: '75 × 30 cm' }, '75 × 30 cm', 'Harga deposit'],
+    ]) {
+      globalThis.window = { sessionStorage: { getItem: () => JSON.stringify(order) } };
+      const html = renderToString(createElement(CheckoutPage));
+      assert.ok(html.includes(size));
+      assert.ok(html.includes(total));
+      assert.match(html, /Pakej Included Neon \+ Power Supply \+ Bracket/);
+      assert.match(html, /checkout-warranty-voucher/);
+      assert.match(html, order.warrantyVoucherClaimed ? /Warranty 6 bulan diclaim/ : /Claim Voucher/);
+      assert.doesNotMatch(html, /Jumlah dibayar sekarang|shipping-voucher-overlay|shipping-voucher-countdown/);
+    }
+    globalThis.window = { sessionStorage: { getItem: () => null } };
+    assert.doesNotMatch(renderToString(createElement(CheckoutPage)), /checkout-warranty-voucher/);
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow;
+    await vite.close();
+  }
 });
 
 test('Classic slider uses every approved Drive image as a valid local JPEG with its source recorded', () => {
